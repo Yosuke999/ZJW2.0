@@ -113,8 +113,13 @@ test("hero separates its fixed image frame from bounded product copy", async () 
   assert.match(hero, /<span className="product-visual"><Image[^>]+\/><\/span>/s);
   assert.match(hero, /<div className="current-product-info" data-product-id=\{product\.id\}>/);
   assert.match(styles, /\.product-visual \{[^}]*height:\s*220px/s);
-  assert.match(styles, /\.product-visual img \{[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
+  assert.match(styles, /\.product-visual \{[^}]*padding:\s*12px/s);
+  assert.match(styles, /\.product-visual img \{[^}]*max-width:\s*calc\(100% - 24px\);[^}]*max-height:\s*calc\(100% - 24px\);[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
   assert.match(styles, /\.current-product-info \{[^}]*height:\s*72px/s);
+  assert.match(styles, /\.current-product-info \{[^}]*transition:\s*opacity 180ms ease/s);
+  assert.match(styles, /\.product-showcase\.is-moving \.current-product-info \{[^}]*opacity:\s*\.28/s);
+  assert.match(styles, /\.stage-item\.side, \.stage-item\.leaving \{[^}]*transform:\s*scale\(\.76\)/s);
+  assert.match(styles, /\.stage-item\.current, \.stage-item\.entering \{[^}]*transform:\s*scale\(\.95\)/s);
   assert.match(styles, /\.track-strip \{[^}]*width:\s*360%;[^}]*margin-left:\s*-130%/s);
   assert.match(styles, /\.showcase-controls \{[^}]*z-index:\s*5/s);
   assert.match(styles, /\.carousel-arrow \{[^}]*width:\s*48px;[^}]*height:\s*48px;[^}]*touch-action:\s*manipulation/s);
