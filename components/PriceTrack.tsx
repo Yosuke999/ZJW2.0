@@ -1,5 +1,5 @@
 import { formatPrice, getPrice } from "@/data/prices";
-import { getTrackShift } from "@/data/carousel.mjs";
+import { getTrackRole, getTrackShift } from "@/data/carousel.mjs";
 import type { CountryCode, Product } from "@/data/types";
 
 export function PriceTrack({ label, products, country, tone, direction }: { label: string; products: Product[]; country: CountryCode; tone: "local" | "china"; direction: 1 | -1 | null }) {
@@ -14,7 +14,7 @@ export function PriceTrack({ label, products, country, tone, direction }: { labe
             const price = getPrice(country, product.id);
             const value = tone === "local" ? price.localRetailPrice : price.chinaReferencePrice;
             return (
-              <span className={`track-item price-item ${slot === 2 ? "current" : "side"}`} key={`${tone}-${product.id}`} data-product-id={product.id}>
+              <span className={`track-item price-item ${getTrackRole(slot, shift)}`} key={`${tone}-${product.id}`} data-product-id={product.id}>
                 {formatPrice(value, price.currency)}
               </span>
             );
