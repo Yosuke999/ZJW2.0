@@ -117,6 +117,13 @@ test("hero separates its fixed image frame from bounded product copy", async () 
   assert.match(styles, /-webkit-line-clamp:\s*2/);
 });
 
+test("product cards contain complete images inside their fixed visual frame", async () => {
+  const styles = await read("app/globals.css");
+  assert.match(styles, /\.card-visual \{[^}]*padding:\s*8px;[^}]*overflow:\s*hidden/s);
+  assert.match(styles, /\.card-visual img \{[^}]*width:\s*auto;[^}]*height:\s*100px;[^}]*max-width:\s*100%;[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.card-visual img \{[^}]*height:\s*150px/s);
+});
+
 test("contact context follows the selected product and language links preserve src", async () => {
   const [portal, contact, header, footer] = await Promise.all([
     read("components/PortalPage.tsx"), read("components/ContactSheet.tsx"), read("components/Header.tsx"), read("components/Footer.tsx"),
