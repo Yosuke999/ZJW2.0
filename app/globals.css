@@ -59,9 +59,9 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .price-item.current, .price-item.entering { opacity: 1; transform: scale(1); }
 .price-item.side, .price-item.leaving { opacity: .38; transform: scale(.78); }
 .price-track.china .price-item { color: #168d83; }
-.showcase-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 9px; }
+.showcase-controls { position: relative; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 9px; }
 .carousel-progress { min-width: 42px; color: var(--muted); text-align: center; font-size: 12px; font-variant-numeric: tabular-nums; }
-.carousel-arrow { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid #c8d5dc; border-radius: 50%; background: white; color: var(--blue); font-size: 21px; line-height: 1; cursor: pointer; }
+.carousel-arrow { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 1px solid #c8d5dc; border-radius: 50%; background: white; color: var(--blue); font-size: 24px; line-height: 1; cursor: pointer; touch-action: manipulation; }
 .carousel-arrow:disabled { opacity: .35; cursor: default; }
 .hero-price-disclaimer { margin: 6px 0 0; color: var(--muted); text-align: center; font-size: 10px; }
 .confirmation-note { margin: 8px 0 0; text-align: center; color: var(--muted); font-size: 11px; }
