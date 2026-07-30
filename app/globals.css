@@ -25,7 +25,8 @@ button { color: inherit; }
 .language-menu { position: relative; z-index: 20; }
 .language-menu summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 13px; border: 1px solid var(--line); border-radius: 12px; background: white; font-size: 14px; font-weight: 700; }
 .language-menu summary::-webkit-details-marker { display: none; }
-.language-shortcut { color: var(--blue); padding-left: 8px; border-left: 1px solid var(--line); }
+.language-chevron { color: var(--blue); font-size: 12px; line-height: 1; transition: transform 160ms ease; }
+.language-menu[open] .language-chevron { transform: rotate(180deg); }
 .language-popover { position: absolute; right: 0; top: calc(100% + 8px); min-width: 178px; padding: 7px; border: 1px solid var(--line); border-radius: 14px; background: white; box-shadow: var(--shadow); }
 .language-popover a { display: block; padding: 11px 12px; color: var(--ink); text-decoration: none; border-radius: 9px; }
 .language-popover a:hover, .language-popover a.active { background: #eef5f8; color: var(--blue); }
@@ -179,7 +180,6 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .site-header { height: auto; min-height: 72px; gap: 8px; }
   .brand { max-width: 62%; font-size: 12px; }
   .language-menu summary { min-height: 38px; padding-inline: 10px; font-size: 12px; }
-  .language-shortcut { display: none; }
   .hero { padding-top: 8px; }
   .hero-copy { margin-bottom: 10px; }
   .hero-copy .eyebrow { font-size: 10px; }

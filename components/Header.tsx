@@ -23,7 +23,7 @@ export function Header({ country, language, copy, source }: { country: CountryCo
       <details className="language-menu">
         <summary aria-label={copy.language}>
           <span>{languageLabels[language]}</span>
-          {language !== "ru" && <span className="language-shortcut">Русский</span>}
+          <span className="language-chevron" aria-hidden="true">▾</span>
         </summary>
         <div className="language-popover">
           {languages.map((item) => (

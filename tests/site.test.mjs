@@ -54,6 +54,14 @@ test("localized brands are used by header, footer, metadata, and html lang", asy
   assert.match(proxy, /x-page-language/);
 });
 
+test("language trigger shows only the current language and a dropdown chevron", async () => {
+  const [header, styles] = await Promise.all([read("components/Header.tsx"), read("app/globals.css")]);
+  assert.match(header, /<span>\{languageLabels\[language\]\}<\/span>/);
+  assert.match(header, /<span className="language-chevron" aria-hidden="true">▾<\/span>/);
+  assert.doesNotMatch(header, /language-shortcut|language !== "ru"/);
+  assert.match(styles, /\.language-menu\[open\] \.language-chevron \{[^}]*transform:\s*rotate\(180deg\)/s);
+});
+
 test("three carousel tracks keep five-item windows, opposite motion, and one center product", () => {
   const ids = ["kettle", "power-bank", "bulb", "earbuds", "dryer"];
   const productTrack = getCarouselWindow(ids, 0);
