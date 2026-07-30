@@ -38,7 +38,11 @@ export function PortalPage({ countryCode, language, source }: { countryCode: Cou
       <HeroCarousel country={countryCode} language={language} copy={copy} onActiveProductChange={handleHeroProductChange} />
       <ProductGrid country={countryCode} language={language} copy={copy} selectedProductId={selectedProductId} onSelect={(productId) => { productCardSelection.current = true; setSelectedProductId(productId); }} />
       <section id="pricing" className="pricing-section shell">
-        <div className="price-note"><span className="eyebrow">{copy.confirmedDate}</span><h2>{copy.priceNoteTitle}</h2><p>{copy.priceNote}</p></div>
+        <div className="price-note">
+          <div className="route-map" aria-hidden="true"><i /><i /><i /><b /></div>
+          <span className="eyebrow">{copy.confirmedDate}</span><h2>{copy.priceNoteTitle}</h2><p>{copy.priceNote}</p>
+        </div>
+        <div className="trade-route" aria-hidden="true"><span /><span /><span /><span /><span /></div>
         <TrustList copy={copy} />
       </section>
       <section className="consult-section shell"><button className="primary-button" onClick={() => openContact("primary")}>{copy.consultOpportunity}</button><p>{copy.consultHelp}</p></section>
