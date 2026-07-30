@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
+import { getCarouselWindow, getTrackShift } from "../data/carousel.mjs";
 import { resolveRoute } from "../data/routes.mjs";
 
 const root = new URL("../", import.meta.url);
@@ -53,15 +54,36 @@ test("localized brands are used by header, footer, metadata, and html lang", asy
   assert.match(proxy, /x-page-language/);
 });
 
-test("hero uses one synchronized product state without automatic rotation", async () => {
+test("three carousel tracks keep five-item windows, opposite motion, and one center product", () => {
+  const ids = ["kettle", "power-bank", "bulb", "earbuds", "dryer"];
+  const productTrack = getCarouselWindow(ids, 0);
+  const chinaTrack = getCarouselWindow(ids, 0);
+  const localTrack = getCarouselWindow(ids, 0, true);
+  assert.deepEqual(productTrack, ["earbuds", "dryer", "kettle", "power-bank", "bulb"]);
+  assert.deepEqual(chinaTrack, productTrack);
+  assert.deepEqual(localTrack, ["bulb", "power-bank", "kettle", "dryer", "earbuds"]);
+  assert.equal(productTrack[2], chinaTrack[2]);
+  assert.equal(productTrack[2], localTrack[2]);
+  assert.equal(getTrackShift(1, "product"), -1);
+  assert.equal(getTrackShift(1, "china"), -1);
+  assert.equal(getTrackShift(1, "local"), 1);
+  assert.equal(getTrackShift(-1, "product"), 1);
+  assert.equal(getTrackShift(-1, "china"), 1);
+  assert.equal(getTrackShift(-1, "local"), -1);
+});
+
+test("hero renders three real synchronized tracks without automatic rotation", async () => {
   const [hero, track, grid] = await Promise.all([read("components/HeroCarousel.tsx"), read("components/PriceTrack.tsx"), read("components/ProductGrid.tsx")]);
-  assert.match(hero, /src=\{product\.image\}/);
+  assert.match(hero, /src=\{item\.image\}/);
   assert.match(grid, /src=\{product\.image\}/);
   assert.doesNotMatch(`${hero}\n${track}`, /10\s*[×x]|DEMO/);
   assert.match(track, /data-product-id=\{product\.id\}/);
-  assert.match(hero, /className="price-comparison" data-product-id=\{product\.id\}/);
-  assert.match(hero, /product=\{product\}/g);
-  assert.doesNotMatch(hero, /STAY_MS|autoTimer|"auto"|carousel-dots|getCarouselWindow|getTrackShift/);
+  assert.match(hero, /getCarouselWindow\(heroProducts, index\)/);
+  assert.match(hero, /getCarouselWindow\(heroProducts, index, true\)/);
+  assert.match(hero, /data-track="product"/);
+  assert.match(track, /data-track=\{tone\}/);
+  assert.match(track, /getTrackShift\(direction, tone\)/);
+  assert.doesNotMatch(hero, /STAY_MS|autoTimer|"auto"|carousel-dots/);
   assert.match(hero, /\{index \+ 1\} \/ \{heroProducts\.length\}/);
   assert.match(hero, /onKeyDown/);
   assert.match(hero, /aria-live="polite"/);
@@ -69,10 +91,10 @@ test("hero uses one synchronized product state without automatic rotation", asyn
 
 test("hero separates its fixed image frame from bounded product copy", async () => {
   const [hero, styles] = await Promise.all([read("components/HeroCarousel.tsx"), read("app/globals.css")]);
-  assert.match(hero, /<div className="hero-image-frame">\s*<Image[^>]+\/>\s*<\/div>\s*<div className="hero-product-info">/s);
-  assert.match(styles, /\.hero-image-frame \{[^}]*height:\s*250px/s);
-  assert.match(styles, /\.hero-image-frame img \{[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
-  assert.match(styles, /\.hero-product-info \{[^}]*min-height:/s);
+  assert.match(hero, /<span className="product-visual"><Image[^>]+\/><\/span>\s*<span className="product-caption">/s);
+  assert.match(styles, /\.product-visual \{[^}]*height:\s*220px/s);
+  assert.match(styles, /\.product-visual img \{[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
+  assert.match(styles, /\.product-caption \{[^}]*height:\s*72px/s);
   assert.match(styles, /-webkit-line-clamp:\s*2/);
 });
 
