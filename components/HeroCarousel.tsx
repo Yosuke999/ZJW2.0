@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
+import { getCarouselWindow, getTrackShift } from "@/data/carousel.mjs";
 import { formatPrice, getPrice } from "@/data/prices";
 import { heroProducts } from "@/data/products";
 import type { Copy } from "@/data/translations";
@@ -9,7 +10,7 @@ import type { CountryCode, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 import { PriceTrack } from "./PriceTrack";
 
-const TRANSITION_MS = 300;
+const TRANSITION_MS = 420;
 const SWIPE_THRESHOLD = 42;
 
 type ChangeReason = "initial" | "manual";
@@ -21,19 +22,23 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const product = heroProducts[index];
   const price = getPrice(country, product.id);
-  const previous = heroProducts[(index - 1 + heroProducts.length) % heroProducts.length];
-  const next = heroProducts[(index + 1) % heroProducts.length];
+  const productWindow = useMemo(() => getCarouselWindow(heroProducts, index), [index]);
+  const localPriceWindow = useMemo(() => getCarouselWindow(heroProducts, index, true), [index]);
+
+  const finishMove = useCallback((delta: 1 | -1) => {
+    const nextIndex = (index + delta + heroProducts.length) % heroProducts.length;
+    const nextProduct = heroProducts[nextIndex];
+    setIndex(nextIndex);
+    setDirection(null);
+    onActiveProductChange(nextProduct.id, "manual");
+  }, [index, onActiveProductChange]);
 
   const move = useCallback((delta: 1 | -1) => {
     if (direction) return;
-    const nextIndex = (index + delta + heroProducts.length) % heroProducts.length;
-    const nextProduct = heroProducts[nextIndex];
     setDirection(delta);
-    setIndex(nextIndex);
-    onActiveProductChange(nextProduct.id, "manual");
-    trackEvent("carousel_manual", { country, language, direction: delta, productId: nextProduct.id });
-    transitionTimer.current = setTimeout(() => setDirection(null), TRANSITION_MS);
-  }, [country, direction, index, language, onActiveProductChange]);
+    trackEvent("carousel_manual", { country, language, direction: delta });
+    transitionTimer.current = setTimeout(() => finishMove(delta), TRANSITION_MS);
+  }, [country, direction, finishMove, language]);
 
   useEffect(() => {
     onActiveProductChange(heroProducts[0].id, "initial");
@@ -54,7 +59,7 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
         <p>{copy.heroSubtitle}</p>
       </div>
       <div
-        className="product-showcase"
+        className={`product-showcase ${direction ? "is-moving" : ""}`}
         tabIndex={0}
         aria-label={copy.popularTitle}
         onKeyDown={(event) => {
@@ -75,25 +80,18 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
         onPointerCancel={() => { dragStart.current = null; }}
       >
         <p className="sr-only" aria-live="polite">{liveSummary}</p>
-        <button className="desktop-preview previous-preview" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={`${copy.previous}: ${previous.name[language]}`}>
-          <Image src={previous.image} alt="" width={180} height={180} />
-        </button>
-        <div className={`showcase-content ${direction === 1 ? "slide-next" : direction === -1 ? "slide-previous" : ""}`} data-product-id={product.id}>
-          <div className="hero-image-frame">
-            <Image src={product.image} alt={product.name[language]} width={600} height={600} priority={index === 0} />
-          </div>
-          <div className="hero-product-info">
-            <strong>{product.name[language]}</strong>
-            <span>{product.specification[language]}</span>
-          </div>
-          <div className="price-comparison" data-product-id={product.id}>
-            <PriceTrack label={copy.localPrice} product={product} country={country} tone="local" />
-            <PriceTrack label={copy.chinaPrice} product={product} country={country} tone="china" />
+        <div className="product-track track-viewport">
+          <div className="track-strip product-strip" data-shift={direction ? getTrackShift(direction, "product") : 0} data-track="product">
+            {productWindow.map((item, slot) => (
+              <div className={`track-item stage-item ${slot === 2 ? "current" : "side"}`} key={item.id} data-product-id={item.id}>
+                <span className="product-visual"><Image src={item.image} alt={slot === 2 ? item.name[language] : ""} width={600} height={600} priority={slot === 2 && index === 0} /></span>
+                <span className="product-caption"><strong>{item.name[language]}</strong><small>{item.specification[language]}</small></span>
+              </div>
+            ))}
           </div>
         </div>
-        <button className="desktop-preview next-preview" onClick={() => move(1)} disabled={Boolean(direction)} aria-label={`${copy.next}: ${next.name[language]}`}>
-          <Image src={next.image} alt="" width={180} height={180} />
-        </button>
+        <PriceTrack label={copy.localPrice} products={localPriceWindow} country={country} tone="local" direction={direction} />
+        <PriceTrack label={copy.chinaPrice} products={productWindow} country={country} tone="china" direction={direction} />
         <div className="showcase-controls">
           <button className="carousel-arrow" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={copy.previous}>‹</button>
           <span className="carousel-progress" aria-hidden="true">{index + 1} / {heroProducts.length}</span>
