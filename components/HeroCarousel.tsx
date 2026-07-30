@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { getCarouselWindow, getTrackShift } from "@/data/carousel.mjs";
+import { createTransitionGate, getCarouselWindow, getTrackRole, getTrackShift } from "@/data/carousel.mjs";
 import { formatPrice, getPrice } from "@/data/prices";
 import { heroProducts } from "@/data/products";
 import type { Copy } from "@/data/translations";
@@ -18,31 +18,45 @@ type ChangeReason = "initial" | "manual";
 export function HeroCarousel({ country, language, copy, onActiveProductChange }: { country: CountryCode; language: Language; copy: Copy; onActiveProductChange: (productId: string, reason: ChangeReason) => void }) {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1 | null>(null);
+  const [resetting, setResetting] = useState(false);
   const dragStart = useRef<{ x: number; y: number } | null>(null);
   const transitionTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetFrame = useRef<number | null>(null);
+  const gate = useRef(createTransitionGate());
   const product = heroProducts[index];
   const price = getPrice(country, product.id);
   const productWindow = useMemo(() => getCarouselWindow(heroProducts, index), [index]);
   const localPriceWindow = useMemo(() => getCarouselWindow(heroProducts, index, true), [index]);
+  const productShift = direction ? getTrackShift(direction, "product") : 0;
 
   const finishMove = useCallback((delta: 1 | -1) => {
     const nextIndex = (index + delta + heroProducts.length) % heroProducts.length;
     const nextProduct = heroProducts[nextIndex];
     setIndex(nextIndex);
     setDirection(null);
+    setResetting(true);
     onActiveProductChange(nextProduct.id, "manual");
+    resetFrame.current = requestAnimationFrame(() => {
+      resetFrame.current = requestAnimationFrame(() => {
+        setResetting(false);
+        gate.current.unlock();
+      });
+    });
   }, [index, onActiveProductChange]);
 
   const move = useCallback((delta: 1 | -1) => {
-    if (direction) return;
+    if (!gate.current.tryLock()) return;
     setDirection(delta);
     trackEvent("carousel_manual", { country, language, direction: delta });
     transitionTimer.current = setTimeout(() => finishMove(delta), TRANSITION_MS);
-  }, [country, direction, finishMove, language]);
+  }, [country, finishMove, language]);
 
   useEffect(() => {
     onActiveProductChange(heroProducts[0].id, "initial");
-    return () => { if (transitionTimer.current) clearTimeout(transitionTimer.current); };
+    return () => {
+      if (transitionTimer.current) clearTimeout(transitionTimer.current);
+      if (resetFrame.current !== null) cancelAnimationFrame(resetFrame.current);
+    };
   }, [onActiveProductChange]);
 
   useEffect(() => {
@@ -59,7 +73,7 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
         <p>{copy.heroSubtitle}</p>
       </div>
       <div
-        className={`product-showcase ${direction ? "is-moving" : ""}`}
+        className={`product-showcase ${direction ? "is-moving" : ""} ${resetting ? "is-resetting" : ""}`}
         tabIndex={0}
         aria-label={copy.popularTitle}
         onKeyDown={(event) => {
@@ -81,14 +95,17 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
       >
         <p className="sr-only" aria-live="polite">{liveSummary}</p>
         <div className="product-track track-viewport">
-          <div className="track-strip product-strip" data-shift={direction ? getTrackShift(direction, "product") : 0} data-track="product">
+          <div className="track-strip product-strip" data-shift={productShift} data-track="product">
             {productWindow.map((item, slot) => (
-              <div className={`track-item stage-item ${slot === 2 ? "current" : "side"}`} key={item.id} data-product-id={item.id}>
+              <div className={`track-item stage-item ${getTrackRole(slot, productShift)}`} key={item.id} data-product-id={item.id}>
                 <span className="product-visual"><Image src={item.image} alt={slot === 2 ? item.name[language] : ""} width={600} height={600} priority={slot === 2 && index === 0} /></span>
-                <span className="product-caption"><strong>{item.name[language]}</strong><small>{item.specification[language]}</small></span>
               </div>
             ))}
           </div>
+        </div>
+        <div className="current-product-info" data-product-id={product.id}>
+          <strong>{product.name[language]}</strong>
+          <span>{product.specification[language]}</span>
         </div>
         <PriceTrack label={copy.localPrice} products={localPriceWindow} country={country} tone="local" direction={direction} />
         <PriceTrack label={copy.chinaPrice} products={productWindow} country={country} tone="china" direction={direction} />

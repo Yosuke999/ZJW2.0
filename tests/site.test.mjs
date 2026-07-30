@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import test from "node:test";
-import { getCarouselWindow, getTrackShift } from "../data/carousel.mjs";
+import { createTransitionGate, getCarouselWindow, getTrackRole, getTrackShift } from "../data/carousel.mjs";
 import { resolveRoute } from "../data/routes.mjs";
 
 const root = new URL("../", import.meta.url);
@@ -70,6 +70,19 @@ test("three carousel tracks keep five-item windows, opposite motion, and one cen
   assert.equal(getTrackShift(-1, "product"), 1);
   assert.equal(getTrackShift(-1, "china"), 1);
   assert.equal(getTrackShift(-1, "local"), -1);
+  assert.deepEqual([0, 1, 2, 3, 4].map((slot) => getTrackRole(slot, -1)), ["side", "side", "leaving", "entering", "side"]);
+  assert.deepEqual([0, 1, 2, 3, 4].map((slot) => getTrackRole(slot, 1)), ["side", "entering", "leaving", "side", "side"]);
+});
+
+test("transition gate rejects rapid repeated moves until the reset completes", () => {
+  const gate = createTransitionGate();
+  assert.equal(gate.tryLock(), true);
+  assert.equal(gate.isLocked(), true);
+  assert.equal(gate.tryLock(), false);
+  assert.equal(gate.tryLock(), false);
+  gate.unlock();
+  assert.equal(gate.isLocked(), false);
+  assert.equal(gate.tryLock(), true);
 });
 
 test("hero renders three real synchronized tracks without automatic rotation", async () => {
@@ -84,6 +97,9 @@ test("hero renders three real synchronized tracks without automatic rotation", a
   assert.match(track, /data-track=\{tone\}/);
   assert.match(track, /getTrackShift\(direction, tone\)/);
   assert.doesNotMatch(hero, /STAY_MS|autoTimer|"auto"|carousel-dots/);
+  assert.match(hero, /createTransitionGate\(\)/);
+  assert.match(hero, /className="current-product-info" data-product-id=\{product\.id\}/);
+  assert.match(hero, /setResetting\(true\)/);
   assert.match(hero, /\{index \+ 1\} \/ \{heroProducts\.length\}/);
   assert.match(hero, /onKeyDown/);
   assert.match(hero, /aria-live="polite"/);
@@ -91,10 +107,13 @@ test("hero renders three real synchronized tracks without automatic rotation", a
 
 test("hero separates its fixed image frame from bounded product copy", async () => {
   const [hero, styles] = await Promise.all([read("components/HeroCarousel.tsx"), read("app/globals.css")]);
-  assert.match(hero, /<span className="product-visual"><Image[^>]+\/><\/span>\s*<span className="product-caption">/s);
+  assert.match(hero, /<span className="product-visual"><Image[^>]+\/><\/span>/s);
+  assert.match(hero, /<div className="current-product-info" data-product-id=\{product\.id\}>/);
   assert.match(styles, /\.product-visual \{[^}]*height:\s*220px/s);
-  assert.match(styles, /\.product-visual img \{[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
-  assert.match(styles, /\.product-caption \{[^}]*height:\s*72px/s);
+  assert.match(styles, /\.product-visual img \{[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
+  assert.match(styles, /\.current-product-info \{[^}]*height:\s*72px/s);
+  assert.match(styles, /\.track-strip \{[^}]*width:\s*360%;[^}]*margin-left:\s*-130%/s);
+  assert.doesNotMatch(styles, /\.product-strip\[data-shift=.*nth-child|\.price-strip\[data-shift=.*nth-child/);
   assert.match(styles, /-webkit-line-clamp:\s*2/);
 });
 
