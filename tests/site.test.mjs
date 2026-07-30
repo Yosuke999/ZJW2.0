@@ -101,6 +101,9 @@ test("hero renders three real synchronized tracks without automatic rotation", a
   assert.match(hero, /className="current-product-info" data-product-id=\{product\.id\}/);
   assert.match(hero, /setResetting\(true\)/);
   assert.match(hero, /\{index \+ 1\} \/ \{heroProducts\.length\}/);
+  assert.equal((hero.match(/type="button" className="carousel-arrow"/g) ?? []).length, 2);
+  assert.match(hero, /onPointerDown=\{\(event\) => event\.stopPropagation\(\)\}/);
+  assert.match(hero, /onPointerUp=\{\(event\) => event\.stopPropagation\(\)\}/);
   assert.match(hero, /onKeyDown/);
   assert.match(hero, /aria-live="polite"/);
 });
@@ -113,6 +116,8 @@ test("hero separates its fixed image frame from bounded product copy", async () 
   assert.match(styles, /\.product-visual img \{[^}]*max-width:\s*100%;[^}]*max-height:\s*100%;[^}]*object-fit:\s*contain;[^}]*object-position:\s*center/s);
   assert.match(styles, /\.current-product-info \{[^}]*height:\s*72px/s);
   assert.match(styles, /\.track-strip \{[^}]*width:\s*360%;[^}]*margin-left:\s*-130%/s);
+  assert.match(styles, /\.showcase-controls \{[^}]*z-index:\s*5/s);
+  assert.match(styles, /\.carousel-arrow \{[^}]*width:\s*48px;[^}]*height:\s*48px;[^}]*touch-action:\s*manipulation/s);
   assert.doesNotMatch(styles, /\.product-strip\[data-shift=.*nth-child|\.price-strip\[data-shift=.*nth-child/);
   assert.match(styles, /-webkit-line-clamp:\s*2/);
 });
