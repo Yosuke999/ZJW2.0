@@ -129,6 +129,8 @@ test("hero separates its fixed image frame from bounded product copy", async () 
   assert.match(styles, /\.stage-item\.side, \.stage-item\.leaving \{[^}]*transform:\s*scale\(\.76\)/s);
   assert.match(styles, /\.stage-item\.current, \.stage-item\.entering \{[^}]*transform:\s*scale\(\.95\)/s);
   assert.match(styles, /\.track-strip \{[^}]*width:\s*360%;[^}]*margin-left:\s*-130%/s);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.track-strip \{[^}]*width:\s*166\.6667%;[^}]*margin-left:\s*-33\.3333%/s);
+  assert.match(styles, /\.price-item\.side, \.price-item\.leaving \{[^}]*visibility:\s*hidden;[^}]*opacity:\s*0/s);
   assert.match(styles, /\.showcase-controls \{[^}]*z-index:\s*5/s);
   assert.match(styles, /\.carousel-arrow \{[^}]*width:\s*48px;[^}]*height:\s*48px;[^}]*touch-action:\s*manipulation/s);
   assert.doesNotMatch(styles, /\.product-strip\[data-shift=.*nth-child|\.price-strip\[data-shift=.*nth-child/);

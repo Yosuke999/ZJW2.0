@@ -59,7 +59,7 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .price-strip { align-items: center; height: 40px; }
 .price-item { display: grid; place-items: center; color: var(--blue); text-align: center; white-space: nowrap; font-size: clamp(20px, 5.6vw, 27px); font-weight: 850; letter-spacing: -.025em; }
 .price-item.current, .price-item.entering { opacity: 1; transform: scale(1); }
-.price-item.side, .price-item.leaving { opacity: .38; transform: scale(.78); }
+.price-item.side, .price-item.leaving { visibility: hidden; opacity: 0; transform: scale(.92); }
 .price-track.china .price-item { color: #168d83; }
 .showcase-controls { position: relative; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 9px; }
 .carousel-progress { min-width: 42px; color: var(--muted); text-align: center; font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -144,11 +144,11 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .hero { padding-top: 28px; min-height: 790px; }
   .hero-copy { max-width: 1020px; margin-bottom: 18px; }
   .hero-copy h1 { font-size: clamp(40px, 4.2vw, 54px); }
-  .track-strip { width: 220%; margin-left: -60%; }
+  .track-strip { width: 166.6667%; margin-left: -33.3333%; }
   .product-track { height: 260px; }
   .product-visual { width: min(250px, calc(100% - 20px)); height: 250px; }
   .current-product-info { height: 78px; }
-  .stage-item.side, .stage-item.leaving { opacity: .4; transform: scale(.76); }
+  .stage-item.side, .stage-item.leaving { opacity: .58; transform: scale(.76); }
   .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
   .card-visual { height: 170px; }
   .card-visual img { height: 150px; }
