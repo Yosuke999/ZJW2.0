@@ -144,6 +144,30 @@ test("product cards contain complete images inside their fixed visual frame", as
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.card-visual img \{[^}]*height:\s*150px/s);
 });
 
+test("product cards open an accessible responsive detail panel before consultation", async () => {
+  const [grid, portal, translations, styles] = await Promise.all([
+    read("components/ProductGrid.tsx"), read("components/PortalPage.tsx"), read("data/translations.ts"), read("app/globals.css"),
+  ]);
+  assert.match(grid, /aria-haspopup="dialog"/);
+  assert.match(grid, /role="dialog" aria-modal="true"/);
+  assert.match(grid, /event\.key === "Escape"/);
+  assert.match(grid, /copy\.referenceDifference/);
+  assert.match(grid, /copy\.differenceDisclaimer/);
+  assert.match(grid, /copy\.landedCostParts\.join/);
+  assert.match(grid, /copy\.landedCostResult/);
+  assert.match(grid, /onConsult\(detailProduct\.id\)/);
+  assert.doesNotMatch(grid, /aria-pressed|is-selected|selectedProduct/);
+  assert.match(portal, /openContact\("product_detail"\)/);
+  assert.match(translations, /consultProduct:\s*"咨询这个商品"/);
+  assert.match(styles, /\.product-detail-panel \{[^}]*height:\s*100dvh/s);
+  assert.match(styles, /\.product-detail-header \{[^}]*position:\s*sticky/s);
+  assert.match(grid, /className="product-detail-image-frame"[\s\S]*<Image[^>]*fill/);
+  assert.match(styles, /\.product-detail-image-frame \{[^}]*position:\s*relative;[^}]*width:\s*100%;[^}]*height:\s*100%/s);
+  assert.match(styles, /\.product-detail-image-frame img \{[^}]*object-fit:\s*contain/s);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.product-detail-backdrop \{[^}]*align-items:\s*center/s);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.product-detail-layout \{[^}]*grid-template-columns:/s);
+});
+
 test("service flow uses two desktop phases and a compact mobile accordion", async () => {
   const [flow, translations, styles] = await Promise.all([
     read("components/ServiceFlow.tsx"), read("data/translations.ts"), read("app/globals.css"),
@@ -171,6 +195,8 @@ test("contact context follows the selected product and language links preserve s
   assert.match(contact, /product\.name\[language\]/);
   assert.match(contact, /product\.id/);
   assert.match(contact, /country\.contact\.telegramUrl/);
+  assert.match(contact, /copy\.contactOutcomes\.map/);
+  assert.match(contact, /copy\.contactOutcomesTitle/);
   assert.doesNotMatch(contact, /t\.me\/share\/url/);
   assert.match(header, /encodeURIComponent\(source\)/);
   assert.match(footer, /encodeURIComponent\(source\)/);

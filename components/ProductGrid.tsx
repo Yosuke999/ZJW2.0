@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { products } from "@/data/products";
 import { getPrice, formatPrice } from "@/data/prices";
@@ -8,9 +8,34 @@ import type { Copy } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 
-export function ProductGrid({ country, language, copy, selectedProductId, onSelect }: { country: CountryCode; language: Language; copy: Copy; selectedProductId: string; onSelect: (productId: string) => void }) {
+export function ProductGrid({ country, language, copy, onConsult }: { country: CountryCode; language: Language; copy: Copy; onConsult: (productId: string) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const [detailProductId, setDetailProductId] = useState<string | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const items = expanded ? products.slice(5) : products.slice(5, 13);
+  const detailProduct = products.find((product) => product.id === detailProductId) ?? null;
+
+  const closeDetails = useCallback(() => {
+    setDetailProductId(null);
+    requestAnimationFrame(() => triggerRef.current?.focus());
+  }, []);
+
+  useEffect(() => {
+    if (!detailProduct) return;
+    closeButtonRef.current?.focus();
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeDetails();
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [closeDetails, detailProduct]);
+
   return (
     <section className="products-section shell" aria-labelledby="products-title">
       <div className="section-heading">
@@ -20,25 +45,70 @@ export function ProductGrid({ country, language, copy, selectedProductId, onSele
       <div className="product-grid">
         {items.map((product) => {
           const price = getPrice(country, product.id);
-          const selected = selectedProductId === product.id;
           return (
-            <button className={`product-card ${selected ? "is-selected" : ""}`} key={product.id} onClick={() => { trackEvent("product_select", { country, language, productId: product.id }); onSelect(product.id); }} aria-pressed={selected} aria-label={product.name[language]}>
+            <button
+              className="product-card"
+              key={product.id}
+              aria-haspopup="dialog"
+              aria-label={`${copy.viewDetails}: ${product.name[language]}`}
+              onClick={(event) => {
+                triggerRef.current = event.currentTarget;
+                setDetailProductId(product.id);
+                trackEvent("product_detail_open", { country, language, productId: product.id });
+              }}
+            >
               <span className="card-visual"><Image src={product.image} alt={product.name[language]} width={480} height={480} /></span>
-              <span className="tag">{selected ? copy.selectedProduct : copy.popularTag}</span>
+              <span className="tag">{copy.popularTag}</span>
               <strong>{product.name[language]}</strong>
               <small>{product.specification[language]}</small>
               <span className="card-price local"><em>{copy.localPrice}</em>{formatPrice(price.localRetailPrice, price.currency)}</span>
               <span className="card-price china"><em>{copy.chinaPrice}</em>{formatPrice(price.chinaReferencePrice, price.currency)}</span>
+              <span className="card-detail-hint">{copy.viewDetails}<b aria-hidden="true">→</b></span>
             </button>
           );
         })}
       </div>
-      <p className="selection-hint" aria-live="polite">{products.some((item) => item.id === selectedProductId && !heroProductsIds.has(item.id)) ? copy.selectedProduct : ""}</p>
       <button className="secondary-button expand-button" onClick={() => { setExpanded((value) => !value); trackEvent("expand_products", { expanded: !expanded, country, language }); }}>
         {expanded ? copy.showLess : copy.showMore}
       </button>
+
+      {detailProduct && (() => {
+        const price = getPrice(country, detailProduct.id);
+        const difference = price.localRetailPrice - price.chinaReferencePrice;
+        return (
+          <div className="product-detail-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeDetails(); }}>
+            <aside className="product-detail-panel" role="dialog" aria-modal="true" aria-labelledby="product-detail-title">
+              <div className="product-detail-header">
+                <span className="product-detail-eyebrow">{copy.productDetails}</span>
+                <button ref={closeButtonRef} type="button" className="product-detail-close" onClick={closeDetails} aria-label={copy.close}>×</button>
+              </div>
+              <div className="product-detail-layout">
+                <div className="product-detail-visual">
+                  <span className="product-detail-image-frame">
+                    <Image src={detailProduct.image} alt={detailProduct.name[language]} fill sizes="(min-width: 760px) 471px, calc(100vw - 40px)" />
+                  </span>
+                </div>
+                <div className="product-detail-content">
+                  <span className="tag">{copy.popularTag}</span>
+                  <h3 id="product-detail-title">{detailProduct.name[language]}</h3>
+                  <p className="product-detail-spec">{detailProduct.specification[language]}</p>
+                  <div className="product-detail-prices">
+                    <div><span>{copy.localPrice}</span><strong>{formatPrice(price.localRetailPrice, price.currency)}</strong></div>
+                    <div><span>{copy.chinaPrice}</span><strong>{formatPrice(price.chinaReferencePrice, price.currency)}</strong></div>
+                  </div>
+                  <div className="product-detail-difference"><span>{copy.referenceDifference}</span><strong>{formatPrice(difference, price.currency)}</strong></div>
+                  <div className="product-detail-cost-path" aria-label={`${copy.landedCostParts.join(" + ")} → ${copy.landedCostResult}`}>
+                    <span>{copy.landedCostParts.join(" + ")}</span>
+                    <strong>→ {copy.landedCostResult}</strong>
+                  </div>
+                  <p className="product-detail-note">{copy.differenceDisclaimer}<br />{copy.priceDisclaimer}<br />{copy.confirmedDate}</p>
+                  <button type="button" className="primary-button product-detail-consult" onClick={() => { trackEvent("product_detail_consult", { country, language, productId: detailProduct.id }); closeDetails(); onConsult(detailProduct.id); }}>{copy.consultProduct}</button>
+                </div>
+              </div>
+            </aside>
+          </div>
+        );
+      })()}
     </section>
   );
 }
-
-const heroProductsIds = new Set(products.slice(0, 5).map((product) => product.id));

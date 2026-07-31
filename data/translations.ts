@@ -14,6 +14,13 @@ export type Copy = {
   popularTag: string;
   showMore: string;
   showLess: string;
+  viewDetails: string;
+  productDetails: string;
+  referenceDifference: string;
+  differenceDisclaimer: string;
+  landedCostParts: [string, string, string];
+  landedCostResult: string;
+  consultProduct: string;
   priceNoteTitle: string;
   priceNote: string;
   trust: string[];
@@ -22,6 +29,8 @@ export type Copy = {
   contactTitle: string;
   demoContact: string;
   contactNote: string;
+  contactOutcomesTitle: string;
+  contactOutcomes: [string, string, string];
   serviceTitle: string;
   servicePhases: {
     label: string;
@@ -64,6 +73,13 @@ export const translations: Record<Language, Copy> = {
     popularTag: "常见热销",
     showMore: "展开更多",
     showLess: "收起商品",
+    viewDetails: "查看详情",
+    productDetails: "商品快速详情",
+    referenceDifference: "参考价差",
+    differenceDisclaimer: "参考价差不等于实际利润。",
+    landedCostParts: ["中国采购参考价", "运输 · 清关 · 税费", "当地交付费用"],
+    landedCostResult: "最终到货成本（需核验）",
+    consultProduct: "咨询这个商品",
     priceNoteTitle: "价格口径说明",
     priceNote: "页面展示同规格商品的当地参考零售价，以及采购10件时的中国进货参考单价。演示价格不含运输、清关、税费及其他附加费用，商品价差不等于利润，实际价格以咨询后的核验结果为准。",
     trust: ["价格持续核验，显示最后确认日期", "从采购到当地交付的流程协助", "吉尔吉斯斯坦、乌兹别克斯坦当地联系人"],
@@ -71,7 +87,9 @@ export const translations: Record<Language, Copy> = {
     consultHelp: "可协助采购、验货、运输、清关、当地交付",
     contactTitle: "选择联系渠道",
     demoContact: "演示联系方式",
-    contactNote: "咨询后将根据数量、规格和交付地点提供完整报价。",
+    contactNote: "准备好商品、数量和目标城市，即可开始核验。",
+    contactOutcomesTitle: "咨询将核验以下三项",
+    contactOutcomes: ["可采购的规格、数量与起订要求", "到目标城市的费用构成与参考总额", "预计运输方式与交付时间范围"],
     serviceTitle: "从看到商品到当地交付",
     servicePhases: [
       { label: "前期确认", range: "01—03", steps: [
@@ -119,6 +137,13 @@ export const translations: Record<Language, Copy> = {
     popularTag: "Популярный товар",
     showMore: "Показать ещё",
     showLess: "Свернуть",
+    viewDetails: "Подробнее",
+    productDetails: "Кратко о товаре",
+    referenceDifference: "Ориентир разницы цен",
+    differenceDisclaimer: "Ориентир разницы цен не равен фактической прибыли.",
+    landedCostParts: ["Закупочная цена в Китае", "перевозка · таможня · налоги", "местная доставка"],
+    landedCostResult: "Итоговая стоимость доставки (требует проверки)",
+    consultProduct: "Узнать об этом товаре",
     priceNoteTitle: "Как понимать цены",
     priceNote: "Показаны ориентировочная местная розничная цена и ориентировочная цена за единицу при закупке 10 штук в Китае. Демо-цены не включают перевозку, таможню, налоги и другие расходы. Разница цен не равна прибыли; фактическая цена проверяется после обращения.",
     trust: ["Цены проверяются, указана дата последней проверки", "Сопровождение от закупки до местной доставки", "Местные контакты в Кыргызстане и Узбекистане"],
@@ -126,7 +151,9 @@ export const translations: Record<Language, Copy> = {
     consultHelp: "Помощь с закупкой, проверкой, перевозкой, таможней и доставкой",
     contactTitle: "Выберите способ связи",
     demoContact: "Демонстрационный контакт",
-    contactNote: "Полное предложение зависит от количества, характеристик и места доставки.",
+    contactNote: "Подготовьте товар, количество и город назначения — с этого начнётся проверка.",
+    contactOutcomesTitle: "При обращении проверим три пункта",
+    contactOutcomes: ["Доступные характеристики, количество и минимальный заказ", "Состав расходов и ориентировочную сумму до вашего города", "Способ перевозки и ориентировочный срок доставки"],
     serviceTitle: "От выбора товара до доставки",
     servicePhases: [
       { label: "Предварительное согласование", range: "01—03", steps: [
@@ -174,6 +201,13 @@ export const translations: Record<Language, Copy> = {
     popularTag: "Кеңири сатылат",
     showMore: "Дагы көрсөтүү",
     showLess: "Жыйноо",
+    viewDetails: "Толук көрүү",
+    productDetails: "Товар тууралуу кыскача",
+    referenceDifference: "Баа айырмасынын багыты",
+    differenceDisclaimer: "Баа айырмасы чыныгы пайдага тең эмес.",
+    landedCostParts: ["Кытайдан алуу баасы", "ташуу · бажы · салык", "жергиликтүү жеткирүү"],
+    landedCostResult: "Акыркы жеткирүү баасы (такталат)",
+    consultProduct: "Бул товарды сураңыз",
     priceNoteTitle: "Баалар тууралуу",
     priceNote: "Бул жерде бирдей мүнөздөмөдөгү товардын жергиликтүү чекене баасы жана Кытайдан 10 даана алганда бир даананын багыттоочу баасы көрсөтүлөт. Демо баага ташуу, бажы, салык жана башка чыгымдар кирбейт. Баалардын айырмасы пайдага барабар эмес; чыныгы баа кайрылуудан кийин такталат.",
     trust: ["Баалар текшерилип, акыркы күн көрсөтүлөт", "Сатып алуудан жергиликтүү жеткирүүгө чейин жардам", "Кыргызстан жана Өзбекстандагы жергиликтүү байланыш"],
@@ -181,7 +215,9 @@ export const translations: Record<Language, Copy> = {
     consultHelp: "Сатып алуу, текшерүү, ташуу, бажы жана жеткирүүгө жардам",
     contactTitle: "Байланыш жолун тандаңыз",
     demoContact: "Демо байланыш",
-    contactNote: "Толук сунуш санга, мүнөздөмөгө жана жеткирүү жерине жараша берилет.",
+    contactNote: "Товарды, санын жана жеткирүү шаарын даярдаңыз — текшерүү ушундан башталат.",
+    contactOutcomesTitle: "Кайрылууда үч нерсе такталат",
+    contactOutcomes: ["Жеткиликтүү мүнөздөмө, сан жана минималдуу заказ", "Шаарга чейинки чыгымдар жана багыттоочу жалпы сумма", "Ташуу ыкмасы жана болжолдуу жеткирүү мөөнөтү"],
     serviceTitle: "Товардан жергиликтүү жеткирүүгө чейин",
     servicePhases: [
       { label: "Алдын ала тактоо", range: "01—03", steps: [
@@ -229,6 +265,13 @@ export const translations: Record<Language, Copy> = {
     popularTag: "Ommabop",
     showMore: "Koʻproq koʻrsatish",
     showLess: "Yigʻish",
+    viewDetails: "Batafsil",
+    productDetails: "Mahsulot tafsilotlari",
+    referenceDifference: "Narxlar farqi",
+    differenceDisclaimer: "Narxlar farqi haqiqiy foydaga teng emas.",
+    landedCostParts: ["Xitoydagi xarid narxi", "tashish · bojxona · soliq", "mahalliy yetkazish"],
+    landedCostResult: "Yakuniy yetib kelish xarajati (tekshiriladi)",
+    consultProduct: "Bu mahsulotni soʻrang",
     priceNoteTitle: "Narxlar haqida",
     priceNote: "Sahifada bir xil xususiyatdagi mahsulotning mahalliy chakana narxi va Xitoydan 10 dona xarid qilingandagi bir dona uchun moʻljal narxi berilgan. Demo narxlarga tashish, bojxona, soliq va boshqa xarajatlar kirmaydi. Narxlar farqi foydaga teng emas; haqiqiy narx murojaatdan keyin tekshiriladi.",
     trust: ["Narxlar tekshiriladi va soʻnggi sana koʻrsatiladi", "Xariddan mahalliy yetkazishgacha koʻmak", "Qirgʻiziston va Oʻzbekistondagi mahalliy aloqa"],
@@ -236,7 +279,9 @@ export const translations: Record<Language, Copy> = {
     consultHelp: "Xarid, tekshiruv, tashish, bojxona va yetkazishda koʻmak",
     contactTitle: "Aloqa usulini tanlang",
     demoContact: "Demo aloqa",
-    contactNote: "Toʻliq taklif miqdor, xususiyat va yetkazish joyiga qarab beriladi.",
+    contactNote: "Mahsulot, miqdor va manzil shahrini tayyorlang — tekshiruv shundan boshlanadi.",
+    contactOutcomesTitle: "Murojaatda uch jihat tekshiriladi",
+    contactOutcomes: ["Mavjud xususiyatlar, miqdor va eng kam buyurtma", "Shahargacha xarajatlar tarkibi va taxminiy jami", "Tashish usuli va taxminiy yetkazish muddati"],
     serviceTitle: "Mahsulotdan mahalliy yetkazishgacha",
     servicePhases: [
       { label: "Dastlabki aniqlash", range: "01—03", steps: [

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { countries } from "@/data/countries";
 import { heroProducts } from "@/data/products";
 import { translations } from "@/data/translations";
@@ -18,16 +18,14 @@ import { Footer } from "./Footer";
 export function PortalPage({ countryCode, language, source }: { countryCode: CountryCode; language: Language; source?: string }) {
   const [contactOpen, setContactOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState(heroProducts[0].id);
-  const productCardSelection = useRef(false);
   const country = countries[countryCode];
   const copy = translations[language];
   const openContact = (origin: string) => {
     trackEvent("consult_click", { country: countryCode, language, origin });
     setContactOpen(true);
   };
-  const handleHeroProductChange = useCallback((productId: string, reason: "initial" | "manual") => {
-    if (reason === "manual") productCardSelection.current = false;
-    if (!productCardSelection.current) setSelectedProductId(productId);
+  const handleHeroProductChange = useCallback((productId: string) => {
+    setSelectedProductId(productId);
   }, []);
   useEffect(() => {
     trackEvent("page_loaded", { country: countryCode, language, src: source });
@@ -36,7 +34,7 @@ export function PortalPage({ countryCode, language, source }: { countryCode: Cou
     <main>
       <Header country={country} language={language} copy={copy} source={source} />
       <HeroCarousel country={countryCode} language={language} copy={copy} onActiveProductChange={handleHeroProductChange} />
-      <ProductGrid country={countryCode} language={language} copy={copy} selectedProductId={selectedProductId} onSelect={(productId) => { productCardSelection.current = true; setSelectedProductId(productId); }} />
+      <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => { setSelectedProductId(productId); openContact("product_detail"); }} />
       <section id="pricing" className="pricing-section shell">
         <div className="price-note">
           <div className="route-map" aria-hidden="true"><i /><i /><i /><b /></div>

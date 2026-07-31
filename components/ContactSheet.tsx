@@ -54,6 +54,14 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
         <span className="eyebrow">{copy.contactCountry}</span>
         <h2 id="contact-title">{copy.contactTitle}</h2>
         <p className="country-name">{country.name[language]} · {product.name[language]}</p>
+        <section className="contact-outcomes" aria-labelledby="contact-outcomes-title">
+          <h3 id="contact-outcomes-title">{copy.contactOutcomesTitle}</h3>
+          <ol>
+            {copy.contactOutcomes.map((outcome, index) => (
+              <li key={outcome}><span aria-hidden="true">{index + 1}</span><p>{outcome}</p></li>
+            ))}
+          </ol>
+        </section>
         <div className="contact-options">
           {channels.map((channel) => (
             <a key={channel.name} href={channel.href} target={channel.name === "Phone" ? undefined : "_blank"} rel="noreferrer" onClick={() => trackEvent("contact_channel_select", { country: country.code, language, channel: channel.name, productId })}>
