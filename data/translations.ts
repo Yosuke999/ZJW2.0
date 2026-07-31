@@ -23,7 +23,11 @@ export type Copy = {
   demoContact: string;
   contactNote: string;
   serviceTitle: string;
-  serviceSteps: string[];
+  servicePhases: {
+    label: string;
+    range: string;
+    steps: { title: string; description: string; duration: string; deliverable: string }[];
+  }[];
   serviceCta: string;
   faqTitle: string;
   faqs: { question: string; answer: string }[];
@@ -69,7 +73,17 @@ export const translations: Record<Language, Copy> = {
     demoContact: "演示联系方式",
     contactNote: "咨询后将根据数量、规格和交付地点提供完整报价。",
     serviceTitle: "从看到商品到当地交付",
-    serviceSteps: ["你看到有价格差的商品", "联系确认商品、数量和预算", "我们匹配中国货源并给出报价", "确认后安排采购、验货、集货、运输和清关", "货到当地，你开始销售"],
+    servicePhases: [
+      { label: "前期确认", range: "01—03", steps: [
+        { title: "发现机会", description: "查看有价格差的商品", duration: "即时", deliverable: "候选商品" },
+        { title: "确认需求", description: "确认商品、数量和预算", duration: "1个工作日", deliverable: "需求确认单" },
+        { title: "匹配货源", description: "核验供应商并提供报价", duration: "2—3个工作日", deliverable: "报价与货源建议" },
+      ] },
+      { label: "履约交付", range: "04—05", steps: [
+        { title: "采购与运输", description: "采购、验货、集货、运输和清关", duration: "按订单确认", deliverable: "验货与物流进度" },
+        { title: "当地交付", description: "到货确认后开始销售", duration: "到货后", deliverable: "交付确认" },
+      ] },
+    ],
     serviceCta: "咨询采购到交付服务",
     faqTitle: "常见问题",
     faqs: [
@@ -114,7 +128,17 @@ export const translations: Record<Language, Copy> = {
     demoContact: "Демонстрационный контакт",
     contactNote: "Полное предложение зависит от количества, характеристик и места доставки.",
     serviceTitle: "От выбора товара до доставки",
-    serviceSteps: ["Вы видите товар с разницей в ценах", "Уточняем товар, количество и бюджет", "Подбираем источник в Китае и готовим предложение", "Организуем закупку, проверку, сбор, перевозку и таможню", "Товар прибывает, и вы начинаете продажи"],
+    servicePhases: [
+      { label: "Предварительное согласование", range: "01—03", steps: [
+        { title: "Найти возможность", description: "Сравнить товар с заметной разницей в ценах", duration: "Сразу", deliverable: "Список товаров" },
+        { title: "Уточнить запрос", description: "Согласовать товар, количество и бюджет", duration: "1 рабочий день", deliverable: "Подтверждённый запрос" },
+        { title: "Подобрать источник", description: "Проверить поставщиков и подготовить цену", duration: "2—3 рабочих дня", deliverable: "Цена и рекомендация" },
+      ] },
+      { label: "Исполнение и доставка", range: "04—05", steps: [
+        { title: "Закупка и перевозка", description: "Закупка, проверка, сбор, перевозка и таможня", duration: "По заказу", deliverable: "Проверка и статус груза" },
+        { title: "Местная передача", description: "Подтвердить получение и начать продажи", duration: "После прибытия", deliverable: "Подтверждение передачи" },
+      ] },
+    ],
     serviceCta: "Узнать о сопровождении доставки",
     faqTitle: "Частые вопросы",
     faqs: [
@@ -159,7 +183,17 @@ export const translations: Record<Language, Copy> = {
     demoContact: "Демо байланыш",
     contactNote: "Толук сунуш санга, мүнөздөмөгө жана жеткирүү жерине жараша берилет.",
     serviceTitle: "Товардан жергиликтүү жеткирүүгө чейин",
-    serviceSteps: ["Баасы айырмаланган товарды көрөсүз", "Товарды, санды жана бюджетти тактайбыз", "Кытайдагы булакты таап, сунуш беребиз", "Сатып алуу, текшерүү, топтоо, ташуу жана бажыны уюштурабыз", "Товар келгенде сатууну баштайсыз"],
+    servicePhases: [
+      { label: "Алдын ала тактоо", range: "01—03", steps: [
+        { title: "Мүмкүнчүлүктү табуу", description: "Баасы айырмаланган товарды көрүү", duration: "Дароо", deliverable: "Тандалган товарлар" },
+        { title: "Талапты тактоо", description: "Товарды, санды жана бюджетти тактоо", duration: "1 иш күнү", deliverable: "Такталган талап" },
+        { title: "Булакты тандоо", description: "Жеткирүүчүлөрдү текшерип, баа берүү", duration: "2—3 иш күнү", deliverable: "Баа жана сунуш" },
+      ] },
+      { label: "Аткаруу жана жеткирүү", range: "04—05", steps: [
+        { title: "Сатып алуу жана ташуу", description: "Сатып алуу, текшерүү, топтоо, ташуу жана бажы", duration: "Буйрутма боюнча", deliverable: "Текшерүү жана жүк абалы" },
+        { title: "Жергиликтүү тапшыруу", description: "Товарды кабыл алып, сатууну баштоо", duration: "Келгенден кийин", deliverable: "Тапшыруу ырастамасы" },
+      ] },
+    ],
     serviceCta: "Жеткирүү кызматын сураңыз",
     faqTitle: "Көп берилген суроолор",
     faqs: [
@@ -204,7 +238,17 @@ export const translations: Record<Language, Copy> = {
     demoContact: "Demo aloqa",
     contactNote: "Toʻliq taklif miqdor, xususiyat va yetkazish joyiga qarab beriladi.",
     serviceTitle: "Mahsulotdan mahalliy yetkazishgacha",
-    serviceSteps: ["Narxi farq qiladigan mahsulotni koʻrasiz", "Mahsulot, miqdor va budjetni aniqlaymiz", "Xitoydagi manbani topib, taklif beramiz", "Xarid, tekshiruv, yigʻish, tashish va bojxonani tashkil qilamiz", "Mahsulot kelgach, sotishni boshlaysiz"],
+    servicePhases: [
+      { label: "Dastlabki aniqlash", range: "01—03", steps: [
+        { title: "Imkoniyatni topish", description: "Narxi farq qiladigan mahsulotni koʻrish", duration: "Darhol", deliverable: "Tanlangan mahsulotlar" },
+        { title: "Talabni aniqlash", description: "Mahsulot, miqdor va budjetni tasdiqlash", duration: "1 ish kuni", deliverable: "Tasdiqlangan talab" },
+        { title: "Manbani tanlash", description: "Yetkazib beruvchini tekshirib, narx berish", duration: "2—3 ish kuni", deliverable: "Narx va tavsiya" },
+      ] },
+      { label: "Bajarish va yetkazish", range: "04—05", steps: [
+        { title: "Xarid va tashish", description: "Xarid, tekshiruv, yigʻish, tashish va bojxona", duration: "Buyurtma boʻyicha", deliverable: "Tekshiruv va yuk holati" },
+        { title: "Mahalliy topshirish", description: "Qabulni tasdiqlab, sotishni boshlash", duration: "Yetib kelgach", deliverable: "Topshirish tasdigʻi" },
+      ] },
+    ],
     serviceCta: "Yetkazish xizmatini soʻrang",
     faqTitle: "Koʻp soʻraladigan savollar",
     faqs: [

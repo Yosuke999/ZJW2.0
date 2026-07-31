@@ -144,6 +144,23 @@ test("product cards contain complete images inside their fixed visual frame", as
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.card-visual img \{[^}]*height:\s*150px/s);
 });
 
+test("service flow uses two desktop phases and a compact mobile accordion", async () => {
+  const [flow, translations, styles] = await Promise.all([
+    read("components/ServiceFlow.tsx"), read("data/translations.ts"), read("app/globals.css"),
+  ]);
+  assert.match(translations, /servicePhases:\s*\[/);
+  assert.match(translations, /label:\s*"前期确认"[\s\S]*range:\s*"01—03"/);
+  assert.match(translations, /label:\s*"履约交付"[\s\S]*range:\s*"04—05"/);
+  assert.match(flow, /className="service-phases"/);
+  assert.match(flow, /className="service-mobile"/);
+  assert.match(flow, /<details key=\{step\.title\} open=\{stepIndex === 0\}>/);
+  assert.match(flow, /step\.duration/);
+  assert.match(flow, /step\.deliverable/);
+  assert.match(styles, /\.service-phases \{ display:\s*none;/);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-mobile \{ display:\s*none;/);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-phases \{ display:\s*grid;/);
+});
+
 test("contact context follows the selected product and language links preserve src", async () => {
   const [portal, contact, header, footer] = await Promise.all([
     read("components/PortalPage.tsx"), read("components/ContactSheet.tsx"), read("components/Header.tsx"), read("components/Footer.tsx"),

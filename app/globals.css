@@ -116,11 +116,30 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .consult-section .primary-button { min-width: min(100%, 320px); font-size: 17px; }
 .consult-section p { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
 .service-section { border-top: 1px solid var(--line); }
-.service-flow { list-style: none; display: grid; padding: 0; margin: 0 0 30px; }
-.service-flow li { position: relative; display: grid; grid-template-columns: 50px 1fr; gap: 13px; min-height: 82px; }
-.service-flow li:not(:last-child)::before { content: ""; position: absolute; left: 20px; top: 44px; bottom: 7px; width: 1px; background: #aac4d1; }
-.service-flow span { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #afc3cf; border-radius: 50%; background: white; color: var(--blue); box-shadow: 0 3px 9px rgba(23,74,126,.045); font-size: 12px; font-weight: 900; }
-.service-flow p { padding-top: 8px; line-height: 1.5; }
+.service-phases { display: none; }
+.service-mobile { display: grid; gap: 28px; margin-bottom: 26px; }
+.mobile-service-phase { --phase-color: var(--teal); }
+.mobile-service-phase.phase-2 { --phase-color: var(--blue); }
+.mobile-phase-heading { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; color: var(--phase-color); }
+.mobile-phase-heading > span { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid color-mix(in srgb, var(--phase-color) 35%, white); border-radius: 50%; background: white; font-weight: 900; }
+.mobile-phase-heading strong { font-size: 18px; }
+.mobile-phase-heading small { font-size: 13px; font-weight: 800; letter-spacing: .04em; }
+.mobile-service-timeline { position: relative; display: grid; gap: 10px; padding-left: 34px; }
+.mobile-service-timeline::before { content: ""; position: absolute; left: 16px; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--phase-color) 38%, white); }
+.mobile-service-timeline details { position: relative; border: 1px solid #d7e1e7; border-radius: 15px; background: rgba(255,255,255,.86); box-shadow: 0 5px 16px rgba(23,74,126,.045); }
+.mobile-service-timeline summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 18px; align-items: center; gap: 9px; min-height: 92px; padding: 14px 12px 14px 46px; list-style: none; cursor: pointer; }
+.mobile-service-timeline summary::-webkit-details-marker { display: none; }
+.mobile-service-timeline .service-number { position: absolute; left: -34px; top: 20px; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid color-mix(in srgb, var(--phase-color) 42%, white); border-radius: 50%; background: var(--canvas); color: var(--phase-color); font-size: 15px; font-weight: 900; }
+.mobile-step-copy { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.mobile-step-copy strong { color: var(--ink); font-size: 16px; }
+.mobile-step-copy small { overflow: hidden; color: var(--muted); font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.service-duration { display: inline-flex; align-items: center; justify-content: center; width: max-content; max-width: 112px; padding: 5px 8px; border-radius: 999px; background: color-mix(in srgb, var(--phase-color) 10%, white); color: var(--phase-color); font-size: 10px; font-weight: 800; white-space: nowrap; }
+.mobile-chevron { color: var(--muted); font-size: 18px; line-height: 1; transition: transform 160ms ease; }
+.mobile-service-timeline details[open] .mobile-chevron { transform: rotate(180deg); }
+.service-deliverable { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 12px; font-weight: 750; }
+.mobile-service-timeline .service-deliverable { margin: 0 12px 14px 46px; padding: 12px; border-radius: 10px; background: #f0f7f7; }
+.service-deliverable b { color: var(--phase-color); font-size: 16px; }
+.service-cta { width: 100%; }
 .faq-list { border-top: 1px solid var(--line); }
 .faq-item { border-bottom: 1px solid var(--line); }
 .faq-item button { width: 100%; min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 15px 2px; border: 0; background: transparent; text-align: left; font-weight: 750; cursor: pointer; }
@@ -173,11 +192,26 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .card-price { font-size: 19px; }
   .trust-list { grid-template-columns: repeat(3, 1fr); }
   .trust-list > div { align-items: flex-start; }
-  .service-flow { grid-template-columns: repeat(5, 1fr); gap: 0; }
-  .service-flow li { grid-template-columns: 1fr; padding-right: 28px; }
-  .service-flow li:not(:last-child)::before { left: 42px; right: 0; top: 20px; bottom: auto; width: auto; height: 1px; }
-  .service-flow span { position: relative; z-index: 1; background: var(--canvas); }
-  .service-flow p { max-width: 175px; }
+  .service-mobile { display: none; }
+  .service-phases { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; margin-bottom: 30px; }
+  .service-phase { --phase-color: var(--teal); position: relative; padding: 42px 10px 10px; border: 1px solid color-mix(in srgb, var(--phase-color) 30%, white); border-radius: 18px; }
+  .service-phase.phase-2 { --phase-color: var(--blue); }
+  .service-phase-heading { position: absolute; top: -19px; left: 50%; display: flex; align-items: center; gap: 8px; padding: 0 12px; transform: translateX(-50%); background: var(--canvas); color: var(--phase-color); white-space: nowrap; }
+  .service-phase-heading > span { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid color-mix(in srgb, var(--phase-color) 32%, white); border-radius: 50%; background: white; font-weight: 900; }
+  .service-phase-heading strong { font-size: 16px; }
+  .service-phase-heading small { font-size: 11px; font-weight: 850; letter-spacing: .05em; }
+  .service-phase ol { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+  .service-phase.phase-1 ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .service-phase.phase-2 ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .service-card { position: relative; display: flex; min-width: 0; min-height: 275px; flex-direction: column; align-items: flex-start; padding: 44px 18px 18px; border: 1px solid #d7e1e7; border-radius: 14px; background: rgba(255,255,255,.88); box-shadow: 0 6px 18px rgba(23,74,126,.045); }
+  .service-card .service-number { position: absolute; top: -24px; left: 50%; display: grid; place-items: center; width: 48px; height: 48px; transform: translateX(-50%); border: 1px solid color-mix(in srgb, var(--phase-color) 42%, white); border-radius: 50%; background: var(--canvas); color: var(--phase-color); font-size: 16px; font-weight: 900; }
+  .service-card-title { display: flex; align-items: center; gap: 8px; color: var(--ink); }
+  .service-card-title i { color: var(--phase-color); font-size: 23px; font-style: normal; line-height: 1; }
+  .service-card-title strong { font-size: 15px; }
+  .service-card > p { min-height: 58px; margin: 18px 0 14px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+  .service-card .service-duration { margin-bottom: 18px; }
+  .service-card .service-deliverable { width: 100%; margin-top: auto; padding-top: 14px; border-top: 1px dashed #d9e2e7; }
+  .service-cta { width: auto; min-width: 270px; }
   .footer-grid { grid-template-columns: 2fr 1fr 1fr; }
   .sheet-backdrop { align-items: center; }
   .contact-sheet { padding: 38px; border-radius: 24px; }
