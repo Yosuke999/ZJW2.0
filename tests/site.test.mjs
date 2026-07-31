@@ -183,6 +183,7 @@ test("product list can be filtered by business-friendly categories", async () =>
   assert.match(translations, /productCategoryLabels:\s*\{ electronics:/);
   assert.match(styles, /\.product-filter \{[^}]*flex-wrap:\s*wrap/s);
   assert.match(styles, /\.product-filter button\.is-active \{/);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.product-filter \{[^}]*justify-content:\s*center/s);
 });
 
 test("service flow uses two desktop phases and a compact mobile accordion", async () => {
@@ -199,34 +200,37 @@ test("service flow uses two desktop phases and a compact mobile accordion", asyn
   assert.match(flow, /step\.deliverable/);
   assert.doesNotMatch(flow, /service-cta|onContact/);
   assert.doesNotMatch(translations, /serviceCta:/);
+  assert.match(styles, /\.service-section \{[^}]*overflow:\s*visible/s);
+  assert.match(styles, /\.service-section::after \{[^}]*right:\s*0;/s);
+  assert.doesNotMatch(styles, /\.service-section::after \{[^}]*right:\s*-/s);
   assert.match(styles, /\.service-phases \{ display:\s*none;/);
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-mobile \{ display:\s*none;/);
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-phases \{ display:\s*grid;/);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-card \{[^}]*overflow:\s*visible/s);
 });
 
-test("pricing explanation moves into a lightweight decision strip", async () => {
-  const [hero, portal, styles] = await Promise.all([
-    read("components/HeroCarousel.tsx"), read("components/PortalPage.tsx"), read("app/globals.css"),
+test("pricing guidance stays only at decision points", async () => {
+  const [hero, portal, grid, styles] = await Promise.all([
+    read("components/HeroCarousel.tsx"), read("components/PortalPage.tsx"), read("components/ProductGrid.tsx"), read("app/globals.css"),
   ]);
   assert.match(hero, /className="hero-cost-strip"/);
   assert.doesNotMatch(hero, /cost-strip-icon/);
   assert.match(hero, /copy\.landedCostParts\.join\(" \+ "\)/);
-  assert.match(hero, /copy\.trust\.map/);
-  assert.doesNotMatch(portal, /TrustList/);
-  assert.doesNotMatch(portal, /route-map|trade-route/);
+  assert.match(hero, /copy\.differenceDisclaimer/);
+  assert.doesNotMatch(hero, /copy\.trust\.map|cost-strip-tags/);
+  assert.doesNotMatch(portal, /TrustList|pricing-section|price-note|route-map|trade-route/);
+  assert.match(grid, /className="product-detail-note"\>\{copy\.differenceDisclaimer\}<br \/>\{copy\.priceDisclaimer\}<\/p>/);
+  assert.doesNotMatch(grid, /className="product-detail-note"[\s\S]*copy\.confirmedDate/);
   assert.match(styles, /\.hero-cost-strip \{[^}]*width:\s*min\(740px, calc\(100% - 24px\)\)/s);
   assert.match(styles, /\.hero-cost-strip \{[^}]*text-align:\s*center/s);
-  assert.match(styles, /\.cost-strip-tags \{[^}]*flex-wrap:\s*wrap/s);
-  assert.match(styles, /\.cost-strip-tags em \{[^}]*overflow-wrap:\s*anywhere/s);
-  assert.match(styles, /\.pricing-section \{[^}]*padding-bottom:\s*28px/s);
-  assert.match(styles, /\.price-note h2 \{[^}]*font-size:\s*22px/s);
-  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.cost-strip-tags \{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/s);
+  assert.doesNotMatch(styles, /pricing-section|price-note|route-map|trade-route|trust-list|cost-strip-tags/);
 });
 
-test("section headings stack before tablet width to protect mobile titles", async () => {
+test("section headings stay centered across desktop and mobile", async () => {
   const styles = await read("app/globals.css");
-  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.section-heading \{[^}]*align-items:\s*center;[^}]*flex-direction:\s*column;[^}]*text-align:\s*center/s);
-  assert.doesNotMatch(styles, /@media \(max-width:\s*430px\)[\s\S]*\.section-heading \{[^}]*flex-direction:\s*column/s);
+  assert.match(styles, /\.section-heading \{[^}]*align-items:\s*center;[^}]*flex-direction:\s*column;[^}]*justify-content:\s*center;[^}]*text-align:\s*center/s);
+  assert.match(styles, /\.section-heading > p \{[^}]*margin:\s*0/s);
+  assert.doesNotMatch(styles, /@media \(max-width:\s*759px\)[\s\S]*\.section-heading/);
 });
 
 test("contact context follows the selected product and language links preserve src", async () => {

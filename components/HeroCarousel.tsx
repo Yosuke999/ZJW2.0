@@ -122,9 +122,6 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
           <span>{copy.priceNoteTitle}</span>
           <strong>{copy.landedCostParts.join(" + ")} = {copy.landedCostResult}</strong>
           <p>{copy.priceDisclaimer} · {copy.differenceDisclaimer}</p>
-          <div className="cost-strip-tags" aria-hidden="true">
-            {copy.trust.map((item) => <em key={item}>{item}</em>)}
-          </div>
         </div>
       </div>
     </section>

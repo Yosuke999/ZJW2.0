@@ -143,7 +143,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
                     <span>{copy.landedCostParts.join(" + ")}</span>
                     <strong>→ {copy.landedCostResult}</strong>
                   </div>
-                  <p className="product-detail-note">{copy.differenceDisclaimer}<br />{copy.priceDisclaimer}<br />{copy.confirmedDate}</p>
+                  <p className="product-detail-note">{copy.differenceDisclaimer}<br />{copy.priceDisclaimer}</p>
                   <button type="button" className="primary-button product-detail-consult" onClick={() => { trackEvent("product_detail_consult", { country, language, productId: detailProduct.id }); closeDetails(); onConsult(detailProduct.id); }}>{copy.consultProduct}</button>
                 </div>
               </div>
