@@ -82,7 +82,7 @@ export const translations: Record<Language, Copy> = {
     priceNoteTitle: "价格口径说明",
     priceNote: "页面展示同规格商品的当地参考零售价，以及采购10件时的中国进货参考单价。演示价格不含运输、清关、税费及其他附加费用，商品价差不等于利润，实际价格以咨询后的核验结果为准。",
     trust: ["价格持续核验，显示最后确认日期", "从采购到当地交付的流程协助", "吉尔吉斯斯坦、乌兹别克斯坦当地联系人"],
-    consultOpportunity: "咨询这个商机",
+    consultOpportunity: "联系我们确认到货方案",
     consultHelp: "可协助采购、验货、运输、清关、当地交付",
     contactTitle: "选择联系渠道",
     demoContact: "演示联系方式",

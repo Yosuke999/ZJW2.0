@@ -80,7 +80,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
             <aside className="product-detail-panel" role="dialog" aria-modal="true" aria-labelledby="product-detail-title">
               <div className="product-detail-header">
                 <span className="product-detail-eyebrow">{copy.productDetails}</span>
-                <button ref={closeButtonRef} type="button" className="product-detail-close" onClick={closeDetails} aria-label={copy.close}>×</button>
+                <button ref={closeButtonRef} type="button" className="product-detail-close" onClick={closeDetails} aria-label={copy.close}><span aria-hidden="true">×</span></button>
               </div>
               <div className="product-detail-layout">
                 <div className="product-detail-visual">

@@ -50,7 +50,7 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
     <div className="sheet-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <div ref={sheetRef} className="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title">
         <div className="sheet-handle" />
-        <button ref={closeRef} className="close-button" onClick={onClose} aria-label={copy.close}>×</button>
+        <button ref={closeRef} className="close-button" onClick={onClose} aria-label={copy.close}><span aria-hidden="true">×</span></button>
         <span className="eyebrow">{copy.contactCountry}</span>
         <h2 id="contact-title">{copy.contactTitle}</h2>
         <p className="country-name">{country.name[language]} · {product.name[language]}</p>

@@ -187,6 +187,31 @@ test("service flow uses two desktop phases and a compact mobile accordion", asyn
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-phases \{ display:\s*grid;/);
 });
 
+test("pricing explanation moves into a lightweight decision strip", async () => {
+  const [hero, portal, styles] = await Promise.all([
+    read("components/HeroCarousel.tsx"), read("components/PortalPage.tsx"), read("app/globals.css"),
+  ]);
+  assert.match(hero, /className="hero-cost-strip"/);
+  assert.doesNotMatch(hero, /cost-strip-icon/);
+  assert.match(hero, /copy\.landedCostParts\.join\(" \+ "\)/);
+  assert.match(hero, /copy\.trust\.map/);
+  assert.doesNotMatch(portal, /TrustList/);
+  assert.doesNotMatch(portal, /route-map|trade-route/);
+  assert.match(styles, /\.hero-cost-strip \{[^}]*width:\s*min\(740px, calc\(100% - 24px\)\)/s);
+  assert.match(styles, /\.hero-cost-strip \{[^}]*text-align:\s*center/s);
+  assert.match(styles, /\.cost-strip-tags \{[^}]*flex-wrap:\s*wrap/s);
+  assert.match(styles, /\.cost-strip-tags em \{[^}]*overflow-wrap:\s*anywhere/s);
+  assert.match(styles, /\.pricing-section \{[^}]*padding-bottom:\s*28px/s);
+  assert.match(styles, /\.price-note h2 \{[^}]*font-size:\s*22px/s);
+  assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.cost-strip-tags \{[^}]*grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/s);
+});
+
+test("section headings stack before tablet width to protect mobile titles", async () => {
+  const styles = await read("app/globals.css");
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.section-heading \{[^}]*flex-direction:\s*column/s);
+  assert.doesNotMatch(styles, /@media \(max-width:\s*430px\)[\s\S]*\.section-heading \{[^}]*flex-direction:\s*column/s);
+});
+
 test("contact context follows the selected product and language links preserve src", async () => {
   const [portal, contact, header, footer] = await Promise.all([
     read("components/PortalPage.tsx"), read("components/ContactSheet.tsx"), read("components/Header.tsx"), read("components/Footer.tsx"),

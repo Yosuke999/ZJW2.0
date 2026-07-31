@@ -110,13 +110,23 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
         <PriceTrack label={copy.localPrice} products={localPriceWindow} country={country} tone="local" direction={direction} />
         <PriceTrack label={copy.chinaPrice} products={productWindow} country={country} tone="china" direction={direction} />
         <div className="showcase-controls" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
-          <button type="button" className="carousel-arrow" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={copy.previous}>‹</button>
+          <button type="button" className="carousel-arrow" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={copy.previous}><span aria-hidden="true">‹</span></button>
           <span className="carousel-progress" aria-hidden="true">{index + 1} / {heroProducts.length}</span>
-          <button type="button" className="carousel-arrow" onClick={() => move(1)} disabled={Boolean(direction)} aria-label={copy.next}>›</button>
+          <button type="button" className="carousel-arrow" onClick={() => move(1)} disabled={Boolean(direction)} aria-label={copy.next}><span aria-hidden="true">›</span></button>
         </div>
         <p className="hero-price-disclaimer">{copy.priceDisclaimer}</p>
       </div>
       <p className="confirmation-note">{copy.confirmedDate}</p>
+      <div className="hero-cost-strip" aria-label={copy.priceNoteTitle}>
+        <div className="cost-strip-copy">
+          <span>{copy.priceNoteTitle}</span>
+          <strong>{copy.landedCostParts.join(" + ")} = {copy.landedCostResult}</strong>
+          <p>{copy.priceDisclaimer} · {copy.differenceDisclaimer}</p>
+          <div className="cost-strip-tags" aria-hidden="true">
+            {copy.trust.map((item) => <em key={item}>{item}</em>)}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }

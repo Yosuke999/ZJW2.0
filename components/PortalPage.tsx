@@ -9,7 +9,6 @@ import { trackEvent } from "@/lib/analytics";
 import { Header } from "./Header";
 import { HeroCarousel } from "./HeroCarousel";
 import { ProductGrid } from "./ProductGrid";
-import { TrustList } from "./TrustList";
 import { ContactSheet } from "./ContactSheet";
 import { ServiceFlow } from "./ServiceFlow";
 import { Faq } from "./Faq";
@@ -37,11 +36,8 @@ export function PortalPage({ countryCode, language, source }: { countryCode: Cou
       <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => { setSelectedProductId(productId); openContact("product_detail"); }} />
       <section id="pricing" className="pricing-section shell">
         <div className="price-note">
-          <div className="route-map" aria-hidden="true"><i /><i /><i /><b /></div>
           <span className="eyebrow">{copy.confirmedDate}</span><h2>{copy.priceNoteTitle}</h2><p>{copy.priceNote}</p>
         </div>
-        <div className="trade-route" aria-hidden="true"><span /><span /><span /><span /><span /></div>
-        <TrustList copy={copy} />
       </section>
       <section className="consult-section shell"><button className="primary-button" onClick={() => openContact("primary")}>{copy.consultOpportunity}</button><p>{copy.consultHelp}</p></section>
       <ServiceFlow copy={copy} />

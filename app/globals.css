@@ -68,7 +68,16 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .showcase-controls { position: relative; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 9px; }
 .carousel-progress { min-width: 42px; color: var(--muted); text-align: center; font-size: 12px; font-variant-numeric: tabular-nums; }
 .carousel-arrow { display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 1px solid #c8d5dc; border-radius: 50%; background: white; color: var(--blue); font-size: 24px; line-height: 1; cursor: pointer; touch-action: manipulation; }
+.carousel-arrow > span, .product-detail-close > span, .close-button > span { display: block; line-height: 1; transform: translateY(-1px); }
+.carousel-arrow > span { font-size: 28px; }
 .carousel-arrow:disabled { opacity: .35; cursor: default; }
+.hero-cost-strip { display: grid; place-items: center; width: min(740px, calc(100% - 24px)); margin: 12px auto 0; padding: 14px 12px; border: 1px solid rgba(34,166,154,.26); border-radius: 16px; background: linear-gradient(115deg, rgba(255,255,255,.96), rgba(239,250,248,.86)); text-align: center; box-shadow: 0 10px 24px rgba(23,74,126,.06); }
+.cost-strip-copy { min-width: 0; }
+.cost-strip-copy > span { display: inline-flex; margin-bottom: 5px; padding: 3px 8px; border: 1px solid rgba(34,166,154,.24); border-radius: 999px; background: white; color: #167a72; font-size: 10px; font-weight: 850; }
+.cost-strip-copy strong { display: block; color: var(--ink); font-size: 14px; line-height: 1.35; }
+.cost-strip-copy p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+.cost-strip-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 9px; }
+.cost-strip-tags em { flex: 1 1 118px; max-width: 100%; padding: 5px 8px; border: 1px solid rgba(191,228,223,.86); border-radius: 999px; background: rgba(255,255,255,.78); color: #167a72; font-size: 10px; font-style: normal; font-weight: 780; line-height: 1.25; overflow-wrap: anywhere; text-align: center; }
 .hero-price-disclaimer { margin: 6px 0 0; color: var(--muted); text-align: center; font-size: 10px; }
 .confirmation-note { margin: 8px 0 0; text-align: center; color: var(--muted); font-size: 11px; }
 .card-visual { display: grid; place-items: center; margin: 0 auto; padding: 8px; overflow: hidden; background: #fff; border-bottom: 1px solid #e4eaed; box-shadow: 0 9px 18px rgba(36,49,60,.07); }
@@ -120,25 +129,26 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .primary-button { border: 1px solid var(--blue); background: var(--blue); color: white; box-shadow: 0 12px 26px rgba(23,74,126,.2); }
 .secondary-button { border: 1px solid #b8c8d1; background: white; color: var(--blue); }
 .expand-button { display: block; margin: 28px auto 0; }
-.pricing-section { padding-top: 20px; }
-.price-note { position: relative; isolation: isolate; overflow: hidden; padding: clamp(24px, 5vw, 48px); border-left: 4px solid var(--teal); border-radius: 0 18px 18px 0; background: linear-gradient(115deg, #fff 76%, #f5faf9); box-shadow: 0 12px 32px rgba(23,74,126,.075); }
+.pricing-section { padding-top: 18px; padding-bottom: 28px; }
+.price-note { position: relative; isolation: isolate; overflow: hidden; padding: 18px 20px; border-left: 3px solid rgba(34,166,154,.72); border-radius: 0 14px 14px 0; background: rgba(255,255,255,.7); box-shadow: 0 8px 20px rgba(23,74,126,.045); }
 .price-note > :not(.route-map) { position: relative; z-index: 1; }
-.route-map { position: absolute; z-index: 0; right: -38px; top: -28px; width: 330px; height: 240px; opacity: .34; transform: rotate(-8deg); background: repeating-linear-gradient(0deg, transparent 0 33px, rgba(23,74,126,.08) 34px 35px), repeating-linear-gradient(90deg, transparent 0 43px, rgba(34,166,154,.08) 44px 45px), rgba(234,248,247,.48); border: 1px solid rgba(34,166,154,.18); border-radius: 46% 54% 62% 38% / 46% 35% 65% 54%; }
+.route-map { position: absolute; z-index: 0; right: -24px; top: 8px; width: 240px; height: 170px; opacity: .2; transform: rotate(-8deg); background: repeating-linear-gradient(0deg, transparent 0 33px, rgba(23,74,126,.08) 34px 35px), repeating-linear-gradient(90deg, transparent 0 43px, rgba(34,166,154,.08) 44px 45px), rgba(234,248,247,.48); border: 1px solid rgba(34,166,154,.18); border-radius: 46% 54% 62% 38% / 46% 35% 65% 54%; }
 .route-map::before { content: ""; position: absolute; left: 35px; top: 91px; width: 210px; height: 78px; border-top: 2px dashed rgba(23,74,126,.32); border-radius: 55% 50% 0 0; transform: rotate(-13deg); }
 .route-map i { position: absolute; display: block; width: 9px; height: 9px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 5px rgba(23,74,126,.09); }
 .route-map i:nth-child(1) { left: 47px; top: 130px; }.route-map i:nth-child(2) { left: 143px; top: 76px; background: var(--teal); box-shadow: 0 0 0 5px rgba(34,166,154,.1); }.route-map i:nth-child(3) { right: 44px; top: 95px; }.route-map b { position: absolute; left: 137px; top: 68px; width: 20px; height: 20px; border: 1px solid rgba(34,166,154,.33); border-radius: 50%; }
-.trade-route { position: relative; display: flex; align-items: center; justify-content: space-between; max-width: 720px; margin: 34px auto 8px; padding: 0 8%; }
+.trade-route { position: relative; display: flex; align-items: center; justify-content: space-between; max-width: 720px; margin: 22px auto 6px; padding: 0 8%; }
 .trade-route::before { content: ""; position: absolute; left: 10%; right: 10%; height: 2px; background: linear-gradient(90deg, var(--blue), var(--teal)); opacity: .3; }
 .trade-route span { position: relative; z-index: 1; width: 13px; height: 13px; border: 3px solid var(--canvas); border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 2px rgba(23,74,126,.3); }.trade-route span:nth-child(3), .trade-route span:nth-child(5) { background: var(--teal); box-shadow: 0 0 0 2px rgba(34,166,154,.32); }
-.trust-list > div { padding: 12px 14px; border: 1px solid rgba(221,229,234,.9); border-radius: 12px; background: rgba(255,255,255,.82); }
+.trust-list > div { min-height: 64px; padding: 10px 14px; border: 1px solid rgba(221,229,234,.9); border-radius: 12px; background: rgba(255,255,255,.82); }
 .service-section { position: relative; overflow: hidden; }
 .service-section::after { content: ""; position: absolute; right: -120px; bottom: -160px; width: 360px; height: 360px; border: 1px solid rgba(34,166,154,.07); border-radius: 50%; box-shadow: 0 0 0 34px rgba(34,166,154,.018), 0 0 0 68px rgba(34,166,154,.012); pointer-events: none; }
-.price-note p { max-width: 900px; margin: 18px 0 0; font-size: 16px; line-height: 1.8; }
-.trust-list { display: grid; gap: 18px; margin-top: 30px; }
-.trust-list > div { display: flex; align-items: center; gap: 14px; }
-.trust-list span { flex: 0 0 38px; display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #bfe4df; border-radius: 50%; color: var(--teal); font-weight: 900; }
-.trust-list p { margin: 0; line-height: 1.45; }
-.consult-section { padding: 16px 0 86px; text-align: center; }
+.price-note h2 { font-size: 22px; letter-spacing: 0; }
+.price-note p { max-width: 940px; margin: 8px 0 0; font-size: 13px; line-height: 1.65; }
+.trust-list { display: grid; gap: 10px; margin-top: 16px; }
+.trust-list > div { display: flex; align-items: center; gap: 12px; }
+.trust-list span { flex: 0 0 34px; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #bfe4df; border-radius: 50%; color: var(--teal); font-weight: 900; }
+.trust-list p { margin: 0; font-size: 14px; line-height: 1.4; }
+.consult-section { padding: 0 0 72px; text-align: center; }
 .consult-section .primary-button { min-width: min(100%, 320px); font-size: 17px; }
 .consult-section p { margin: 14px 0 0; color: var(--muted); font-size: 14px; }
 .service-section { border-top: 1px solid var(--line); }
@@ -214,6 +224,11 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .product-track { height: 260px; }
   .product-visual { width: min(250px, calc(100% - 20px)); height: 250px; }
   .current-product-info { height: 78px; }
+  .hero-cost-strip { width: min(760px, calc(100% - 48px)); margin-top: 14px; padding: 16px 20px; }
+  .cost-strip-copy strong { font-size: 16px; }
+  .cost-strip-copy p { font-size: 12px; }
+  .cost-strip-tags { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cost-strip-tags em { flex-basis: auto; }
   .stage-item.side, .stage-item.leaving { opacity: .58; transform: scale(.76); }
   .product-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
   .card-visual { height: 170px; }
@@ -230,8 +245,10 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .product-detail-panel h3 { font-size: 30px; }
   .product-detail-prices strong { font-size: 23px; }
   .product-detail-consult { position: static; box-shadow: 0 12px 26px rgba(23,74,126,.2); }
+  .price-note { padding: 20px 28px; }
+  .price-note p { max-width: 100%; }
   .trust-list { grid-template-columns: repeat(3, 1fr); }
-  .trust-list > div { align-items: flex-start; }
+  .trust-list > div { align-items: center; }
   .service-mobile { display: none; }
   .service-phases { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; margin-bottom: 30px; }
   .service-phase { --phase-color: var(--teal); position: relative; padding: 42px 10px 10px; border: 1px solid color-mix(in srgb, var(--phase-color) 30%, white); border-radius: 18px; }
@@ -264,6 +281,11 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .track-strip, .track-item { transition: none; }
 }
 
+@media (max-width: 759px) {
+  .section-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .section-heading > p { margin: 0; }
+}
+
 @media (max-width: 430px) {
   .shell { width: min(100% - 24px, 1160px); }
   .site-header { height: auto; min-height: 72px; gap: 8px; }
@@ -282,6 +304,5 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .price-strip { height: 39px; }
   .showcase-controls { margin-top: 7px; }
   .hero-price-disclaimer { margin-top: 4px; }
-  .section-heading { align-items: flex-start; flex-direction: column; }
   .footer-bottom { flex-direction: column; }
 }
