@@ -37,7 +37,6 @@ export type Copy = {
     range: string;
     steps: { title: string; description: string; duration: string; deliverable: string }[];
   }[];
-  serviceCta: string;
   faqTitle: string;
   faqs: { question: string; answer: string }[];
   finalTitle: string;
@@ -102,7 +101,6 @@ export const translations: Record<Language, Copy> = {
         { title: "当地交付", description: "到货确认后开始销售", duration: "到货后", deliverable: "交付确认" },
       ] },
     ],
-    serviceCta: "咨询采购到交付服务",
     faqTitle: "常见问题",
     faqs: [
       { question: "页面价格是否包含运输和清关费用？", answer: `不包含。${cautiousAnswerZh}` },
@@ -166,7 +164,6 @@ export const translations: Record<Language, Copy> = {
         { title: "Местная передача", description: "Подтвердить получение и начать продажи", duration: "После прибытия", deliverable: "Подтверждение передачи" },
       ] },
     ],
-    serviceCta: "Узнать о сопровождении доставки",
     faqTitle: "Частые вопросы",
     faqs: [
       { question: "Включены ли перевозка и таможня?", answer: `Нет. ${cautiousAnswerRu}` },
@@ -230,7 +227,6 @@ export const translations: Record<Language, Copy> = {
         { title: "Жергиликтүү тапшыруу", description: "Товарды кабыл алып, сатууну баштоо", duration: "Келгенден кийин", deliverable: "Тапшыруу ырастамасы" },
       ] },
     ],
-    serviceCta: "Жеткирүү кызматын сураңыз",
     faqTitle: "Көп берилген суроолор",
     faqs: [
       { question: "Баага ташуу жана бажы киреби?", answer: `Жок. ${cautiousAnswerKy}` },
@@ -294,7 +290,6 @@ export const translations: Record<Language, Copy> = {
         { title: "Mahalliy topshirish", description: "Qabulni tasdiqlab, sotishni boshlash", duration: "Yetib kelgach", deliverable: "Topshirish tasdigʻi" },
       ] },
     ],
-    serviceCta: "Yetkazish xizmatini soʻrang",
     faqTitle: "Koʻp soʻraladigan savollar",
     faqs: [
       { question: "Narxga tashish va bojxona kiradimi?", answer: `Yoʻq. ${cautiousAnswerUz}` },

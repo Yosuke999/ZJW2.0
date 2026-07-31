@@ -2,7 +2,7 @@ import type { Copy } from "@/data/translations";
 
 const stepIcons = ["⌕", "✓", "◇", "↗", "◎"];
 
-export function ServiceFlow({ copy, onContact }: { copy: Copy; onContact: () => void }) {
+export function ServiceFlow({ copy }: { copy: Copy }) {
   return (
     <section className="service-section shell" aria-labelledby="service-title">
       <div className="section-heading"><div><span className="eyebrow">01—05</span><h2 id="service-title">{copy.serviceTitle}</h2></div></div>
@@ -56,7 +56,6 @@ export function ServiceFlow({ copy, onContact }: { copy: Copy; onContact: () => 
           );
         })}
       </div>
-      <button className="secondary-button service-cta" onClick={onContact}>{copy.serviceCta}</button>
     </section>
   );
 }

@@ -44,7 +44,7 @@ export function PortalPage({ countryCode, language, source }: { countryCode: Cou
         <TrustList copy={copy} />
       </section>
       <section className="consult-section shell"><button className="primary-button" onClick={() => openContact("primary")}>{copy.consultOpportunity}</button><p>{copy.consultHelp}</p></section>
-      <ServiceFlow copy={copy} onContact={() => openContact("service_flow")} />
+      <ServiceFlow copy={copy} />
       <Faq copy={copy} />
       <section className="final-cta"><div className="shell"><h2>{copy.finalTitle}</h2><button className="primary-button light" onClick={() => openContact("footer_cta")}>{copy.localAdvisor}</button></div></section>
       <div id="privacy" className="privacy-placeholder shell">{copy.privacy} · {copy.demoData}</div>

@@ -180,6 +180,8 @@ test("service flow uses two desktop phases and a compact mobile accordion", asyn
   assert.match(flow, /<details key=\{step\.title\} open=\{stepIndex === 0\}>/);
   assert.match(flow, /step\.duration/);
   assert.match(flow, /step\.deliverable/);
+  assert.doesNotMatch(flow, /service-cta|onContact/);
+  assert.doesNotMatch(translations, /serviceCta:/);
   assert.match(styles, /\.service-phases \{ display:\s*none;/);
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-mobile \{ display:\s*none;/);
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-phases \{ display:\s*grid;/);
