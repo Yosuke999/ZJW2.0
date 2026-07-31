@@ -8,13 +8,32 @@ import type { Copy } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 
+type ProductFilter = "all" | "electronics" | "home" | "personal" | "daily";
+
+const productFilters: ProductFilter[] = ["all", "electronics", "home", "personal", "daily"];
+
+const categoryGroups: Record<Exclude<ProductFilter, "all">, string[]> = {
+  electronics: ["electronics", "lighting", "auto"],
+  home: ["kitchen", "home"],
+  personal: ["personal-care"],
+  daily: ["toys", "bags", "tools"],
+};
+
+const belongsToFilter = (category: string, filter: ProductFilter) => (
+  filter === "all" || categoryGroups[filter].includes(category)
+);
+
 export function ProductGrid({ country, language, copy, onConsult }: { country: CountryCode; language: Language; copy: Copy; onConsult: (productId: string) => void }) {
   const [expanded, setExpanded] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<ProductFilter>("all");
   const [detailProductId, setDetailProductId] = useState<string | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const items = expanded ? products.slice(5) : products.slice(5, 13);
+  const catalogProducts = products.slice(5);
+  const filteredProducts = catalogProducts.filter((product) => belongsToFilter(product.category, activeFilter));
+  const items = activeFilter === "all" && !expanded ? filteredProducts.slice(0, 8) : filteredProducts;
   const detailProduct = products.find((product) => product.id === detailProductId) ?? null;
+  const filterCount = (filter: ProductFilter) => catalogProducts.filter((product) => belongsToFilter(product.category, filter)).length;
 
   const closeDetails = useCallback(() => {
     setDetailProductId(null);
@@ -42,6 +61,27 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
         <div><span className="eyebrow">{copy.demoData}</span><h2 id="products-title">{copy.popularTitle}</h2></div>
         <p>{copy.confirmedDate}</p>
       </div>
+      <div className="product-filter" aria-label={copy.popularTitle}>
+        {productFilters.map((filter) => {
+          const label = filter === "all" ? copy.productCategoryAll : copy.productCategoryLabels[filter];
+          return (
+            <button
+              type="button"
+              key={filter}
+              className={activeFilter === filter ? "is-active" : ""}
+              aria-pressed={activeFilter === filter}
+              onClick={() => {
+                setActiveFilter(filter);
+                setExpanded(false);
+                trackEvent("filter_products", { country, language, filter });
+              }}
+            >
+              <span>{label}</span>
+              <b>{filterCount(filter)}</b>
+            </button>
+          );
+        })}
+      </div>
       <div className="product-grid">
         {items.map((product) => {
           const price = getPrice(country, product.id);
@@ -68,9 +108,11 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
           );
         })}
       </div>
-      <button className="secondary-button expand-button" onClick={() => { setExpanded((value) => !value); trackEvent("expand_products", { expanded: !expanded, country, language }); }}>
-        {expanded ? copy.showLess : copy.showMore}
-      </button>
+      {activeFilter === "all" && (
+        <button className="secondary-button expand-button" onClick={() => { setExpanded((value) => !value); trackEvent("expand_products", { expanded: !expanded, country, language }); }}>
+          {expanded ? copy.showLess : copy.showMore}
+        </button>
+      )}
 
       {detailProduct && (() => {
         const price = getPrice(country, detailProduct.id);

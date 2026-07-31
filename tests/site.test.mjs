@@ -156,7 +156,7 @@ test("product cards open an accessible responsive detail panel before consultati
   assert.match(grid, /copy\.landedCostParts\.join/);
   assert.match(grid, /copy\.landedCostResult/);
   assert.match(grid, /onConsult\(detailProduct\.id\)/);
-  assert.doesNotMatch(grid, /aria-pressed|is-selected|selectedProduct/);
+  assert.doesNotMatch(grid, /is-selected|selectedProduct/);
   assert.match(portal, /openContact\("product_detail"\)/);
   assert.match(translations, /consultProduct:\s*"咨询这个商品"/);
   assert.match(styles, /\.product-detail-panel \{[^}]*height:\s*100dvh/s);
@@ -166,6 +166,23 @@ test("product cards open an accessible responsive detail panel before consultati
   assert.match(styles, /\.product-detail-image-frame img \{[^}]*object-fit:\s*contain/s);
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.product-detail-backdrop \{[^}]*align-items:\s*center/s);
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.product-detail-layout \{[^}]*grid-template-columns:/s);
+});
+
+test("product list can be filtered by business-friendly categories", async () => {
+  const [grid, translations, styles] = await Promise.all([
+    read("components/ProductGrid.tsx"), read("data/translations.ts"), read("app/globals.css"),
+  ]);
+  assert.match(grid, /type ProductFilter = "all" \| "electronics" \| "home" \| "personal" \| "daily"/);
+  assert.match(grid, /const categoryGroups/);
+  assert.match(grid, /copy\.productCategoryAll/);
+  assert.match(grid, /copy\.productCategoryLabels\[filter\]/);
+  assert.match(grid, /aria-pressed=\{activeFilter === filter\}/);
+  assert.match(grid, /setExpanded\(false\)/);
+  assert.match(grid, /trackEvent\("filter_products"/);
+  assert.match(grid, /activeFilter === "all" &&/);
+  assert.match(translations, /productCategoryLabels:\s*\{ electronics:/);
+  assert.match(styles, /\.product-filter \{[^}]*flex-wrap:\s*wrap/s);
+  assert.match(styles, /\.product-filter button\.is-active \{/);
 });
 
 test("service flow uses two desktop phases and a compact mobile accordion", async () => {
@@ -208,7 +225,7 @@ test("pricing explanation moves into a lightweight decision strip", async () => 
 
 test("section headings stack before tablet width to protect mobile titles", async () => {
   const styles = await read("app/globals.css");
-  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.section-heading \{[^}]*flex-direction:\s*column/s);
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.section-heading \{[^}]*align-items:\s*center;[^}]*flex-direction:\s*column;[^}]*text-align:\s*center/s);
   assert.doesNotMatch(styles, /@media \(max-width:\s*430px\)[\s\S]*\.section-heading \{[^}]*flex-direction:\s*column/s);
 });
 

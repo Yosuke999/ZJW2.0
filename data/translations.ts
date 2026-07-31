@@ -12,6 +12,8 @@ export type Copy = {
   confirmedDate: string;
   popularTitle: string;
   popularTag: string;
+  productCategoryAll: string;
+  productCategoryLabels: Record<"electronics" | "home" | "personal" | "daily", string>;
   showMore: string;
   showLess: string;
   viewDetails: string;
@@ -70,6 +72,8 @@ export const translations: Record<Language, Copy> = {
     confirmedDate: "演示价格确认日期：2026.07.28",
     popularTitle: "更多常见热销商品",
     popularTag: "常见热销",
+    productCategoryAll: "全部商品",
+    productCategoryLabels: { electronics: "数码配件", home: "家居小电", personal: "个人护理", daily: "日用百货" },
     showMore: "展开更多",
     showLess: "收起商品",
     viewDetails: "查看详情",
@@ -133,6 +137,8 @@ export const translations: Record<Language, Copy> = {
     confirmedDate: "Дата проверки демо-цен: 28.07.2026",
     popularTitle: "Другие популярные товары",
     popularTag: "Популярный товар",
+    productCategoryAll: "Все товары",
+    productCategoryLabels: { electronics: "Электроника", home: "Дом и быт", personal: "Уход", daily: "Повседневные товары" },
     showMore: "Показать ещё",
     showLess: "Свернуть",
     viewDetails: "Подробнее",
@@ -196,6 +202,8 @@ export const translations: Record<Language, Copy> = {
     confirmedDate: "Демо баа текшерилген күн: 28.07.2026",
     popularTitle: "Дагы кеңири сатылган товарлар",
     popularTag: "Кеңири сатылат",
+    productCategoryAll: "Бардык товарлар",
+    productCategoryLabels: { electronics: "Электроника", home: "Үй үчүн", personal: "Жеке кам көрүү", daily: "Күнүмдүк товарлар" },
     showMore: "Дагы көрсөтүү",
     showLess: "Жыйноо",
     viewDetails: "Толук көрүү",
@@ -259,6 +267,8 @@ export const translations: Record<Language, Copy> = {
     confirmedDate: "Demo narx tekshirilgan sana: 28.07.2026",
     popularTitle: "Yana ommabop mahsulotlar",
     popularTag: "Ommabop",
+    productCategoryAll: "Barcha mahsulotlar",
+    productCategoryLabels: { electronics: "Elektronika", home: "Uy uchun", personal: "Shaxsiy parvarish", daily: "Kundalik tovarlar" },
     showMore: "Koʻproq koʻrsatish",
     showLess: "Yigʻish",
     viewDetails: "Batafsil",
