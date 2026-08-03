@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { products } from "@/data/products";
 import { getPrice, formatPrice } from "@/data/prices";
 import type { Copy } from "@/data/translations";
@@ -97,7 +96,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
                 trackEvent("product_detail_open", { country, language, productId: product.id });
               }}
             >
-              <span className="card-visual"><Image src={product.image} alt={product.name[language]} width={480} height={480} /></span>
+              <span className="card-visual"><img src={product.image} alt={product.name[language]} width={480} height={480} loading="lazy" /></span>
               <span className="tag">{copy.popularTag}</span>
               <strong>{product.name[language]}</strong>
               <small>{product.specification[language]}</small>
@@ -127,7 +126,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
               <div className="product-detail-layout">
                 <div className="product-detail-visual">
                   <span className="product-detail-image-frame">
-                    <Image src={detailProduct.image} alt={detailProduct.name[language]} fill sizes="(min-width: 760px) 471px, calc(100vw - 40px)" />
+                    <img src={detailProduct.image} alt={detailProduct.name[language]} width={600} height={600} />
                   </span>
                 </div>
                 <div className="product-detail-content">

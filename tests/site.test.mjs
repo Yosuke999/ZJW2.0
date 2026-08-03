@@ -118,7 +118,7 @@ test("hero renders three real synchronized tracks without automatic rotation", a
 
 test("hero separates its fixed image frame from bounded product copy", async () => {
   const [hero, styles] = await Promise.all([read("components/HeroCarousel.tsx"), read("app/globals.css")]);
-  assert.match(hero, /<span className="product-visual"><Image[^>]+\/><\/span>/s);
+  assert.match(hero, /<span className="product-visual"><img[^>]+\/><\/span>/s);
   assert.match(hero, /<div className="current-product-info" data-product-id=\{product\.id\}>/);
   assert.match(styles, /\.product-visual \{[^}]*height:\s*220px/s);
   assert.match(styles, /\.product-visual \{[^}]*padding:\s*12px/s);
@@ -161,7 +161,7 @@ test("product cards open an accessible responsive detail panel before consultati
   assert.match(translations, /consultProduct:\s*"咨询这个商品"/);
   assert.match(styles, /\.product-detail-panel \{[^}]*height:\s*100dvh/s);
   assert.match(styles, /\.product-detail-header \{[^}]*position:\s*sticky/s);
-  assert.match(grid, /className="product-detail-image-frame"[\s\S]*<Image[^>]*fill/);
+  assert.match(grid, /className="product-detail-image-frame"[\s\S]*<img[^>]*width=\{600\}[^>]*height=\{600\}/);
   assert.match(styles, /\.product-detail-image-frame \{[^}]*position:\s*relative;[^}]*width:\s*100%;[^}]*height:\s*100%/s);
   assert.match(styles, /\.product-detail-image-frame img \{[^}]*object-fit:\s*contain/s);
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.product-detail-backdrop \{[^}]*align-items:\s*center/s);

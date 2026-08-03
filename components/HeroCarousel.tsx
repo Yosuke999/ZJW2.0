@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import { createTransitionGate, getCarouselWindow, getTrackRole, getTrackShift } from "@/data/carousel.mjs";
 import { formatPrice, getPrice } from "@/data/prices";
 import { heroProducts } from "@/data/products";
@@ -98,7 +97,7 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
           <div className="track-strip product-strip" data-shift={productShift} data-track="product">
             {productWindow.map((item, slot) => (
               <div className={`track-item stage-item ${getTrackRole(slot, productShift)}`} key={item.id} data-product-id={item.id}>
-                <span className="product-visual"><Image src={item.image} alt={slot === 2 ? item.name[language] : ""} width={600} height={600} priority={slot === 2 && index === 0} /></span>
+                <span className="product-visual"><img src={item.image} alt={slot === 2 ? item.name[language] : ""} width={600} height={600} /></span>
               </div>
             ))}
           </div>

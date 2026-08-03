@@ -42,7 +42,7 @@ button { color: inherit; }
 .hero-copy { max-width: 760px; margin: 0 auto 16px; text-align: center; }
 .eyebrow { display: inline-block; color: var(--teal); text-transform: uppercase; letter-spacing: .11em; font-weight: 800; font-size: 12px; }
 h1, h2, h3, p { margin-top: 0; }
-h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); line-height: 1.04; letter-spacing: -.045em; }
+h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); line-height: 1.04; letter-spacing: -.045em; text-wrap: balance; }
 .hero-copy p { max-width: 680px; margin: 0 auto; color: var(--muted); font-size: clamp(15px, 1.8vw, 19px); line-height: 1.45; }
 .product-showcase { position: relative; width: min(820px, 100%); margin: 0 auto; padding: 12px 0 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.34); border-radius: 42px; background: linear-gradient(145deg, rgba(255,255,255,.06) 0%, rgba(255,255,255,.006) 46%, rgba(255,255,255,.022) 100%); box-shadow: inset 0 2px 1px rgba(255,255,255,.58), inset 0 18px 30px rgba(255,255,255,.075), inset 0 -26px 42px rgba(12,23,31,.12), inset 22px 0 34px rgba(100,120,255,.018), inset -22px 0 34px rgba(255,145,190,.016), 0 28px 70px rgba(23,74,126,.13); -webkit-backdrop-filter: blur(2px) saturate(1.1) contrast(1.025); backdrop-filter: blur(2px) saturate(1.1) contrast(1.025); touch-action: pan-y; user-select: none; }
 .product-showcase::before { content: ""; position: absolute; inset: 0; z-index: 0; padding: 2px; border-radius: inherit; background: conic-gradient(from 210deg at 50% 50%, rgba(110,125,255,.2), rgba(255,255,255,.62), rgba(255,165,205,.16), rgba(255,255,255,.5), rgba(125,230,255,.18), rgba(255,255,255,.6), rgba(110,125,255,.2)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; opacity: .58; pointer-events: none; }
@@ -125,7 +125,7 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .product-detail-layout { display: block; }
 .product-detail-visual { display: grid; place-items: center; width: 100%; height: min(42dvh, 350px); margin: 12px 0 18px; padding: 20px; overflow: hidden; border-radius: 16px; background: #f7f9fa; }
 .product-detail-image-frame { position: relative; display: block; width: 100%; height: 100%; min-width: 0; min-height: 0; }
-.product-detail-image-frame img { object-fit: contain; object-position: center; }
+.product-detail-image-frame img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; }
 .product-detail-content { min-width: 0; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
 .product-detail-panel h3 { margin: 9px 0 5px; color: var(--ink); font-size: 24px; line-height: 1.2; }
 .product-detail-spec { margin: 0 0 20px; color: var(--muted); font-size: 13px; line-height: 1.55; }
@@ -227,7 +227,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .hero { padding-top: 52px; min-height: 850px; }
   .hero::before, .hero::after { height: 650px; }
   .hero::before { background-position: center 34%; }
-  .hero-copy { max-width: 760px; margin: 0 auto 42px; text-align: center; }
+  .hero-copy { max-width: 1000px; margin: 0 auto 42px; text-align: center; }
   .hero-copy p { max-width: 680px; margin-inline: auto; }
   .hero-copy h1 { font-size: clamp(40px, 4.2vw, 54px); }
   .product-showcase { margin-top: 0; }
