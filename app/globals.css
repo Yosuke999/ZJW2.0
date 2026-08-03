@@ -90,8 +90,8 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .card-visual { display: grid; place-items: center; margin: 0 auto; padding: 8px; overflow: hidden; background: radial-gradient(circle at 50% 18%, #fff, #f8fafb 66%, #eef5f6); border: 1px solid rgba(221,229,234,.72); border-bottom-color: #d9e5e8; box-shadow: inset 0 1px 0 rgba(255,255,255,.94), 0 9px 18px rgba(36,49,60,.07); }
 .card-visual img { display: block; width: auto; height: 100px; max-width: 100%; object-fit: contain; object-position: center; }
 .products-section, .service-section, .faq-section { padding-block: 84px; }
-.products-section { position: relative; isolation: isolate; overflow: hidden; padding-inline: clamp(14px, 3vw, 42px); border: 1px solid rgba(255,255,255,.62); border-radius: 46px; box-shadow: inset 0 2px 1px rgba(255,255,255,.84), 0 28px 70px rgba(23,74,126,.08); }
-.products-section::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(246,250,250,.1) 0%, rgba(244,248,249,.38) 38%, rgba(244,247,248,.96) 82%), url("/hero/central-asia-commerce-white-v1.webp") 58% top / 1320px auto no-repeat; opacity: .92; }
+.products-section { --products-scene-size: 1320px; position: relative; isolation: isolate; overflow: hidden; padding-inline: clamp(14px, 3vw, 42px); border: 1px solid rgba(255,255,255,.62); border-radius: 46px; box-shadow: inset 0 2px 1px rgba(255,255,255,.84), 0 28px 70px rgba(23,74,126,.08); }
+.products-section::before { content: ""; position: absolute; inset: 0 0 auto; z-index: 0; width: 100%; height: min(var(--products-scene-size), 100%); pointer-events: none; background: linear-gradient(180deg, rgba(246,250,250,.12) 0%, rgba(244,248,249,.34) 44%, rgba(244,247,248,.82) 100%), url("/hero/popular-products-market-bg.png") 50% top / var(--products-scene-size) auto no-repeat; opacity: .92; -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 66%, rgba(0,0,0,.82) 76%, rgba(0,0,0,.34) 90%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0%, #000 66%, rgba(0,0,0,.82) 76%, rgba(0,0,0,.34) 90%, transparent 100%); }
 .products-section::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse at 8% 8%, rgba(255,255,255,.72), transparent 42%), radial-gradient(ellipse at 88% 28%, rgba(255,255,255,.2), transparent 38%), linear-gradient(135deg, rgba(255,255,255,.34), transparent 46%); }
 .products-section > * { position: relative; z-index: 1; }
 .section-heading { display: flex; align-items: center; flex-direction: column; justify-content: center; gap: 10px; margin-bottom: 28px; text-align: center; }
@@ -316,7 +316,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .showcase-controls { margin-top: 7px; }
   .hero-price-disclaimer { margin-top: 4px; }
   .products-section { padding-inline: 12px; border-radius: 32px; }
-  .products-section::before { background-position: 58% top; background-size: 760px auto; opacity: .82; }
+  .products-section { --products-scene-size: 760px; }
+  .products-section::before { background-position: 50% top; background-repeat: no-repeat; opacity: .82; }
   .footer-bottom { flex-direction: column; }
 }
 
@@ -353,4 +354,30 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 
 .hero-cost-strip::after {
   background: linear-gradient(90deg, transparent, rgba(255,255,255,.76), rgba(255,255,255,.32), transparent);
+}
+
+@media (max-width: 430px) {
+  .products-section { padding-block: 58px 54px; padding-inline: 8px; border-radius: 28px; }
+  .products-section { --products-scene-size: 700px; }
+  .products-section::before { background-position: 50% top; background-repeat: no-repeat; opacity: .68; }
+  .products-section::after { background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(246,249,249,.28) 48%, rgba(244,247,248,.52)); }
+  .products-section .section-heading { gap: 8px; margin-bottom: 20px; padding-inline: 10px; }
+  .products-section .section-heading h2 { margin-top: 4px; font-size: 28px; line-height: 1.08; }
+  .products-section .section-heading > p { font-size: 12px; }
+  .product-filter { gap: 6px; margin: -4px 0 16px; }
+  .product-filter button { min-height: 40px; padding-inline: 10px; }
+  .product-grid { gap: 8px; }
+  .products-section .product-card { padding: 8px 8px 10px; border-radius: 16px; background: linear-gradient(150deg, rgba(255,255,255,.78), rgba(255,255,255,.48) 52%, rgba(250,252,252,.66)); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 10px 24px rgba(23,74,126,.07); -webkit-backdrop-filter: blur(4px) saturate(1.02); backdrop-filter: blur(4px) saturate(1.02); }
+  .products-section .card-visual { height: 104px; margin-bottom: 8px; border-radius: 10px; }
+  .products-section .card-visual img { height: 88px; }
+  .products-section .tag { margin-bottom: 6px; }
+  .products-section .product-card > strong { min-height: 38px; font-size: 15px; }
+  .products-section .product-card > small { min-height: 44px; font-size: 11px; line-height: 1.4; }
+  .products-section .card-price { margin-top: 7px; font-size: 18px; }
+  .products-section .card-detail-hint { min-height: 36px; margin-top: 9px; padding-top: 8px; }
+  .products-section .selection-hint { margin-top: 12px; }
+  .products-section .expand-button { min-height: 48px; margin-top: 20px; padding-inline: 22px; }
+  .consult-section { width: calc(100% - 16px); padding: 20px 12px 62px; }
+  .consult-section .primary-button { width: 100%; min-height: 52px; font-size: 16px; }
+  .consult-section p { font-size: 12px; line-height: 1.5; }
 }
