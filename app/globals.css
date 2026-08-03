@@ -90,6 +90,10 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .card-visual { display: grid; place-items: center; margin: 0 auto; padding: 8px; overflow: hidden; background: radial-gradient(circle at 50% 18%, #fff, #f8fafb 66%, #eef5f6); border: 1px solid rgba(221,229,234,.72); border-bottom-color: #d9e5e8; box-shadow: inset 0 1px 0 rgba(255,255,255,.94), 0 9px 18px rgba(36,49,60,.07); }
 .card-visual img { display: block; width: auto; height: 100px; max-width: 100%; object-fit: contain; object-position: center; }
 .products-section, .service-section, .faq-section { padding-block: 84px; }
+.products-section { position: relative; isolation: isolate; overflow: hidden; padding-inline: clamp(14px, 3vw, 42px); border: 1px solid rgba(255,255,255,.62); border-radius: 46px; box-shadow: inset 0 2px 1px rgba(255,255,255,.84), 0 28px 70px rgba(23,74,126,.08); }
+.products-section::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(180deg, rgba(246,250,250,.1) 0%, rgba(244,248,249,.38) 38%, rgba(244,247,248,.96) 82%), url("/hero/central-asia-commerce-white-v1.webp") 58% top / 1320px auto no-repeat; opacity: .92; }
+.products-section::after { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse at 8% 8%, rgba(255,255,255,.72), transparent 42%), radial-gradient(ellipse at 88% 28%, rgba(255,255,255,.2), transparent 38%), linear-gradient(135deg, rgba(255,255,255,.34), transparent 46%); }
+.products-section > * { position: relative; z-index: 1; }
 .section-heading { display: flex; align-items: center; flex-direction: column; justify-content: center; gap: 10px; margin-bottom: 28px; text-align: center; }
 .section-heading h2, .final-cta h2 { margin: 8px 0 0; color: var(--blue); font-size: clamp(28px, 4vw, 42px); line-height: 1.12; letter-spacing: -.035em; }
 .section-heading > p { margin: 0; color: var(--muted); font-size: 13px; }
@@ -311,6 +315,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .price-strip { height: 39px; }
   .showcase-controls { margin-top: 7px; }
   .hero-price-disclaimer { margin-top: 4px; }
+  .products-section { padding-inline: 12px; border-radius: 32px; }
+  .products-section::before { background-position: 58% top; background-size: 760px auto; opacity: .82; }
   .footer-bottom { flex-direction: column; }
 }
 
@@ -334,6 +340,11 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   box-shadow: inset 0 1px 0 rgba(255,255,255,.62), inset 8px 0 18px rgba(110,125,255,.012), inset -8px 0 18px rgba(255,155,195,.011), inset 0 -14px 24px rgba(12,23,31,.045), 0 14px 36px rgba(23,74,126,.08);
   -webkit-backdrop-filter: blur(2px) saturate(1.04);
   backdrop-filter: blur(2px) saturate(1.04);
+}
+
+.products-section .product-card {
+  background: linear-gradient(145deg, rgba(255,255,255,.48), rgba(255,255,255,.17) 48%, rgba(255,255,255,.27));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.74), inset 0 -16px 28px rgba(12,23,31,.035), 0 14px 34px rgba(23,74,126,.075);
 }
 
 .hero-cost-strip::before {
