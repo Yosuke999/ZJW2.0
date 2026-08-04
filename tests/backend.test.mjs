@@ -67,3 +67,10 @@ test("intent endpoints require auth and never accept contact identity from the f
   assert.doesNotMatch(form, /name=\"(?:phone|whatsapp|telegram)\"/);
   assert.match(profileRoute, /contact_consent_at/);
 });
+
+test("email confirmation callback supports both PKCE codes and token hashes", async () => {
+  const callback = await read("app/auth/confirm/route.ts");
+  assert.match(callback, /searchParams\.get\("code"\)/);
+  assert.match(callback, /exchangeCodeForSession\(code\)/);
+  assert.match(callback, /verifyOtp\(\{ type, token_hash: tokenHash \}\)/);
+});
