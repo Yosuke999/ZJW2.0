@@ -1,0 +1,15 @@
+.env*
+.git
+.next
+.openai
+.wrangler
+node_modules
+build
+dist
+out
+outputs
+work
+*.log
+*.pem
+*.tsbuildinfo
+public/hero-map-route-*.png
