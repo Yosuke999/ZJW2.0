@@ -6,8 +6,10 @@ import { products } from "@/data/products";
 import type { Copy } from "@/data/translations";
 import type { Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
+import { intentTranslations } from "@/data/intent-translations";
+import { IntentActions } from "./IntentActions";
 
-export function ContactSheet({ open, onClose, country, language, copy, productId }: { open: boolean; onClose: () => void; country: CountryConfig; language: Language; copy: Copy; productId: string | null }) {
+export function ContactSheet({ open, onClose, country, language, copy, productId, source }: { open: boolean; onClose: () => void; country: CountryConfig; language: Language; copy: Copy; productId: string | null; source?: string }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
@@ -49,6 +51,7 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
     { name: "Telegram", mark: "TG", detail: `@${country.contact.telegramHandle}`, href: country.contact.telegramUrl },
     { name: "Phone", mark: "TEL", detail: country.contact.phone, href: `tel:${country.contact.phone.replace(/\s/g, "")}` },
   ];
+  const intentCopy = intentTranslations[language];
   return (
     <div className="sheet-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <div ref={sheetRef} className="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title">
@@ -69,6 +72,8 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
             </ol>
           </section>
           <div className="contact-action-panel">
+            <IntentActions country={country.code} language={language} productId={productId} source={source} />
+            <h3 className="external-contact-title">{intentCopy.externalContact}</h3>
             <div className="contact-options">
               {channels.map((channel) => (
                 <a key={channel.name} data-channel={channel.name.toLowerCase()} href={channel.href} target={channel.name === "Phone" ? undefined : "_blank"} rel="noreferrer" onClick={() => trackEvent("contact_channel_select", { country: country.code, language, channel: channel.name, productId })}>

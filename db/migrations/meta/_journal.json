@@ -8,6 +8,13 @@
       "when": 1785487424424,
       "tag": "0000_silent_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1785829129983,
+      "tag": "0001_smiling_gertrude_yorkes",
+      "breakpoints": true
     }
   ]
 }

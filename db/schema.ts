@@ -1,6 +1,7 @@
 import {
   type AnyPgColumn,
   boolean,
+  check,
   date,
   index,
   integer,
@@ -14,6 +15,7 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
@@ -25,6 +27,7 @@ export const reviewStatus = pgEnum("review_status", ["draft", "pending_review", 
 export const priceStatus = pgEnum("price_status", ["demo", "pending_review", "verified", "stale"]);
 export const userRole = pgEnum("user_role", ["customer", "staff", "reviewer", "admin"]);
 export const inquiryStatus = pgEnum("inquiry_status", ["new", "contacted", "qualified", "closed", "spam"]);
+export const inquiryIntentType = pgEnum("inquiry_intent_type", ["callback", "purchase_intent"]);
 export const applicationStatus = pgEnum("application_status", [
   "draft",
   "submitted",
@@ -154,15 +157,24 @@ export const profiles = pgTable("profiles", {
   phone: text("phone"),
   telegram: text("telegram"),
   whatsapp: text("whatsapp"),
+  city: text("city"),
+  contactPreference: varchar("contact_preference", { length: 20 }),
+  contactConsentAt: timestamp("contact_consent_at", { withTimezone: true }),
+  profileCompletedAt: timestamp("profile_completed_at", { withTimezone: true }),
   role: userRole("role").default("customer").notNull(),
   status: recordStatus("status").default("active").notNull(),
   ...timestamps,
-});
+}, (table) => [
+  check("profiles_contact_preference_check", sql`${table.contactPreference} IS NULL OR ${table.contactPreference} IN ('phone', 'whatsapp', 'telegram')`),
+]);
 
 export const inquiries = pgTable("inquiries", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id"),
   productId: uuid("product_id").references(() => products.id, { onDelete: "set null" }),
+  intentType: inquiryIntentType("intent_type").default("callback").notNull(),
+  deliveryCity: text("delivery_city"),
+  customProductName: text("custom_product_name"),
   marketCode: varchar("market_code", { length: 2 }).references(() => markets.code),
   language: varchar("language", { length: 5 }).notNull(),
   name: text("name"),

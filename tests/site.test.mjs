@@ -158,7 +158,7 @@ test("product cards open an accessible responsive detail panel before consultati
   assert.match(grid, /onConsult\(detailProduct\.id\)/);
   assert.doesNotMatch(grid, /is-selected|selectedProduct/);
   assert.match(portal, /openContact\("product_detail", productId\)/);
-  assert.match(portal, /useState<string \| null>\(null\)/);
+  assert.match(portal, /useState<string \| null>\(initialProductId \?\? null\)/);
   assert.match(translations, /consultProduct:\s*"咨询这个商品"/);
   assert.match(styles, /\.product-detail-panel \{[^}]*height:\s*100dvh/s);
   assert.match(styles, /\.product-detail-header \{[^}]*position:\s*sticky/s);

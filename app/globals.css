@@ -24,6 +24,8 @@ button, a { font: inherit; }
 button { color: inherit; }
 .shell { width: min(1160px, calc(100% - 32px)); margin-inline: auto; }
 .site-header { height: 76px; display: flex; align-items: center; justify-content: space-between; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.account-link { display: inline-flex; align-items: center; min-height: 42px; padding: 0 13px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--blue-dark); font-size: 14px; font-weight: 700; text-decoration: none; }
 .brand { display: inline-flex; min-width: 0; max-width: min(70%, 620px); align-items: center; gap: 9px; color: var(--blue); text-decoration: none; font-weight: 750; line-height: 1.15; letter-spacing: .005em; }
 .brand > span:last-child { overflow-wrap: anywhere; }
 .brand-mark { display: grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; border: 1px solid #9ab5c9; border-radius: 50%; color: var(--blue); font-size: 8px; letter-spacing: .04em; }
@@ -219,6 +221,50 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .contact-outcomes li > span { display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid rgba(34,166,154,.22); border-radius: 9px; background: white; color: #167a72; font-size: 11px; font-weight: 850; box-shadow: 0 5px 12px rgba(23,74,126,.055); }
 .contact-outcomes p { margin: 0; color: var(--ink); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
 .contact-action-panel { min-width: 0; }
+.intent-choices { display: grid; gap: 9px; margin-bottom: 20px; }
+.intent-choices > button { display: grid; gap: 4px; min-height: 72px; padding: 13px 15px; border: 1px solid rgba(34,166,154,.34); border-radius: 15px; background: linear-gradient(135deg, #fff, #f0faf8); color: var(--ink); text-align: left; cursor: pointer; }
+.intent-choices > button strong { color: var(--blue-dark); font-size: 15px; }
+.intent-choices > button small { color: var(--muted); line-height: 1.45; }
+.intent-login, .intent-success { margin-bottom: 20px; padding: 16px; border: 1px solid rgba(34,166,154,.25); border-radius: 15px; background: #f0faf8; }
+.intent-login p, .intent-success p { margin: 0 0 12px; color: var(--muted); line-height: 1.55; }
+.intent-success { display: flex; align-items: center; gap: 12px; }
+.intent-success strong { color: var(--teal); font-size: 24px; }
+.intent-success p { margin: 0; color: var(--ink); }
+.external-contact-title { margin: 0 0 10px; color: var(--muted); font-size: 13px; font-weight: 700; }
+.intent-form { display: grid; gap: 14px; }
+.intent-form.compact { margin-bottom: 20px; padding: 15px; border: 1px solid var(--line); border-radius: 15px; background: white; }
+.intent-form label { display: grid; gap: 6px; color: var(--blue-dark); font-size: 13px; font-weight: 700; }
+.intent-form input, .intent-form select, .intent-form textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #cad8df; border-radius: 10px; background: #fff; color: var(--ink); font: inherit; }
+.intent-form textarea { min-height: 78px; resize: vertical; }
+.intent-form input:focus, .intent-form select:focus, .intent-form textarea:focus { outline: 3px solid rgba(34,166,154,.16); border-color: var(--teal); }
+.intent-form-actions { display: grid; grid-template-columns: 48px 1fr; gap: 9px; }
+.secondary-button { border: 1px solid var(--line); border-radius: 12px; background: white; cursor: pointer; }
+.form-message { margin: 0; color: #a33b32; font-size: 13px; }
+.contact-fields { display: grid; gap: 12px; }
+.consent-check { grid-template-columns: 20px 1fr !important; align-items: start; font-weight: 500 !important; line-height: 1.5; }
+.consent-check input { width: 18px; min-height: 18px; margin-top: 2px; }
+
+.account-shell { min-height: 100dvh; padding-top: 36px; padding-bottom: 64px; }
+.account-shell > h1 { margin: 18px 0; color: var(--blue-dark); }
+.back-link { color: var(--blue); font-weight: 700; text-decoration: none; }
+.auth-card, .account-card { width: min(680px, 100%); margin: 18px auto; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: 0 14px 34px rgba(23,74,126,.08); }
+.auth-card > p, .account-card > p { color: var(--muted); line-height: 1.55; }
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 12px; background: #edf3f6; }
+.auth-tabs button { min-height: 42px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font-weight: 700; cursor: pointer; }
+.auth-tabs button.active { background: white; color: var(--blue-dark); box-shadow: 0 3px 10px rgba(23,74,126,.09); }
+.account-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; width: min(760px, 100%); margin: auto; }
+.account-heading h1 { margin: 12px 0 0; color: var(--blue-dark); }
+.text-button { padding: 9px 12px; border: 0; background: transparent; color: var(--blue); font-weight: 700; cursor: pointer; }
+.account-card { width: min(760px, 100%); }
+.account-card h2 { color: var(--blue-dark); }
+.intent-history { display: grid; gap: 10px; }
+.intent-history article { padding: 14px; border: 1px solid var(--line); border-radius: 12px; }
+.intent-history article > div { display: flex; justify-content: space-between; gap: 12px; }
+.intent-history p { margin: 8px 0; color: var(--muted); }
+.intent-history time { color: var(--muted); font-size: 12px; }
+.status { padding: 4px 8px; border-radius: 999px; background: #edf3f6; color: var(--blue-dark); font-size: 11px; white-space: nowrap; }
+.status-new { background: #fff5d9; color: #725711; }
+.status-contacted, .status-qualified { background: #e4f7f3; color: #14766d; }
 .contact-options { display: grid; gap: 9px; margin: 0; }
 .contact-options a { display: grid; grid-template-columns: 48px minmax(0, 1fr) 24px; align-items: center; gap: 13px; min-height: 70px; padding: 10px 14px; border: 1px solid #d8e3e8; border-radius: 15px; background: white; color: var(--ink); text-decoration: none; box-shadow: 0 7px 18px rgba(23,74,126,.055); transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
 .contact-options a:hover { transform: translateX(3px); border-color: rgba(34,166,154,.42); box-shadow: 0 12px 26px rgba(23,74,126,.09); }
@@ -235,6 +281,7 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid rgba(34,166,154,.5); outline-offset: 3px; }
 
 @media (min-width: 760px) {
+  .contact-fields { grid-template-columns: repeat(3, 1fr); }
   .shell { width: min(1160px, calc(100% - 64px)); }
   .site-header { height: 90px; }
   .hero { padding: 28px 0 54px; min-height: 0; }

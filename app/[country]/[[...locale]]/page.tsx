@@ -25,11 +25,14 @@ export async function generateMetadata({ params }: { params: RouteParams }): Pro
   };
 }
 
-export default async function CountryPage({ params, searchParams }: { params: RouteParams; searchParams: Promise<{ src?: string }> }) {
+export default async function CountryPage({ params, searchParams }: { params: RouteParams; searchParams: Promise<{ src?: string; intent?: string; product?: string }> }) {
   const { country: rawCountry, locale } = await params;
   const route = resolveRoute(rawCountry, locale);
   if (!route) notFound();
-  const rawSource = (await searchParams).src;
+  const query = await searchParams;
+  const rawSource = query.src;
   const source = rawSource && /^[a-z0-9_-]{1,32}$/i.test(rawSource) ? rawSource : undefined;
-  return <PortalPage countryCode={route.country as CountryCode} language={route.language as Language} source={source} />;
+  const initialIntent = query.intent === "purchase" || query.intent === "callback" ? query.intent : undefined;
+  const initialProductId = query.product && /^[a-z0-9-]{1,80}$/.test(query.product) ? query.product : undefined;
+  return <PortalPage countryCode={route.country as CountryCode} language={route.language as Language} source={source} initialIntent={initialIntent} initialProductId={initialProductId} />;
 }

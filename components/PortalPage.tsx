@@ -13,9 +13,9 @@ import { ServiceFlow } from "./ServiceFlow";
 import { Faq } from "./Faq";
 import { Footer } from "./Footer";
 
-export function PortalPage({ countryCode, language, source }: { countryCode: CountryCode; language: Language; source?: string }) {
-  const [contactOpen, setContactOpen] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+export function PortalPage({ countryCode, language, source, initialIntent, initialProductId }: { countryCode: CountryCode; language: Language; source?: string; initialIntent?: string; initialProductId?: string }) {
+  const [contactOpen, setContactOpen] = useState(initialIntent === "purchase" || initialIntent === "callback");
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(initialProductId ?? null);
   const country = countries[countryCode];
   const copy = translations[language];
   const openContact = (origin: string, productId: string | null = null) => {
@@ -38,7 +38,7 @@ export function PortalPage({ countryCode, language, source }: { countryCode: Cou
       <section className="final-cta"><div className="shell"><h2>{copy.finalTitle}</h2><button className="primary-button light" onClick={() => openContact("footer_cta")}>{copy.localAdvisor}</button></div></section>
       <div id="privacy" className="privacy-placeholder shell">{copy.privacy} · {copy.demoData}</div>
       <Footer country={country} language={language} copy={copy} source={source} />
-      <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} />
+      <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} source={source} />
     </main>
   );
 }

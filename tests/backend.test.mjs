@@ -43,3 +43,27 @@ test("initial migration protects user data and uploaded application files", asyn
   assert.match(migration, /'application-attachments',[\s\S]*false,[\s\S]*10485760/);
   assert.match(migration, /storage\.foldername\(name\)\)\[1\] = auth\.uid\(\)::text/);
 });
+
+test("customer intent migration adds only the MVP profile and inquiry fields", async () => {
+  const [schema, migration] = await Promise.all([
+    read("db/schema.ts"),
+    read("db/migrations/0001_smiling_gertrude_yorkes.sql"),
+  ]);
+  assert.match(schema, /inquiryIntentType[\s\S]*callback[\s\S]*purchase_intent/);
+  for (const column of ["city", "contact_preference", "contact_consent_at", "profile_completed_at", "intent_type", "delivery_city", "custom_product_name"]) {
+    assert.match(migration, new RegExp(`\\"${column}\\"`));
+  }
+  assert.doesNotMatch(migration, /DROP TABLE|DROP COLUMN|DROP INDEX/);
+  assert.match(migration, /CREATE OR REPLACE FUNCTION public\.handle_new_auth_user\(\)/);
+});
+
+test("intent endpoints require auth and never accept contact identity from the form", async () => {
+  const [route, profileRoute, form] = await Promise.all([
+    read("app/api/inquiries/route.ts"), read("app/api/profile/route.ts"), read("components/IntentActions.tsx"),
+  ]);
+  assert.match(route, /supabase\.auth\.getUser\(\)/);
+  assert.match(route, /PROFILE_INCOMPLETE/);
+  assert.match(route, /profileContact\(profile\)/);
+  assert.doesNotMatch(form, /name=\"(?:phone|whatsapp|telegram)\"/);
+  assert.match(profileRoute, /contact_consent_at/);
+});

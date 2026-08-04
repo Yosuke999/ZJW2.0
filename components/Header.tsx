@@ -6,9 +6,11 @@ import type { CountryConfig } from "@/data/countries";
 import type { Language } from "@/data/types";
 import type { Copy } from "@/data/translations";
 import { trackEvent } from "@/lib/analytics";
+import { intentTranslations } from "@/data/intent-translations";
 
 export function Header({ country, language, copy, source }: { country: CountryConfig; language: Language; copy: Copy; source?: string }) {
   const languages: Language[] = ["ky", "uz", "ru", "zh"];
+  const intentCopy = intentTranslations[language];
   const linkFor = (next: Language) => {
     const path = getLanguageRoute(country.code, next);
     return source ? `${path}?src=${encodeURIComponent(source)}` : path;
@@ -20,7 +22,7 @@ export function Header({ country, language, copy, source }: { country: CountryCo
         <span className="brand-mark" aria-hidden="true">CA</span>
         <span>{copy.brandName}</span>
       </Link>
-      <details className="language-menu">
+      <div className="header-actions"><Link className="account-link" href={`/account?country=${country.code}&language=${language}`}>{intentCopy.account}</Link><details className="language-menu">
         <summary aria-label={copy.language}>
           <span>{languageLabels[language]}</span>
           <span className="language-chevron" aria-hidden="true">▾</span>
@@ -37,7 +39,7 @@ export function Header({ country, language, copy, source }: { country: CountryCo
             </Link>
           ))}
         </div>
-      </details>
+      </details></div>
     </header>
   );
 }
