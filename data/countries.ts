@@ -62,3 +62,16 @@ export const languageLabels: Record<Language, string> = {
   ru: "Русский",
   zh: "中文预览",
 };
+
+export const languageCountry: Partial<Record<Language, CountryCode>> = {
+  ky: "kg",
+  uz: "uz",
+};
+
+export function getLanguageRoute(currentCountry: CountryCode, nextLanguage: Language) {
+  const nextCountry = languageCountry[nextLanguage] ?? currentCountry;
+  const nextCountryConfig = countries[nextCountry];
+  return nextLanguage === nextCountryConfig.defaultLanguage
+    ? `/${nextCountry}`
+    : `/${nextCountry}/${nextLanguage}`;
+}

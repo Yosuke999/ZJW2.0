@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { languageLabels } from "@/data/countries";
+import { getLanguageRoute, languageLabels } from "@/data/countries";
 import type { CountryConfig } from "@/data/countries";
 import type { Copy } from "@/data/translations";
 import type { Language } from "@/data/types";
 
 export function Footer({ country, language, copy, source }: { country: CountryConfig; language: Language; copy: Copy; source?: string }) {
-  const languages: Language[] = [country.localLanguage, "ru", "zh"];
+  const languages: Language[] = ["ky", "uz", "ru", "zh"];
   const linkFor = (next: Language) => {
-    const path = next === country.defaultLanguage ? `/${country.code}` : `/${country.code}/${next}`;
+    const path = getLanguageRoute(country.code, next);
     return source ? `${path}?src=${encodeURIComponent(source)}` : path;
   };
   return (

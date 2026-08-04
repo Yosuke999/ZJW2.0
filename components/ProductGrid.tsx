@@ -6,6 +6,7 @@ import { getPrice, formatPrice } from "@/data/prices";
 import type { Copy } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
+import { formatConfirmedDate } from "@/lib/confirmed-date";
 
 type ProductFilter = "all" | "electronics" | "home" | "personal" | "daily";
 
@@ -33,6 +34,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
   const items = activeFilter === "all" && !expanded ? filteredProducts.slice(0, 8) : filteredProducts;
   const detailProduct = products.find((product) => product.id === detailProductId) ?? null;
   const filterCount = (filter: ProductFilter) => catalogProducts.filter((product) => belongsToFilter(product.category, filter)).length;
+  const confirmedDate = formatConfirmedDate(copy.confirmedDate, language);
 
   const closeDetails = useCallback(() => {
     setDetailProductId(null);
@@ -55,10 +57,10 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
   }, [closeDetails, detailProduct]);
 
   return (
-    <section className="products-section shell" aria-labelledby="products-title">
+    <section id="products" className="products-section shell" aria-labelledby="products-title">
       <div className="section-heading">
         <div><span className="eyebrow">{copy.demoData}</span><h2 id="products-title">{copy.popularTitle}</h2></div>
-        <p>{copy.confirmedDate}</p>
+        <p>{confirmedDate}</p>
       </div>
       <div className="product-filter" aria-label={copy.popularTitle}>
         {productFilters.map((filter) => {

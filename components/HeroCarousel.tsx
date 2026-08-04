@@ -7,6 +7,7 @@ import { heroProducts } from "@/data/products";
 import type { Copy } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
+import { formatConfirmedDate } from "@/lib/confirmed-date";
 import { PriceTrack } from "./PriceTrack";
 
 const TRANSITION_MS = 420;
@@ -63,6 +64,7 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
   }, [country, language, product.id]);
 
   const liveSummary = `${product.name[language]}. ${copy.localPrice}: ${formatPrice(price.localRetailPrice, price.currency)}. ${copy.chinaPrice}: ${formatPrice(price.chinaReferencePrice, price.currency)}.`;
+  const confirmedDate = formatConfirmedDate(copy.confirmedDate, language);
 
   return (
     <section className="hero shell" aria-labelledby="hero-title">
@@ -115,7 +117,7 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
         </div>
         <p className="hero-price-disclaimer">{copy.priceDisclaimer}</p>
       </div>
-      <p className="confirmation-note">{copy.confirmedDate}</p>
+      <p className="confirmation-note">{confirmedDate}</p>
       <div className="hero-cost-strip" aria-label={copy.priceNoteTitle}>
         <div className="cost-strip-copy">
           <span>{copy.priceNoteTitle}</span>

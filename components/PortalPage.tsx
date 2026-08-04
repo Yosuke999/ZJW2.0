@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { countries } from "@/data/countries";
-import { heroProducts } from "@/data/products";
 import { translations } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
@@ -16,16 +15,15 @@ import { Footer } from "./Footer";
 
 export function PortalPage({ countryCode, language, source }: { countryCode: CountryCode; language: Language; source?: string }) {
   const [contactOpen, setContactOpen] = useState(false);
-  const [selectedProductId, setSelectedProductId] = useState(heroProducts[0].id);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const country = countries[countryCode];
   const copy = translations[language];
-  const openContact = (origin: string) => {
-    trackEvent("consult_click", { country: countryCode, language, origin });
+  const openContact = (origin: string, productId: string | null = null) => {
+    setSelectedProductId(productId);
+    trackEvent("consult_click", { country: countryCode, language, origin, productId });
     setContactOpen(true);
   };
-  const handleHeroProductChange = useCallback((productId: string) => {
-    setSelectedProductId(productId);
-  }, []);
+  const handleHeroProductChange = useCallback(() => {}, []);
   useEffect(() => {
     trackEvent("page_loaded", { country: countryCode, language, src: source });
   }, [countryCode, language, source]);
@@ -33,7 +31,7 @@ export function PortalPage({ countryCode, language, source }: { countryCode: Cou
     <main>
       <Header country={country} language={language} copy={copy} source={source} />
       <HeroCarousel country={countryCode} language={language} copy={copy} onActiveProductChange={handleHeroProductChange} />
-      <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => { setSelectedProductId(productId); openContact("product_detail"); }} />
+      <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => openContact("product_detail", productId)} />
       <section className="consult-section shell"><button className="primary-button" onClick={() => openContact("primary")}>{copy.consultOpportunity}</button><p>{copy.consultHelp}</p></section>
       <ServiceFlow copy={copy} />
       <Faq copy={copy} />

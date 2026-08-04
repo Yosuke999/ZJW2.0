@@ -7,7 +7,7 @@ import type { Copy } from "@/data/translations";
 import type { Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 
-export function ContactSheet({ open, onClose, country, language, copy, productId }: { open: boolean; onClose: () => void; country: CountryConfig; language: Language; copy: Copy; productId: string }) {
+export function ContactSheet({ open, onClose, country, language, copy, productId }: { open: boolean; onClose: () => void; country: CountryConfig; language: Language; copy: Copy; productId: string | null }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
@@ -38,39 +38,49 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
   }, [open, onClose]);
 
   if (!open) return null;
-  const product = products.find((item) => item.id === productId) ?? products[0];
-  const message = `${copy.contactProduct}: ${product.name[language]} (${product.id}). ${copy.contactCountry}: ${country.name[language]}.`;
+  const product = productId ? products.find((item) => item.id === productId) ?? null : null;
+  const serviceCountryLabel = language === "zh" ? "中国" : language === "ru" ? null : country.name[language];
+  const message = product
+    ? `${copy.contactProduct}: ${product.name[language]} (${product.id}). ${copy.contactCountry}: ${country.name[language]}.`
+    : `${copy.contactCountry}: ${country.name[language]}.`;
   const context = encodeURIComponent(message);
   const channels = [
-    { name: "WhatsApp", href: `${country.contact.whatsappUrl}?text=${context}` },
-    { name: "Telegram", href: country.contact.telegramUrl },
-    { name: "Phone", href: `tel:${country.contact.phone.replace(/\s/g, "")}` },
+    { name: "WhatsApp", mark: "WA", detail: country.contact.phone, href: `${country.contact.whatsappUrl}?text=${context}` },
+    { name: "Telegram", mark: "TG", detail: `@${country.contact.telegramHandle}`, href: country.contact.telegramUrl },
+    { name: "Phone", mark: "TEL", detail: country.contact.phone, href: `tel:${country.contact.phone.replace(/\s/g, "")}` },
   ];
   return (
     <div className="sheet-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <div ref={sheetRef} className="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title">
         <div className="sheet-handle" />
         <button ref={closeRef} className="close-button" onClick={onClose} aria-label={copy.close}><span aria-hidden="true">×</span></button>
-        <span className="eyebrow">{copy.contactCountry}</span>
-        <h2 id="contact-title">{copy.contactTitle}</h2>
-        <p className="country-name">{country.name[language]} · {product.name[language]}</p>
-        <section className="contact-outcomes" aria-labelledby="contact-outcomes-title">
-          <h3 id="contact-outcomes-title">{copy.contactOutcomesTitle}</h3>
-          <ol>
-            {copy.contactOutcomes.map((outcome, index) => (
-              <li key={outcome}><span aria-hidden="true">{index + 1}</span><p>{outcome}</p></li>
-            ))}
-          </ol>
-        </section>
-        <div className="contact-options">
-          {channels.map((channel) => (
-            <a key={channel.name} href={channel.href} target={channel.name === "Phone" ? undefined : "_blank"} rel="noreferrer" onClick={() => trackEvent("contact_channel_select", { country: country.code, language, channel: channel.name, productId })}>
-              <span className="channel-mark" aria-hidden="true">{channel.name.slice(0, 2)}</span>
-              <span><strong>{channel.name}</strong><small>{copy.demoContact}</small></span>
-            </a>
-          ))}
+        <header className="contact-heading">
+          {serviceCountryLabel && <span className="eyebrow">{copy.contactCountry} · {serviceCountryLabel}</span>}
+          <h2 id="contact-title">{copy.contactTitle}</h2>
+          {product && <p className="country-name">{product.name[language]}</p>}
+        </header>
+        <div className="contact-layout">
+          <section className="contact-outcomes" aria-labelledby="contact-outcomes-title">
+            <h3 id="contact-outcomes-title">{copy.contactOutcomesTitle}</h3>
+            <ol>
+              {copy.contactOutcomes.map((outcome, index) => (
+                <li key={outcome}><span aria-hidden="true">{index + 1}</span><p>{outcome}</p></li>
+              ))}
+            </ol>
+          </section>
+          <div className="contact-action-panel">
+            <div className="contact-options">
+              {channels.map((channel) => (
+                <a key={channel.name} data-channel={channel.name.toLowerCase()} href={channel.href} target={channel.name === "Phone" ? undefined : "_blank"} rel="noreferrer" onClick={() => trackEvent("contact_channel_select", { country: country.code, language, channel: channel.name, productId })}>
+                  <span className="channel-mark" aria-hidden="true">{channel.mark}</span>
+                  <span className="contact-choice-copy"><strong>{channel.name}</strong><small>{channel.detail}</small></span>
+                  <span className="contact-arrow" aria-hidden="true">→</span>
+                </a>
+              ))}
+            </div>
+            <p className="contact-note">{copy.contactNote}</p>
+          </div>
         </div>
-        <p className="contact-note">{copy.contactNote}</p>
       </div>
     </div>
   );
