@@ -7,8 +7,6 @@ const localized = (
   uz: string,
 ): Record<Language, string> => ({ zh, ru, ky, uz });
 
-const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-
 const rows = [
   ["glass-kettle", "♨", "kitchen", "玻璃电热水壶", "Стеклянный электрочайник", "Айнек электр чайнек", "Shisha elektr choynak", "1.7L · 1500–2200W · 欧规插头", "1,7 л · 1500–2200 Вт · евровилка", "1,7 л · 1500–2200 Вт · евро сайгыч", "1,7 l · 1500–2200 Vt · Yevropa vilkasi"],
   ["power-bank", "▣", "electronics", "充电宝", "Внешний аккумулятор", "Тышкы аккумулятор", "Powerbank", "10000mAh · 22.5W · 数显", "10000 мАч · 22,5 Вт · дисплей", "10000 мАч · 22,5 Вт · дисплей", "10000 mA·soat · 22,5 Vt · displey"],
@@ -35,7 +33,7 @@ const rows = [
 export const products: Product[] = rows.map((row) => ({
   id: row[0],
   category: row[2],
-  image: `${assetPrefix}/products/${row[0]}.webp`,
+  image: `/products/${row[0]}.webp`,
   imageStatus: "placeholder",
   name: localized(row[3], row[4], row[5], row[6]),
   specification: localized(row[7], row[8], row[9], row[10]),

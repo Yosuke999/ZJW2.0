@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { PortalPage } from "@/components/PortalPage";
 import { translations } from "@/data/translations";
@@ -7,26 +8,14 @@ import type { CountryCode, Language } from "@/data/types";
 
 type RouteParams = Promise<{ country: string; locale?: string[] }>;
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return [
-    { country: "kg", locale: [] },
-    { country: "kg", locale: ["ru"] },
-    { country: "kg", locale: ["zh"] },
-    { country: "uz", locale: [] },
-    { country: "uz", locale: ["ru"] },
-    { country: "uz", locale: ["zh"] },
-  ];
-}
-
 export async function generateMetadata({ params }: { params: RouteParams }): Promise<Metadata> {
   const { country: rawCountry, locale } = await params;
   const route = resolveRoute(rawCountry, locale);
   if (!route) return {};
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-  const imageUrl = `${siteUrl}${assetPrefix}/og.png`;
+  const incoming = await headers();
+  const host = incoming.get("x-forwarded-host") ?? incoming.get("host") ?? "localhost:3000";
+  const protocol = incoming.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https");
+  const imageUrl = `${protocol}://${host}/og.png`;
   const copy = translations[route.language as Language];
   return {
     title: `${copy.heroTitle}｜${copy.brandName}`,
@@ -36,9 +25,11 @@ export async function generateMetadata({ params }: { params: RouteParams }): Pro
   };
 }
 
-export default async function CountryPage({ params }: { params: RouteParams }) {
+export default async function CountryPage({ params, searchParams }: { params: RouteParams; searchParams: Promise<{ src?: string }> }) {
   const { country: rawCountry, locale } = await params;
   const route = resolveRoute(rawCountry, locale);
   if (!route) notFound();
-  return <PortalPage countryCode={route.country as CountryCode} language={route.language as Language} />;
+  const rawSource = (await searchParams).src;
+  const source = rawSource && /^[a-z0-9_-]{1,32}$/i.test(rawSource) ? rawSource : undefined;
+  return <PortalPage countryCode={route.country as CountryCode} language={route.language as Language} source={source} />;
 }
