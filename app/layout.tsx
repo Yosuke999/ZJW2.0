@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,7 +6,12 @@ export const metadata: Metadata = {
   description: "面向吉尔吉斯斯坦与乌兹别克斯坦小生意经营者的演示商品价格与采购交付协助入口。",
 };
 
-export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const language = (await headers()).get("x-page-language") ?? "zh";
-  return <html lang={language}><body>{children}</body></html>;
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const language = "zh";
+  const assetPrefix = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+  const backgroundImages = {
+    "--hero-background-image": `url("${assetPrefix}/hero/central-asia-commerce-white-v1.webp")`,
+    "--products-background-image": `url("${assetPrefix}/hero/popular-products-market-bg.png")`,
+  } as React.CSSProperties;
+  return <html lang={language}><body style={backgroundImages}>{children}</body></html>;
 }
