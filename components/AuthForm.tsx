@@ -14,13 +14,15 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
   const [message, setMessage] = useState("");
 
   async function syncServerSession(session: { access_token: string; refresh_token: string } | null) {
-    if (!session) return true;
-    await fetch("/auth/session", {
+    if (!session) return { advisor: false };
+    const response = await fetch("/auth/session", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(session),
     }).catch(() => null);
-    return true;
+    if (!response?.ok) return { advisor: false };
+    const data = await response.json().catch(() => null);
+    return { advisor: data?.advisor === true };
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -33,8 +35,8 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
     if (mode === "login") {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setMessage(error.message); setBusy(false); return; }
-      await syncServerSession(data.session);
-      router.replace(returnTo); router.refresh(); return;
+      const session = await syncServerSession(data.session);
+      router.replace(session.advisor ? "/advisor" : returnTo); router.refresh(); return;
     }
     const phone = String(form.get("phone") ?? "").trim();
     const whatsapp = String(form.get("whatsapp") ?? "").trim();

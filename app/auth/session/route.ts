@@ -13,6 +13,10 @@ const sessionSchema = z.object({
   refreshToken: value.refreshToken ?? value.refresh_token,
 })).refine((value) => Boolean(value.accessToken && value.refreshToken), { message: "Missing session tokens" });
 
+function isAdvisorRole(role: unknown) {
+  return role === "staff" || role === "reviewer" || role === "admin";
+}
+
 export async function POST(request: Request) {
   const parsed = sessionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "INVALID_SESSION" }, { status: 400 });
@@ -25,12 +29,14 @@ export async function POST(request: Request) {
 
   if (error) return NextResponse.json({ error: "SESSION_SYNC_FAILED", detail: error.message }, { status: 200 });
   const { data: { user } } = await supabase.auth.getUser();
+  let advisor = false;
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("user_id,display_name,country_code,preferred_language,phone,whatsapp,telegram,city,contact_preference,contact_consent_at,profile_completed_at")
+      .select("user_id,display_name,country_code,preferred_language,phone,whatsapp,telegram,city,contact_preference,contact_consent_at,profile_completed_at,role,status")
       .eq("user_id", user.id)
       .maybeSingle();
+    advisor = isAdvisorRole(profile?.role) && profile?.status === "active";
     const fallback = profileFromUserMetadata(user.id, user.user_metadata, { countryCode: null, language: null });
     const merged = mergeCustomerProfile((profile as CustomerProfile | null) ?? null, fallback);
     if (!profile || isProfileComplete(merged)) {
@@ -51,7 +57,7 @@ export async function POST(request: Request) {
       }, { onConflict: "user_id" });
     }
   }
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, advisor });
 }
 
 export async function DELETE() {
