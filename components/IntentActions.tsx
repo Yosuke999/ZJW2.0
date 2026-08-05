@@ -6,6 +6,7 @@ import { intentTranslations } from "@/data/intent-translations";
 import type { CountryCode, Language } from "@/data/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { isProfileComplete, mergeCustomerProfile, profileFromUserMetadata, type CustomerProfile } from "@/lib/customer-intents";
+import { trackEvent } from "@/lib/analytics";
 
 export function IntentActions({ country, language, productId, source }: { country: CountryCode; language: Language; productId: string | null; source?: string }) {
   const copy = intentTranslations[language];
@@ -57,7 +58,10 @@ export function IntentActions({ country, language, productId, source }: { countr
       const typed = await readCurrentProfile();
       if (typed && isProfileComplete(typed)) response = await postInquiry(payload);
     }
-    if (response.ok) setMode("success");
+    if (response.ok) {
+      trackEvent("inquiry_submitted", { country, language, productId });
+      setMode("success");
+    }
     else if (response.status === 401) setAuthState("guest");
     else if (response.status === 409) setAuthState("incomplete");
     else setError(copy.authError);

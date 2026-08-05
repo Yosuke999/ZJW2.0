@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { intentTranslations } from "@/data/intent-translations";
 import type { CountryCode, Language } from "@/data/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { trackEvent } from "@/lib/analytics";
 
 export function AuthForm({ country, language, returnTo }: { country: CountryCode; language: Language; returnTo: string }) {
   const copy = intentTranslations[language];
@@ -56,6 +57,7 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
       },
     });
     if (error) { setMessage(copy.authError); setBusy(false); return; }
+    trackEvent("registration_completed", { country, language });
     if (data.session) {
       await syncServerSession(data.session);
       router.replace(returnTo); router.refresh(); return;

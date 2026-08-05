@@ -136,6 +136,37 @@ test("Kyrgyz and Uzbek customer flows use complete native-language copy", async 
   assert.doesNotMatch(intentActions, /SUBMIT_FAILED/);
 });
 
+test("first-party analytics records anonymous funnels and scopes the advisor dashboard", async () => {
+  const [schema, migration, route, analytics, authForm, intents, advisorPage, dashboard] = await Promise.all([
+    read("db/schema.ts"),
+    read("db/migrations/0005_analytics_dashboard.sql"),
+    read("app/api/analytics/route.ts"),
+    read("lib/analytics.ts"),
+    read("components/AuthForm.tsx"),
+    read("components/IntentActions.tsx"),
+    read("app/advisor/page.tsx"),
+    read("components/AnalyticsDashboard.tsx"),
+  ]);
+
+  assert.match(schema, /export const analyticsEvents/);
+  assert.match(migration, /ENABLE ROW LEVEL SECURITY/);
+  assert.match(migration, /public records anonymous analytics/);
+  assert.match(migration, /advisors read scoped analytics/);
+  assert.match(migration, /profiles\.role = 'admin' OR profiles\.country_code = analytics_events\.market_code/);
+  assert.match(route, /visitorId: z\.string\(\)\.regex/);
+  assert.match(route, /user_id: user\?\.id \?\? null/);
+  assert.match(analytics, /window\.localStorage/);
+  assert.match(analytics, /window\.sessionStorage/);
+  assert.match(analytics, /fetch\("\/api\/analytics"/);
+  assert.match(authForm, /trackEvent\("registration_completed"/);
+  assert.match(intents, /trackEvent\("inquiry_submitted"/);
+  assert.match(advisorPage, /\.from\("analytics_events"\)/);
+  assert.match(advisorPage, /analyticsQuery\.eq\("market_code", advisorMarket\)/);
+  assert.match(dashboard, /独立访客/);
+  assert.match(dashboard, /注册转化率/);
+  assert.match(dashboard, /国家与语言转化/);
+});
+
 test("account page always shows a profile form for authenticated users", async () => {
   const [accountPage, dashboard, intentActions, migration] = await Promise.all([
     read("app/account/page.tsx"),

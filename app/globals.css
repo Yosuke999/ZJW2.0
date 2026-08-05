@@ -307,6 +307,29 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .advisor-actions button { min-height: 38px; padding: 0 12px; border: 1px solid #c7d7df; border-radius: 10px; background: white; color: var(--blue); font-size: 12px; font-weight: 800; cursor: pointer; }
 .advisor-actions button:first-child { border-color: rgba(34,166,154,.34); background: #f0faf8; color: #167a72; }
 .advisor-actions button:disabled { opacity: .55; cursor: wait; }
+.analytics-dashboard { width: min(1100px, 100%); margin: 24px auto 34px; }
+.analytics-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+.analytics-heading h2 { margin-bottom: 4px; color: var(--blue-dark); }
+.analytics-heading p { margin: 0; color: var(--muted); font-size: 12px; }
+.analytics-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.analytics-cards > div { display: grid; gap: 5px; min-width: 0; padding: 17px; border: 1px solid rgba(23,74,126,.13); border-radius: 16px; background: rgba(255,255,255,.88); box-shadow: 0 10px 24px rgba(23,74,126,.055); }
+.analytics-cards strong { color: var(--blue); font-size: 25px; line-height: 1; }
+.analytics-cards span { color: var(--muted); font-size: 11px; font-weight: 800; }
+.analytics-empty { margin-top: 12px; padding: 20px; border: 1px dashed #cbd9e0; border-radius: 14px; color: var(--muted); text-align: center; }
+.analytics-panel { min-width: 0; margin-top: 12px; padding: 17px; border: 1px solid var(--line); border-radius: 17px; background: white; box-shadow: 0 10px 26px rgba(23,74,126,.05); }
+.analytics-panel h3 { margin-bottom: 14px; color: var(--blue-dark); font-size: 15px; }
+.analytics-trend { display: grid; grid-template-columns: repeat(30, minmax(8px, 1fr)); align-items: end; gap: 4px; height: 150px; overflow-x: auto; }
+.trend-day { display: flex; min-width: 8px; height: 100%; flex-direction: column; justify-content: flex-end; gap: 5px; }
+.trend-bar { display: block; min-height: 4px; border-radius: 5px 5px 2px 2px; background: linear-gradient(180deg, var(--teal), var(--blue)); }
+.trend-day small { overflow: hidden; color: var(--muted); font-size: 8px; text-align: center; writing-mode: vertical-rl; }
+.analytics-legend { display: flex; gap: 14px; margin-top: 10px; color: var(--muted); font-size: 10px; }
+.analytics-legend span:first-child::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 5px; border-radius: 50%; background: var(--teal); }
+.analytics-two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.analytics-table-wrap { overflow-x: auto; }
+.analytics-panel table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.analytics-panel th, .analytics-panel td { padding: 9px 8px; border-bottom: 1px solid #e9eef1; text-align: right; white-space: nowrap; }
+.analytics-panel th:first-child, .analytics-panel td:first-child { max-width: 220px; overflow: hidden; text-align: left; text-overflow: ellipsis; }
+.analytics-panel th { color: var(--muted); font-size: 10px; }
 .contact-options { display: grid; gap: 9px; margin: 0; }
 .contact-options a { display: grid; grid-template-columns: 48px minmax(0, 1fr) 24px; align-items: center; gap: 13px; min-height: 70px; padding: 10px 14px; border: 1px solid #d8e3e8; border-radius: 15px; background: white; color: var(--ink); text-decoration: none; box-shadow: 0 7px 18px rgba(23,74,126,.055); transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
 .contact-options a:hover { transform: translateX(3px); border-color: rgba(34,166,154,.42); box-shadow: 0 12px 26px rgba(23,74,126,.09); }
@@ -484,4 +507,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .advisor-summary { grid-template-columns: 1fr; }
   .advisor-fields { grid-template-columns: 1fr; }
   .advisor-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .analytics-cards { grid-template-columns: 1fr 1fr; }
+  .analytics-cards > div:last-child { grid-column: 1 / -1; }
+  .analytics-two-column { grid-template-columns: 1fr; }
 }

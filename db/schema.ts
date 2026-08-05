@@ -193,6 +193,26 @@ export const inquiries = pgTable("inquiries", {
   index("inquiries_user_idx").on(table.userId, table.createdAt),
 ]);
 
+export const analyticsEvents = pgTable("analytics_events", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  visitorId: varchar("visitor_id", { length: 64 }).notNull(),
+  sessionId: varchar("session_id", { length: 64 }).notNull(),
+  userId: uuid("user_id"),
+  eventName: varchar("event_name", { length: 40 }).notNull(),
+  productLegacyId: varchar("product_legacy_id", { length: 80 }),
+  marketCode: varchar("market_code", { length: 2 }).notNull().references(() => markets.code),
+  language: varchar("language", { length: 5 }).notNull(),
+  source: varchar("source", { length: 120 }),
+  path: varchar("path", { length: 240 }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  check("analytics_events_name_check", sql`${table.eventName} IN ('page_view', 'product_view', 'consult_open', 'registration', 'inquiry_submit')`),
+  index("analytics_events_time_idx").on(table.createdAt),
+  index("analytics_events_market_time_idx").on(table.marketCode, table.createdAt),
+  index("analytics_events_product_time_idx").on(table.productLegacyId, table.createdAt),
+  index("analytics_events_visitor_time_idx").on(table.visitorId, table.createdAt),
+]);
+
 export const designApplications = pgTable("design_applications", {
   id: uuid("id").defaultRandom().primaryKey(),
   applicationNumber: text("application_number").notNull().unique(),

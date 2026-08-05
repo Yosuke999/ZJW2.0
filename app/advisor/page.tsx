@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdvisorDashboard, type AdvisorInquiry } from "@/components/AdvisorDashboard";
+import { AnalyticsDashboard, type AnalyticsEventRow } from "@/components/AnalyticsDashboard";
 import { advisorTranslations } from "@/data/advisor-translations";
 import { languageLabels } from "@/data/countries";
 import type { CountryCode, Language } from "@/data/types";
@@ -85,6 +86,17 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
     products: Array.isArray(item.products) ? item.products[0] ?? null : item.products,
   }));
 
+  const analyticsSince = new Date();
+  analyticsSince.setUTCDate(analyticsSince.getUTCDate() - 30);
+  let analyticsQuery = supabase
+    .from("analytics_events")
+    .select("visitor_id,event_name,product_legacy_id,market_code,language,created_at")
+    .gte("created_at", analyticsSince.toISOString())
+    .order("created_at", { ascending: true })
+    .limit(10000);
+  if (!isAdmin && advisorMarket) analyticsQuery = analyticsQuery.eq("market_code", advisorMarket);
+  const { data: analyticsEvents } = await analyticsQuery;
+
   return (
     <main className="advisor-shell shell">
       <div className="account-heading">
@@ -96,6 +108,7 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
         </div>
         <AdvisorLanguageSwitch language={language} />
       </div>
+      <AnalyticsDashboard events={(analyticsEvents ?? []) as AnalyticsEventRow[]} language={language} />
       <AdvisorDashboard initialInquiries={normalizedInquiries as AdvisorInquiry[]} copy={copy} language={language} />
     </main>
   );
