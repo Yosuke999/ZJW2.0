@@ -132,6 +132,14 @@ test("account page always shows a profile form for authenticated users", async (
   assert.match(migration, /CREATE POLICY "users create own profile"/);
 });
 
+test("customer tables grant the minimum privileges required by the app", async () => {
+  const migration = await read("db/migrations/0003_grant_customer_app_privileges.sql");
+
+  assert.match(migration, /GRANT SELECT ON public\.markets TO anon, authenticated/);
+  assert.match(migration, /GRANT SELECT, INSERT, UPDATE ON public\.profiles TO authenticated/);
+  assert.match(migration, /GRANT SELECT, INSERT ON public\.inquiries TO authenticated/);
+});
+
 test("account login returns to the market page while keeping a visible signed-in header", async () => {
   const [accountPage, dashboard, header, accountNav, copy] = await Promise.all([
     read("app/account/page.tsx"),
