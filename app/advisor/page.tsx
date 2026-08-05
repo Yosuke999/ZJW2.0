@@ -2,8 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdvisorDashboard, type AdvisorInquiry } from "@/components/AdvisorDashboard";
 import { AnalyticsDashboard, type AnalyticsEventRow } from "@/components/AnalyticsDashboard";
+import { AdvisorLanguageSwitch } from "@/components/AdvisorLanguageSwitch";
 import { advisorTranslations } from "@/data/advisor-translations";
-import { languageLabels } from "@/data/countries";
 import type { CountryCode, Language } from "@/data/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -19,6 +19,11 @@ function isCountry(value: unknown): value is CountryCode {
   return value === "kg" || value === "uz";
 }
 
+function marketHref(country: CountryCode, language: Language) {
+  const defaultLanguage = country === "kg" ? "ky" : "uz";
+  return language === defaultLanguage ? `/${country}` : `/${country}/${language}`;
+}
+
 export default async function AdvisorPage({ searchParams }: { searchParams: Promise<{ language?: string }> }) {
   const query = await searchParams;
   const language: Language = isLanguage(query.language) ? query.language : "zh";
@@ -32,16 +37,18 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
     .select("display_name,role,status,country_code")
     .eq("user_id", user.id)
     .maybeSingle();
+  const profileMarket = isCountry(profile?.country_code) ? profile.country_code : "kg";
+  const backHref = marketHref(profileMarket, language);
 
   if (!isAdvisorRole(profile?.role) || profile?.status !== "active") {
     return (
       <main className="account-shell shell">
         <div className="account-heading">
           <div>
-            <Link className="back-link" href="/kg/zh">← 返回商机页面</Link>
-            <h1>顾问工作台</h1>
+            <Link className="back-link" href={backHref}>{copy.backToMarket}</Link>
+            <h1>{copy.workspace}</h1>
           </div>
-          <AdvisorLanguageSwitch language={language} />
+          <AdvisorLanguageSwitch language={language} ariaLabel={copy.language} />
         </div>
         <section className="advisor-card">
           <h2>{copy.noAccessTitle}</h2>
@@ -58,11 +65,11 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
       <main className="advisor-shell shell">
         <div className="account-heading">
           <div>
-            <Link className="back-link" href="/kg/zh">← 返回商机页面</Link>
-            <h1>顾问工作台</h1>
-            <p>登录账号：{profile.display_name ?? user.email}</p>
+            <Link className="back-link" href={backHref}>{copy.backToMarket}</Link>
+            <h1>{copy.workspace}</h1>
+            <p>{copy.signedInAs}：{profile.display_name ?? user.email}</p>
           </div>
-          <AdvisorLanguageSwitch language={language} />
+          <AdvisorLanguageSwitch language={language} ariaLabel={copy.language} />
         </div>
         <section className="advisor-card">
           <h2>{copy.noMarketTitle}</h2>
@@ -101,36 +108,17 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
     <main className="advisor-shell shell">
       <div className="account-heading advisor-heading-card">
         <div className="advisor-heading-copy">
-          <Link className="back-link" href="/kg/zh">← 返回商机页面</Link>
-          <h1>顾问工作台</h1>
+          <Link className="back-link" href={backHref}>{copy.backToMarket}</Link>
+          <h1>{copy.workspace}</h1>
           <div className="advisor-meta">
-            <span>登录账号：<strong>{profile.display_name ?? user.email}</strong></span>
-            <span>负责市场：<strong>{isAdmin ? "全部市场" : advisorMarket?.toUpperCase()}</strong></span>
+            <span>{copy.signedInAs}：<strong>{profile.display_name ?? user.email}</strong></span>
+            <span>{copy.marketScope}：<strong>{isAdmin ? copy.allMarkets : advisorMarket?.toUpperCase()}</strong></span>
           </div>
         </div>
-        <AdvisorLanguageSwitch language={language} />
+        <AdvisorLanguageSwitch language={language} ariaLabel={copy.language} />
       </div>
       <AnalyticsDashboard events={(analyticsEvents ?? []) as AnalyticsEventRow[]} language={language} />
       <AdvisorDashboard initialInquiries={normalizedInquiries as AdvisorInquiry[]} copy={copy} language={language} />
     </main>
-  );
-}
-
-function AdvisorLanguageSwitch({ language }: { language: Language }) {
-  const languages: Language[] = ["zh", "ru", "ky", "uz"];
-  return (
-    <details className="advisor-language-switch">
-      <summary aria-label="界面语言">
-        <span>{languageLabels[language]}</span>
-        <span className="language-chevron" aria-hidden="true">⌄</span>
-      </summary>
-      <div className="advisor-language-popover">
-        {languages.map((item) => (
-          <Link key={item} className={item === language ? "active" : ""} href={`/advisor?language=${item}`}>
-            {languageLabels[item]}
-          </Link>
-        ))}
-      </div>
-    </details>
   );
 }

@@ -199,23 +199,27 @@ test("customer tables grant the minimum privileges required by the app", async (
 });
 
 test("advisor workspace is staff-only, localized, and market-scoped", async () => {
-  const [page, dashboard, route, copy] = await Promise.all([
+  const [page, dashboard, languageSwitch, route, copy] = await Promise.all([
     read("app/advisor/page.tsx"),
     read("components/AdvisorDashboard.tsx"),
+    read("components/AdvisorLanguageSwitch.tsx"),
     read("app/api/advisor/inquiries/[id]/route.ts"),
     read("data/advisor-translations.ts"),
   ]);
 
   assert.match(page, /advisorTranslations\[language\]/);
   assert.match(page, /AdvisorLanguageSwitch/);
-  assert.match(page, /<h1>顾问工作台<\/h1>/);
+  assert.match(page, /<h1>\{copy\.workspace\}<\/h1>/);
   assert.match(page, /advisor-heading-card/);
   assert.match(page, /advisor-meta/);
-  assert.match(page, /登录账号：<strong>/);
-  assert.match(page, /负责市场：<strong>/);
-  assert.match(page, /<details className="advisor-language-switch">/);
-  assert.match(page, /advisor-language-popover/);
-  assert.match(page, /language=\$\{language\}/);
+  assert.match(page, /\{copy\.signedInAs\}：<strong>/);
+  assert.match(page, /\{copy\.marketScope\}：<strong>/);
+  assert.match(page, /marketHref\(profileMarket, language\)/);
+  assert.match(languageSwitch, /open=\{open\}/);
+  assert.match(languageSwitch, /onToggle=\{\(event\) => setOpen\(event\.currentTarget\.open\)\}/);
+  assert.match(languageSwitch, /onClick=\{\(\) => setOpen\(false\)\}/);
+  assert.match(languageSwitch, /advisor-language-popover/);
+  assert.match(languageSwitch, /language=\$\{item\}/);
   assert.match(page, /isAdvisorRole\(profile\?\.role\)/);
   assert.match(page, /profile\.role === "admin"/);
   assert.match(page, /\.eq\("market_code", advisorMarket\)/);
