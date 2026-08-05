@@ -30,7 +30,7 @@ button { color: inherit; }
 .account-link.is-signed-in { border-color: rgba(34,166,154,.34); background: #f0faf8; color: #167a72; }
 .workspace-link { border-color: rgba(23,74,126,.24); background: #f4f8fb; color: var(--blue); }
 .brand { display: inline-flex; min-width: 0; max-width: min(70%, 620px); align-items: center; gap: 9px; color: var(--blue); text-decoration: none; font-weight: 750; line-height: 1.15; letter-spacing: .005em; }
-.brand > span:last-child { overflow-wrap: anywhere; }
+.brand > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .brand-mark { display: grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; border: 1px solid #9ab5c9; border-radius: 50%; color: var(--blue); font-size: 8px; letter-spacing: .04em; }
 .language-menu { position: relative; z-index: 20; }
 .language-menu summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 13px; border: 1px solid var(--line); border-radius: 12px; background: white; font-size: 14px; font-weight: 700; }
@@ -445,9 +445,16 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 
 @media (max-width: 430px) {
   .shell { width: min(100% - 24px, 1160px); }
-  .site-header { height: auto; min-height: 72px; gap: 8px; }
-  .brand { max-width: 62%; font-size: 12px; }
-  .language-menu summary { min-height: 38px; padding-inline: 10px; font-size: 12px; }
+  .site-header { display: grid; grid-template-columns: auto minmax(0, 1fr); height: auto; min-height: 72px; gap: 8px; }
+  .site-header > .brand { max-width: none; font-size: 12px; }
+  html:not([lang="zh"]) .site-header > .brand > span:last-child,
+  .site-header:has(.workspace-link) > .brand > span:last-child { display: none; }
+  .header-actions { min-width: 0; justify-content: flex-end; gap: 6px; }
+  .account-link { min-width: 0; max-width: 120px; min-height: 38px; padding-inline: 10px; font-size: 12px; }
+  .workspace-link { max-width: 140px; }
+  .language-menu { min-width: 0; flex: 0 0 auto; }
+  .language-menu summary { max-width: 104px; min-height: 38px; padding-inline: 10px; font-size: 12px; }
+  .language-menu summary > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .hero { padding: 6px 0 38px; }
   .hero::before, .hero::after { height: 660px; }
   .hero::before { background-position: center 24px; background-size: contain; opacity: .82; }

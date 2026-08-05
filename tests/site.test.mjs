@@ -62,6 +62,16 @@ test("language trigger shows only the current language and a dropdown chevron", 
   assert.match(styles, /\.language-menu\[open\] \.language-chevron \{[^}]*transform:\s*rotate\(180deg\)/s);
 });
 
+test("mobile header keeps long localized brands from collapsing vertically", async () => {
+  const styles = await read("app/globals.css");
+  assert.match(styles, /\.brand > span:last-child \{[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap/s);
+  assert.match(styles, /@media \(max-width:\s*430px\)[\s\S]*\.site-header \{[^}]*grid-template-columns:\s*auto minmax\(0, 1fr\)/s);
+  assert.match(styles, /html:not\(\[lang="zh"\]\) \.site-header > \.brand > span:last-child/);
+  assert.match(styles, /\.site-header:has\(\.workspace-link\) > \.brand > span:last-child/);
+  assert.match(styles, /\.header-actions \{[^}]*min-width:\s*0;[^}]*justify-content:\s*flex-end/s);
+  assert.match(styles, /\.language-menu summary > span:first-child \{[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap/s);
+});
+
 test("three carousel tracks keep five-item windows, opposite motion, and one center product", () => {
   const ids = ["kettle", "power-bank", "bulb", "earbuds", "dryer"];
   const productTrack = getCarouselWindow(ids, 0);
