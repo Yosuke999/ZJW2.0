@@ -268,6 +268,32 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .status { padding: 4px 8px; border-radius: 999px; background: #edf3f6; color: var(--blue-dark); font-size: 11px; white-space: nowrap; }
 .status-new { background: #fff5d9; color: #725711; }
 .status-contacted, .status-qualified { background: #e4f7f3; color: #14766d; }
+.status-closed { background: #edf3f6; color: #425b6b; }
+.status-spam { background: #f9e7e4; color: #9d3128; }
+.advisor-shell { min-height: 100dvh; padding-top: 36px; padding-bottom: 64px; }
+.advisor-shell .account-heading p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
+.advisor-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(960px, 100%); margin: 18px auto; }
+.advisor-summary > div { display: grid; gap: 4px; padding: 18px; border: 1px solid rgba(34,166,154,.2); border-radius: 18px; background: rgba(255,255,255,.78); box-shadow: 0 12px 28px rgba(23,74,126,.06); }
+.advisor-summary strong { color: var(--blue); font-size: 28px; line-height: 1; }
+.advisor-summary span { color: var(--muted); font-size: 12px; font-weight: 800; }
+.advisor-card { width: min(960px, 100%); margin: 18px auto; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: 0 14px 34px rgba(23,74,126,.08); }
+.advisor-card h2 { color: var(--blue-dark); }
+.advisor-card > p { color: var(--muted); line-height: 1.55; }
+.advisor-list { display: grid; gap: 14px; }
+.advisor-inquiry { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: #fbfcfc; }
+.advisor-inquiry-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.advisor-inquiry-head > div { display: grid; gap: 4px; }
+.advisor-inquiry-head strong { color: var(--blue-dark); font-size: 16px; }
+.advisor-inquiry-head span:not(.status) { color: var(--muted); font-size: 12px; }
+.advisor-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.advisor-fields div { min-width: 0; padding: 10px 12px; border: 1px solid #e4ebef; border-radius: 12px; background: white; }
+.advisor-fields dt { color: var(--muted); font-size: 11px; font-weight: 800; }
+.advisor-fields dd { margin: 4px 0 0; color: var(--ink); font-size: 13px; font-weight: 700; overflow-wrap: anywhere; }
+.advisor-note { margin: 0; padding: 12px 14px; border-left: 3px solid var(--teal); border-radius: 0 12px 12px 0; background: #eef7f6; color: var(--ink); line-height: 1.55; }
+.advisor-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.advisor-actions button { min-height: 38px; padding: 0 12px; border: 1px solid #c7d7df; border-radius: 10px; background: white; color: var(--blue); font-size: 12px; font-weight: 800; cursor: pointer; }
+.advisor-actions button:first-child { border-color: rgba(34,166,154,.34); background: #f0faf8; color: #167a72; }
+.advisor-actions button:disabled { opacity: .55; cursor: wait; }
 .contact-options { display: grid; gap: 9px; margin: 0; }
 .contact-options a { display: grid; grid-template-columns: 48px minmax(0, 1fr) 24px; align-items: center; gap: 13px; min-height: 70px; padding: 10px 14px; border: 1px solid #d8e3e8; border-radius: 15px; background: white; color: var(--ink); text-decoration: none; box-shadow: 0 7px 18px rgba(23,74,126,.055); transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease; }
 .contact-options a:hover { transform: translateX(3px); border-color: rgba(34,166,154,.42); box-shadow: 0 12px 26px rgba(23,74,126,.09); }
@@ -442,4 +468,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .consult-section { width: calc(100% - 16px); padding: 20px 12px 62px; }
   .consult-section .primary-button { width: 100%; min-height: 52px; font-size: 16px; }
   .consult-section p { font-size: 12px; line-height: 1.5; }
+  .advisor-summary { grid-template-columns: 1fr; }
+  .advisor-fields { grid-template-columns: 1fr; }
+  .advisor-actions { display: grid; grid-template-columns: 1fr 1fr; }
 }

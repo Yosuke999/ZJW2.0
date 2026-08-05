@@ -133,11 +133,37 @@ test("account page always shows a profile form for authenticated users", async (
 });
 
 test("customer tables grant the minimum privileges required by the app", async () => {
-  const migration = await read("db/migrations/0003_grant_customer_app_privileges.sql");
+  const [customerMigration, advisorMigration] = await Promise.all([
+    read("db/migrations/0003_grant_customer_app_privileges.sql"),
+    read("db/migrations/0004_grant_advisor_workspace_privileges.sql"),
+  ]);
 
-  assert.match(migration, /GRANT SELECT ON public\.markets TO anon, authenticated/);
-  assert.match(migration, /GRANT SELECT, INSERT, UPDATE ON public\.profiles TO authenticated/);
-  assert.match(migration, /GRANT SELECT, INSERT ON public\.inquiries TO authenticated/);
+  assert.match(customerMigration, /GRANT SELECT ON public\.markets TO anon, authenticated/);
+  assert.match(customerMigration, /GRANT SELECT, INSERT, UPDATE ON public\.profiles TO authenticated/);
+  assert.match(customerMigration, /GRANT SELECT, INSERT ON public\.inquiries TO authenticated/);
+  assert.match(advisorMigration, /GRANT UPDATE ON public\.inquiries TO authenticated/);
+  assert.match(advisorMigration, /GRANT SELECT ON public\.products TO authenticated/);
+});
+
+test("advisor workspace is staff-only and can process inquiries", async () => {
+  const [page, dashboard, route] = await Promise.all([
+    read("app/advisor/page.tsx"),
+    read("components/AdvisorDashboard.tsx"),
+    read("app/api/advisor/inquiries/[id]/route.ts"),
+  ]);
+
+  assert.match(page, /redirect\(`\/auth\?country=kg&language=zh&returnTo=/);
+  assert.match(page, /isAdvisorRole\(profile\?\.role\)/);
+  assert.match(page, /\.from\("inquiries"\)/);
+  assert.match(page, /products\(legacy_id\)/);
+  assert.match(dashboard, /待处理信息/);
+  assert.match(dashboard, /已处理信息/);
+  assert.match(dashboard, /item\.status === "new"/);
+  assert.match(dashboard, /\/api\/advisor\/inquiries\/\$\{id\}/);
+  assert.match(route, /z\.enum\(\["contacted", "qualified", "closed", "spam"\]\)/);
+  assert.match(route, /assigned_to: user\.id/);
+  assert.match(route, /status: parsed\.data\.status/);
+  assert.match(route, /isAdvisorRole\(profile\?\.role\)/);
 });
 
 test("account login returns to the market page while keeping a visible signed-in header", async () => {
