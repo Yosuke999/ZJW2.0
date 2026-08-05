@@ -34,7 +34,7 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
     const supabase = createSupabaseBrowserClient();
     if (mode === "login") {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) { setMessage(error.message); setBusy(false); return; }
+      if (error) { setMessage(copy.authError); setBusy(false); return; }
       const session = await syncServerSession(data.session);
       router.replace(session.advisor ? "/advisor" : returnTo); router.refresh(); return;
     }
@@ -55,7 +55,7 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
         },
       },
     });
-    if (error) { setMessage(error.message); setBusy(false); return; }
+    if (error) { setMessage(copy.authError); setBusy(false); return; }
     if (data.session) {
       await syncServerSession(data.session);
       router.replace(returnTo); router.refresh(); return;

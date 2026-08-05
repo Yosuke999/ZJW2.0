@@ -110,11 +110,30 @@ test("password login syncs Supabase browser sessions into server cookies", async
   assert.match(authForm, /session\.advisor \? "\/advisor" : returnTo/);
   assert.doesNotMatch(authForm, /copy\.authError\); setBusy\(false\); return; }\s*router\.replace\(returnTo\)/);
   assert.match(authForm, /fetch\("\/auth\/session"/);
+  assert.doesNotMatch(authForm, /setMessage\(error\.message\)/);
   assert.match(dashboard, /fetch\("\/auth\/session", \{ method: "DELETE" \}/);
   assert.match(dashboard, /copy\.saveProfile/);
   assert.match(accountNav, /user\.user_metadata\?\.display_name/);
   assert.match(helpers, /export function profileFromUserMetadata/);
   assert.match(helpers, /export function mergeCustomerProfile/);
+});
+
+test("Kyrgyz and Uzbek customer flows use complete native-language copy", async () => {
+  const [copy, intentActions] = await Promise.all([
+    read("data/intent-translations.ts"),
+    read("components/IntentActions.tsx"),
+  ]);
+
+  assert.doesNotMatch(copy, /const ky: IntentCopy = \{ \.\.\.ru/);
+  assert.doesNotMatch(copy, /const uz: IntentCopy = \{ \.\.\.ru/);
+  assert.match(copy, /loginTab: "Аккаунтум бар"/);
+  assert.match(copy, /submitRegister: "Катталып, улантуу"/);
+  assert.match(copy, /externalContact: "Же түз байланышсаңыз болот"/);
+  assert.match(copy, /loginTab: "Akkauntim bor"/);
+  assert.match(copy, /submitRegister: "Ro‘yxatdan o‘tib davom etish"/);
+  assert.match(copy, /externalContact: "Yoki to‘g‘ridan-to‘g‘ri bog‘laning"/);
+  assert.match(intentActions, /setError\(copy\.authError\)/);
+  assert.doesNotMatch(intentActions, /SUBMIT_FAILED/);
 });
 
 test("account page always shows a profile form for authenticated users", async () => {

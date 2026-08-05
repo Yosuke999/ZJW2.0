@@ -57,11 +57,10 @@ export function IntentActions({ country, language, productId, source }: { countr
       const typed = await readCurrentProfile();
       if (typed && isProfileComplete(typed)) response = await postInquiry(payload);
     }
-    const result = await response.json().catch(() => ({}));
     if (response.ok) setMode("success");
     else if (response.status === 401) setAuthState("guest");
     else if (response.status === 409) setAuthState("incomplete");
-    else setError(result.error ?? "SUBMIT_FAILED");
+    else setError(copy.authError);
     setBusy(false);
   }
 
