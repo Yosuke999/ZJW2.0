@@ -35,9 +35,13 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
   if (!isAdvisorRole(profile?.role) || profile?.status !== "active") {
     return (
       <main className="account-shell shell">
-        <Link className="back-link" href="/kg/zh">{copy.backToMarket}</Link>
-        <AdvisorLanguageSwitch language={language} />
-        <h1>{copy.workspace}</h1>
+        <div className="account-heading">
+          <div>
+            <Link className="back-link" href="/kg/zh">← 返回商机页面</Link>
+            <h1>顾问工作台</h1>
+          </div>
+          <AdvisorLanguageSwitch language={language} />
+        </div>
         <section className="advisor-card">
           <h2>{copy.noAccessTitle}</h2>
           <p>{copy.noAccessBody}</p>
@@ -53,12 +57,12 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
       <main className="advisor-shell shell">
         <div className="account-heading">
           <div>
-            <Link className="back-link" href="/kg/zh">{copy.backToMarket}</Link>
-            <h1>{copy.workspace}</h1>
-            <p>{copy.signedInAs}：{profile.display_name ?? user.email}</p>
+            <Link className="back-link" href="/kg/zh">← 返回商机页面</Link>
+            <h1>顾问工作台</h1>
+            <p>登录账号：{profile.display_name ?? user.email}</p>
           </div>
+          <AdvisorLanguageSwitch language={language} />
         </div>
-        <AdvisorLanguageSwitch language={language} />
         <section className="advisor-card">
           <h2>{copy.noMarketTitle}</h2>
           <p>{copy.noMarketBody}</p>
@@ -85,13 +89,13 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
     <main className="advisor-shell shell">
       <div className="account-heading">
         <div>
-          <Link className="back-link" href="/kg/zh">{copy.backToMarket}</Link>
-          <h1>{copy.workspace}</h1>
-          <p>{copy.intro}{copy.signedInAs}：{profile.display_name ?? user.email}</p>
-          <p>{copy.marketScope}：{isAdmin ? copy.allMarkets : advisorMarket?.toUpperCase()}</p>
+          <Link className="back-link" href="/kg/zh">← 返回商机页面</Link>
+          <h1>顾问工作台</h1>
+          <p>处理采购意向和咨询申请。登录账号：{profile.display_name ?? user.email}</p>
+          <p>负责市场：{isAdmin ? "全部市场" : advisorMarket?.toUpperCase()}</p>
         </div>
+        <AdvisorLanguageSwitch language={language} />
       </div>
-      <AdvisorLanguageSwitch language={language} />
       <AdvisorDashboard initialInquiries={normalizedInquiries as AdvisorInquiry[]} copy={copy} language={language} />
     </main>
   );
@@ -100,12 +104,18 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
 function AdvisorLanguageSwitch({ language }: { language: Language }) {
   const languages: Language[] = ["zh", "ru", "ky", "uz"];
   return (
-    <nav className="advisor-language-switch" aria-label="Advisor language">
-      {languages.map((item) => (
-        <Link key={item} className={item === language ? "active" : ""} href={`/advisor?language=${item}`}>
-          {languageLabels[item]}
-        </Link>
-      ))}
-    </nav>
+    <details className="advisor-language-switch">
+      <summary aria-label="界面语言">
+        <span>{languageLabels[language]}</span>
+        <span className="language-chevron" aria-hidden="true">⌄</span>
+      </summary>
+      <div className="advisor-language-popover">
+        {languages.map((item) => (
+          <Link key={item} className={item === language ? "active" : ""} href={`/advisor?language=${item}`}>
+            {languageLabels[item]}
+          </Link>
+        ))}
+      </div>
+    </details>
   );
 }
