@@ -90,18 +90,21 @@ export function AdvisorDashboard({
 
   return (
     <>
-      <section className="advisor-summary" aria-label={copy.workspace}>
-        <div><strong>{counts.new}</strong><span>{copy.pending}</span></div>
-        <div><strong>{counts.contacted + counts.qualified + counts.closed}</strong><span>{copy.processed}</span></div>
-        <div><strong>{counts.all}</strong><span>{copy.total}</span></div>
-      </section>
-      <div className="advisor-filter" role="tablist" aria-label={copy.allVisible}>
-        {filterStatuses.map((status) => (
-          <button key={status} type="button" className={filter === status ? "active" : ""} onClick={() => setFilter(status)}>
-            {copy.filters[status]}<span>{counts[status]}</span>
-          </button>
-        ))}
+      <div className="advisor-management-heading">
+        <h2>{copy.management}</h2>
+        <div className="advisor-filter" role="tablist" aria-label={copy.allVisible}>
+          {filterStatuses.map((status) => (
+            <button key={status} type="button" className={filter === status ? "active" : ""} onClick={() => setFilter(status)}>
+              {copy.filters[status]}<span>{counts[status]}</span>
+            </button>
+          ))}
+        </div>
       </div>
+      <section className="advisor-summary" aria-label={copy.workspace}>
+        <div><span className="advisor-summary-icon" aria-hidden="true">□</span><div><strong>{counts.new}</strong><span>{copy.pending}</span></div></div>
+        <div><span className="advisor-summary-icon" aria-hidden="true">✓</span><div><strong>{counts.contacted + counts.qualified + counts.closed}</strong><span>{copy.processed}</span></div></div>
+        <div><span className="advisor-summary-icon" aria-hidden="true">≋</span><div><strong>{counts.all}</strong><span>{copy.total}</span></div></div>
+      </section>
       {message && <p className="form-message" role="status">{message}</p>}
       <InquirySection title={filter === "new" ? copy.pendingInfo : filter === "all" ? copy.allVisible : copy.filters[filter]} empty={filter === "new" ? copy.noPending : copy.noProcessed} items={filteredItems} busyId={busyId} copy={copy} language={language} onUpdate={updateStatus} />
     </>

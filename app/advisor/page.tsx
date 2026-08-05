@@ -99,12 +99,14 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Prom
 
   return (
     <main className="advisor-shell shell">
-      <div className="account-heading">
-        <div>
+      <div className="account-heading advisor-heading-card">
+        <div className="advisor-heading-copy">
           <Link className="back-link" href="/kg/zh">← 返回商机页面</Link>
           <h1>顾问工作台</h1>
-          <p>处理采购意向和咨询申请。登录账号：{profile.display_name ?? user.email}</p>
-          <p>负责市场：{isAdmin ? "全部市场" : advisorMarket?.toUpperCase()}</p>
+          <div className="advisor-meta">
+            <span>登录账号：<strong>{profile.display_name ?? user.email}</strong></span>
+            <span>负责市场：<strong>{isAdmin ? "全部市场" : advisorMarket?.toUpperCase()}</strong></span>
+          </div>
         </div>
         <AdvisorLanguageSwitch language={language} />
       </div>

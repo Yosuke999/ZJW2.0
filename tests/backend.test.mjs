@@ -209,8 +209,10 @@ test("advisor workspace is staff-only, localized, and market-scoped", async () =
   assert.match(page, /advisorTranslations\[language\]/);
   assert.match(page, /AdvisorLanguageSwitch/);
   assert.match(page, /<h1>顾问工作台<\/h1>/);
-  assert.match(page, /处理采购意向和咨询申请。登录账号/);
-  assert.match(page, /负责市场/);
+  assert.match(page, /advisor-heading-card/);
+  assert.match(page, /advisor-meta/);
+  assert.match(page, /登录账号：<strong>/);
+  assert.match(page, /负责市场：<strong>/);
   assert.match(page, /<details className="advisor-language-switch">/);
   assert.match(page, /advisor-language-popover/);
   assert.match(page, /language=\$\{language\}/);

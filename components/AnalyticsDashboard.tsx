@@ -67,13 +67,13 @@ export function AnalyticsDashboard({ events, language }: { events: AnalyticsEven
     <section className="analytics-dashboard" aria-labelledby="analytics-title">
       <div className="analytics-heading"><div><h2 id="analytics-title">{copy.title}</h2><p>{copy.period}</p></div></div>
       <div className="analytics-cards">
-        <Metric label={copy.visitors} value={visitors} />
-        <Metric label={copy.views} value={productViews} />
-        <Metric label={copy.inquiries} value={inquiries} />
-        <Metric label={copy.registrations} value={registrations} />
-        <Metric label={copy.rate} value={percent(registrations, visitors)} />
+        <Metric kind="visitors" label={copy.visitors} value={visitors} />
+        <Metric kind="views" label={copy.views} value={productViews} />
+        <Metric kind="inquiries" label={copy.inquiries} value={inquiries} />
+        <Metric kind="registrations" label={copy.registrations} value={registrations} />
+        <Metric kind="rate" label={copy.rate} value={percent(registrations, visitors)} />
       </div>
-      {events.length === 0 ? <p className="analytics-empty">{copy.noData}</p> : <>
+      {events.length === 0 ? <div className="analytics-empty"><MetricIcon kind="trend" /><p>{copy.noData}</p></div> : <>
         <div className="analytics-panel">
           <h3>{copy.trend}</h3>
           <div className="analytics-trend" aria-label={copy.trend}>
@@ -93,6 +93,20 @@ export function AnalyticsDashboard({ events, language }: { events: AnalyticsEven
   );
 }
 
-function Metric({ label, value }: { label: string; value: string | number }) {
-  return <div><strong>{value}</strong><span>{label}</span></div>;
+type MetricKind = "visitors" | "views" | "inquiries" | "registrations" | "rate" | "trend";
+
+function Metric({ kind, label, value }: { kind: MetricKind; label: string; value: string | number }) {
+  return <div className={`analytics-metric analytics-metric-${kind}`}><MetricIcon kind={kind} /><div><strong>{value}</strong><span>{label}</span></div></div>;
+}
+
+function MetricIcon({ kind }: { kind: MetricKind }) {
+  const paths: Record<MetricKind, React.ReactNode> = {
+    visitors: <><circle cx="12" cy="8" r="3" /><path d="M5.5 20v-2.5A5.5 5.5 0 0 1 11 12h2a5.5 5.5 0 0 1 5.5 5.5V20" /></>,
+    views: <><path d="M5 8h14l-1 12H6L5 8Z" /><path d="M9 8a3 3 0 0 1 6 0" /></>,
+    inquiries: <><path d="M4 5h16v11H9l-4 3v-3H4V5Z" /><path d="M8 10h.01M12 10h.01M16 10h.01" /></>,
+    registrations: <><circle cx="9" cy="8" r="3" /><path d="M3.5 20v-2a5.5 5.5 0 0 1 11 0v2M18 9v6M15 12h6" /></>,
+    rate: <><circle cx="7" cy="7" r="2" /><circle cx="17" cy="17" r="2" /><path d="m18.5 5.5-13 13" /></>,
+    trend: <><path d="M5 19V9M10 19V5M15 19v-7M20 19V3" /><path d="M3 21h19" /></>,
+  };
+  return <span className="analytics-metric-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">{paths[kind]}</svg></span>;
 }

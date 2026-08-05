@@ -15,6 +15,7 @@ export type AdvisorCopy = {
   pending: string;
   processed: string;
   total: string;
+  management: string;
   filters: Record<string, string>;
   allVisible: string;
   pendingInfo: string;
@@ -54,6 +55,7 @@ const zh: AdvisorCopy = {
   pending: "待处理",
   processed: "已处理",
   total: "全部意向",
+  management: "意向管理",
   filters: { all: "全部", new: "待处理", contacted: "已联系", qualified: "跟进中", closed: "已结束", spam: "已关闭" },
   allVisible: "筛选结果",
   pendingInfo: "待处理信息",
@@ -94,6 +96,7 @@ const ru: AdvisorCopy = {
   pending: "Новые",
   processed: "Обработанные",
   total: "Всего",
+  management: "Управление заявками",
   filters: { all: "Все", new: "Новые", contacted: "Связались", qualified: "В работе", closed: "Завершены", spam: "Закрыты" },
   allVisible: "Результаты фильтра",
   pendingInfo: "Новые заявки",
@@ -134,6 +137,7 @@ const ky: AdvisorCopy = {
   pending: "Күтүүдө",
   processed: "Иштетилди",
   total: "Бардыгы",
+  management: "Өтүнмөлөрдү башкаруу",
   filters: { all: "Баары", new: "Күтүүдө", contacted: "Байланышты", qualified: "Иштөөдө", closed: "Аяктады", spam: "Жабылды" },
   allVisible: "Чыпка жыйынтыгы",
   pendingInfo: "Күтүүдөгү билдирүүлөр",
@@ -174,6 +178,7 @@ const uz: AdvisorCopy = {
   pending: "Kutilmoqda",
   processed: "Ko‘rib chiqilgan",
   total: "Jami",
+  management: "So‘rovlarni boshqarish",
   filters: { all: "Barchasi", new: "Kutilmoqda", contacted: "Bog‘lanildi", qualified: "Jarayonda", closed: "Yakunlandi", spam: "Yopildi" },
   allVisible: "Filtr natijalari",
   pendingInfo: "Kutilayotgan ma’lumotlar",

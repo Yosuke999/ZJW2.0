@@ -271,8 +271,15 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .status-contacted, .status-qualified { background: #e4f7f3; color: #14766d; }
 .status-closed { background: #edf3f6; color: #425b6b; }
 .status-spam { background: #f9e7e4; color: #9d3128; }
-.advisor-shell { min-height: 100dvh; padding-top: 36px; padding-bottom: 64px; }
-.advisor-shell .account-heading p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
+.advisor-shell.shell { width: min(1440px, calc(100% - 64px)); }
+.advisor-shell { min-height: 100dvh; padding-top: 28px; padding-bottom: 64px; }
+.advisor-heading-card { width: min(1100px, 100%); margin: 0 auto 34px; padding: 24px 28px; border: 1px solid rgba(23,74,126,.13); border-radius: 20px; background: rgba(255,255,255,.9); box-shadow: 0 14px 34px rgba(23,74,126,.09); }
+.advisor-heading-copy { min-width: 0; }
+.advisor-heading-card .back-link { display: inline-flex; margin-bottom: 14px; }
+.advisor-heading-card h1 { margin: 0; font-size: clamp(38px, 4vw, 52px); line-height: 1; }
+.advisor-meta { display: flex; flex-wrap: wrap; gap: 10px 28px; margin-top: 18px; color: var(--muted); font-size: 13px; }
+.advisor-meta span { display: inline-flex; align-items: center; gap: 7px; }
+.advisor-meta strong { padding: 6px 11px; border-radius: 999px; background: #edf4fb; color: var(--blue); font-weight: 850; }
 .advisor-language-switch { position: relative; z-index: 20; flex: 0 0 auto; margin-top: 2px; }
 .advisor-language-switch summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; min-width: 132px; padding: 0 13px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--blue-dark); font-size: 14px; font-weight: 800; }
 .advisor-language-switch summary::-webkit-details-marker { display: none; }
@@ -280,16 +287,21 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .advisor-language-popover { position: absolute; right: 0; top: calc(100% + 8px); min-width: 178px; padding: 7px; border: 1px solid var(--line); border-radius: 14px; background: white; box-shadow: var(--shadow); }
 .advisor-language-popover a { display: block; padding: 11px 12px; color: var(--ink); text-decoration: none; border-radius: 9px; font-size: 13px; font-weight: 800; }
 .advisor-language-popover a:hover, .advisor-language-popover a.active { background: #eef5f8; color: var(--blue); }
-.advisor-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(960px, 100%); margin: 18px auto; }
-.advisor-summary > div { display: grid; gap: 4px; padding: 18px; border: 1px solid rgba(34,166,154,.2); border-radius: 18px; background: rgba(255,255,255,.78); box-shadow: 0 12px 28px rgba(23,74,126,.06); }
-.advisor-summary strong { color: var(--blue); font-size: 28px; line-height: 1; }
-.advisor-summary span { color: var(--muted); font-size: 12px; font-weight: 800; }
-.advisor-filter { display: flex; flex-wrap: wrap; gap: 8px; width: min(960px, 100%); margin: 0 auto 18px; }
+.advisor-management-heading { display: flex; align-items: center; gap: 20px; width: min(1100px, 100%); margin: 0 auto 14px; }
+.advisor-management-heading h2 { flex: 0 0 auto; margin: 0; color: var(--blue-dark); font-size: 20px; }
+.advisor-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(1100px, 100%); margin: 0 auto 20px; }
+.advisor-summary > div { display: flex; align-items: center; gap: 15px; padding: 18px 22px; border: 1px solid rgba(34,166,154,.2); border-radius: 18px; background: rgba(255,255,255,.86); box-shadow: 0 10px 26px rgba(23,74,126,.055); }
+.advisor-summary > div > div { display: grid; gap: 5px; }
+.advisor-summary strong { color: var(--blue); font-size: 30px; line-height: 1; }
+.advisor-summary > div > div > span { color: var(--muted); font-size: 12px; font-weight: 800; }
+.advisor-summary-icon { display: grid; flex: 0 0 48px; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #edf4fb; color: var(--blue); font-size: 23px; font-weight: 700; }
+.advisor-summary > div:nth-child(2) .advisor-summary-icon { background: #e8f7f4; color: #16877d; }
+.advisor-filter { display: flex; flex-wrap: wrap; gap: 8px; width: auto; margin: 0; }
 .advisor-filter button { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--blue); font-size: 12px; font-weight: 850; cursor: pointer; }
 .advisor-filter button.active { border-color: rgba(34,166,154,.46); background: #f0faf8; color: #167a72; }
 .advisor-filter span { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #eef3f6; color: var(--muted); font-size: 11px; }
 .advisor-filter button.active span { background: white; color: #167a72; }
-.advisor-card { width: min(960px, 100%); margin: 18px auto; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: 0 14px 34px rgba(23,74,126,.08); }
+.advisor-card { width: min(1100px, 100%); margin: 18px auto; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: 0 14px 34px rgba(23,74,126,.08); }
 .advisor-card h2 { color: var(--blue-dark); }
 .advisor-card > p { color: var(--muted); line-height: 1.55; }
 .advisor-list { display: grid; gap: 14px; }
@@ -307,15 +319,22 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .advisor-actions button { min-height: 38px; padding: 0 12px; border: 1px solid #c7d7df; border-radius: 10px; background: white; color: var(--blue); font-size: 12px; font-weight: 800; cursor: pointer; }
 .advisor-actions button:first-child { border-color: rgba(34,166,154,.34); background: #f0faf8; color: #167a72; }
 .advisor-actions button:disabled { opacity: .55; cursor: wait; }
-.analytics-dashboard { width: min(1100px, 100%); margin: 24px auto 34px; }
+.analytics-dashboard { width: min(1100px, 100%); margin: 0 auto 38px; }
 .analytics-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
-.analytics-heading h2 { margin-bottom: 4px; color: var(--blue-dark); }
+.analytics-heading > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 18px; }
+.analytics-heading h2 { margin: 0; color: var(--blue-dark); font-size: 22px; }
 .analytics-heading p { margin: 0; color: var(--muted); font-size: 12px; }
 .analytics-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
-.analytics-cards > div { display: grid; gap: 5px; min-width: 0; padding: 17px; border: 1px solid rgba(23,74,126,.13); border-radius: 16px; background: rgba(255,255,255,.88); box-shadow: 0 10px 24px rgba(23,74,126,.055); }
-.analytics-cards strong { color: var(--blue); font-size: 25px; line-height: 1; }
-.analytics-cards span { color: var(--muted); font-size: 11px; font-weight: 800; }
-.analytics-empty { margin-top: 12px; padding: 20px; border: 1px dashed #cbd9e0; border-radius: 14px; color: var(--muted); text-align: center; }
+.analytics-metric { display: flex; align-items: center; gap: 13px; min-width: 0; min-height: 94px; padding: 15px 17px; border: 1px solid rgba(23,74,126,.12); border-radius: 17px; background: rgba(255,255,255,.9); box-shadow: 0 10px 24px rgba(23,74,126,.055); }
+.analytics-metric > div { display: grid; min-width: 0; gap: 5px; }
+.analytics-metric strong { color: var(--blue); font-size: 27px; line-height: 1; }
+.analytics-metric > div > span { color: var(--muted); font-size: 11px; font-weight: 800; }
+.analytics-metric-icon { display: grid; flex: 0 0 48px; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #edf4fb; color: var(--blue); }
+.analytics-metric-icon svg { width: 25px; height: 25px; }
+.analytics-metric-views .analytics-metric-icon, .analytics-metric-registrations .analytics-metric-icon { background: #e8f7f4; color: #16877d; }
+.analytics-empty { display: flex; align-items: center; justify-content: center; gap: 13px; min-height: 76px; margin-top: 12px; padding: 15px 20px; border: 1px dashed #cbd9e0; border-radius: 16px; color: var(--muted); text-align: center; }
+.analytics-empty .analytics-metric-icon { flex-basis: 42px; width: 42px; height: 42px; }
+.analytics-empty p { margin: 0; }
 .analytics-panel { min-width: 0; margin-top: 12px; padding: 17px; border: 1px solid var(--line); border-radius: 17px; background: white; box-shadow: 0 10px 26px rgba(23,74,126,.05); }
 .analytics-panel h3 { margin-bottom: 14px; color: var(--blue-dark); font-size: 15px; }
 .analytics-trend { display: grid; grid-template-columns: repeat(30, minmax(8px, 1fr)); align-items: end; gap: 4px; height: 150px; overflow-x: auto; }
@@ -504,7 +523,24 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .consult-section { width: calc(100% - 16px); padding: 20px 12px 62px; }
   .consult-section .primary-button { width: 100%; min-height: 52px; font-size: 16px; }
   .consult-section p { font-size: 12px; line-height: 1.5; }
-  .advisor-summary { grid-template-columns: 1fr; }
+  .advisor-shell.shell { width: min(100% - 24px, 1440px); }
+  .advisor-shell { padding-top: 12px; }
+  .advisor-heading-card { align-items: flex-start; margin-bottom: 26px; padding: 18px; border-radius: 17px; }
+  .advisor-heading-card h1 { font-size: 34px; }
+  .advisor-heading-card .advisor-language-switch summary { min-width: 108px; min-height: 38px; padding-inline: 10px; font-size: 12px; }
+  .advisor-meta { display: grid; gap: 8px; margin-top: 14px; }
+  .analytics-dashboard { margin-bottom: 30px; }
+  .analytics-heading > div { display: grid; gap: 5px; }
+  .analytics-cards { gap: 8px; }
+  .analytics-metric { min-height: 84px; gap: 9px; padding: 12px; }
+  .analytics-metric-icon { flex-basis: 40px; width: 40px; height: 40px; }
+  .analytics-metric-icon svg { width: 22px; height: 22px; }
+  .analytics-metric strong { font-size: 24px; }
+  .advisor-management-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .advisor-filter { gap: 6px; }
+  .advisor-filter button { min-height: 36px; padding-inline: 10px; }
+  .advisor-summary { grid-template-columns: 1fr; gap: 8px; }
+  .advisor-summary > div { padding: 14px 16px; }
   .advisor-fields { grid-template-columns: 1fr; }
   .advisor-actions { display: grid; grid-template-columns: 1fr 1fr; }
   .analytics-cards { grid-template-columns: 1fr 1fr; }
