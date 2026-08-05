@@ -165,6 +165,14 @@ test("first-party analytics records anonymous funnels and scopes the advisor das
   assert.match(dashboard, /独立访客/);
   assert.match(dashboard, /注册转化率/);
   assert.match(dashboard, /国家与语言转化/);
+  assert.match(dashboard, /useState<7 \| 30>\(7\)/);
+  assert.match(dashboard, /setMobileRange\(30\)/);
+  assert.match(dashboard, /analytics-trend-mobile/);
+  assert.match(dashboard, /<TrendBar kind="visitors"/);
+  assert.match(dashboard, /<TrendBar kind="registrations"/);
+  assert.match(dashboard, /<TrendBar kind="inquiries"/);
+  assert.match(dashboard, /trend-bar-\$\{kind\}/);
+  assert.match(dashboard, /hasTrendData/);
 });
 
 test("account page always shows a profile form for authenticated users", async () => {
@@ -228,6 +236,7 @@ test("advisor workspace is staff-only, localized, and market-scoped", async () =
   assert.match(page, /country_code/);
   assert.match(dashboard, /copy\.pendingInfo/);
   assert.match(dashboard, /advisor-filter/);
+  assert.doesNotMatch(dashboard, /advisor-summary/);
   assert.match(dashboard, /filterStatuses/);
   assert.match(dashboard, /setFilter\(status\)/);
   assert.match(dashboard, /hiddenIds/);

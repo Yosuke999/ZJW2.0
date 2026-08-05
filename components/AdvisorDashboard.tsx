@@ -100,11 +100,6 @@ export function AdvisorDashboard({
           ))}
         </div>
       </div>
-      <section className="advisor-summary" aria-label={copy.workspace}>
-        <div><span className="advisor-summary-icon" aria-hidden="true">□</span><div><strong>{counts.new}</strong><span>{copy.pending}</span></div></div>
-        <div><span className="advisor-summary-icon" aria-hidden="true">✓</span><div><strong>{counts.contacted + counts.qualified + counts.closed}</strong><span>{copy.processed}</span></div></div>
-        <div><span className="advisor-summary-icon" aria-hidden="true">≋</span><div><strong>{counts.all}</strong><span>{copy.total}</span></div></div>
-      </section>
       {message && <p className="form-message" role="status">{message}</p>}
       <InquirySection title={filter === "new" ? copy.pendingInfo : filter === "all" ? copy.allVisible : copy.filters[filter]} empty={filter === "new" ? copy.noPending : copy.noProcessed} items={filteredItems} busyId={busyId} copy={copy} language={language} onUpdate={updateStatus} />
     </>
