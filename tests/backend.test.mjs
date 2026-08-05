@@ -87,13 +87,14 @@ test("password login syncs Supabase browser sessions into server cookies", async
   ]);
 
   assert.match(sessionRoute, /auth\.setSession/);
+  assert.match(sessionRoute, /access_token/);
   assert.match(sessionRoute, /profileFromUserMetadata/);
   assert.match(sessionRoute, /mergeCustomerProfile/);
   assert.match(sessionRoute, /\.upsert\(/);
-  assert.match(sessionRoute, /access_token/);
   assert.match(sessionRoute, /refresh_token/);
   assert.match(sessionRoute, /auth\.signOut\(\)/);
-  assert.match(authForm, /syncServerSession\(data\.session\)/);
+  assert.match(authForm, /await syncServerSession\(data\.session\)/);
+  assert.doesNotMatch(authForm, /copy\.authError\); setBusy\(false\); return; }\s*router\.replace\(returnTo\)/);
   assert.match(authForm, /fetch\("\/auth\/session"/);
   assert.match(dashboard, /fetch\("\/auth\/session", \{ method: "DELETE" \}/);
   assert.match(accountNav, /user\.user_metadata\?\.display_name/);

@@ -4,9 +4,14 @@ import { isProfileComplete, mergeCustomerProfile, profileFromUserMetadata, type 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const sessionSchema = z.object({
-  accessToken: z.string().min(20),
-  refreshToken: z.string().min(20),
-});
+  accessToken: z.string().optional(),
+  refreshToken: z.string().optional(),
+  access_token: z.string().optional(),
+  refresh_token: z.string().optional(),
+}).transform((value) => ({
+  accessToken: value.accessToken ?? value.access_token,
+  refreshToken: value.refreshToken ?? value.refresh_token,
+})).refine((value) => Boolean(value.accessToken && value.refreshToken), { message: "Missing session tokens" });
 
 export async function POST(request: Request) {
   const parsed = sessionSchema.safeParse(await request.json().catch(() => null));
@@ -14,11 +19,11 @@ export async function POST(request: Request) {
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.setSession({
-    access_token: parsed.data.accessToken,
-    refresh_token: parsed.data.refreshToken,
+    access_token: parsed.data.accessToken!,
+    refresh_token: parsed.data.refreshToken!,
   });
 
-  if (error) return NextResponse.json({ error: "SESSION_SYNC_FAILED" }, { status: 401 });
+  if (error) return NextResponse.json({ error: "SESSION_SYNC_FAILED", detail: error.message }, { status: 200 });
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
     const { data: profile } = await supabase

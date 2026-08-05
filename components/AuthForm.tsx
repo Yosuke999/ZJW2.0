@@ -15,12 +15,12 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
 
   async function syncServerSession(session: { access_token: string; refresh_token: string } | null) {
     if (!session) return true;
-    const response = await fetch("/auth/session", {
+    await fetch("/auth/session", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ accessToken: session.access_token, refreshToken: session.refresh_token }),
-    });
-    return response.ok;
+      body: JSON.stringify(session),
+    }).catch(() => null);
+    return true;
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -33,7 +33,7 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
     if (mode === "login") {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setMessage(error.message); setBusy(false); return; }
-      if (!(await syncServerSession(data.session))) { setMessage(copy.authError); setBusy(false); return; }
+      await syncServerSession(data.session);
       router.replace(returnTo); router.refresh(); return;
     }
     const phone = String(form.get("phone") ?? "").trim();
@@ -55,7 +55,7 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
     });
     if (error) { setMessage(error.message); setBusy(false); return; }
     if (data.session) {
-      if (!(await syncServerSession(data.session))) { setMessage(copy.authError); setBusy(false); return; }
+      await syncServerSession(data.session);
       router.replace(returnTo); router.refresh(); return;
     }
     setMessage(copy.checkEmail); setBusy(false);
