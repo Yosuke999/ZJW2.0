@@ -66,6 +66,8 @@ test("intent endpoints require auth and never accept contact identity from the f
   assert.match(route, /profileContact\(profile\)/);
   assert.doesNotMatch(form, /name=\"(?:phone|whatsapp|telegram)\"/);
   assert.match(profileRoute, /contact_consent_at/);
+  assert.match(profileRoute, /\.upsert\(/);
+  assert.match(profileRoute, /user_id:\s*user\.id/);
 });
 
 test("email confirmation callback supports both PKCE codes and token hashes", async () => {
@@ -91,6 +93,20 @@ test("password login syncs Supabase browser sessions into server cookies", async
   assert.match(authForm, /fetch\("\/auth\/session"/);
   assert.match(dashboard, /fetch\("\/auth\/session", \{ method: "DELETE" \}/);
   assert.match(accountNav, /user\.user_metadata\?\.display_name/);
+});
+
+test("account page always shows a profile form for authenticated users", async () => {
+  const [accountPage, dashboard, migration] = await Promise.all([
+    read("app/account/page.tsx"),
+    read("components/AccountDashboard.tsx"),
+    read("db/migrations/0002_profile_self_insert_policy.sql"),
+  ]);
+
+  assert.match(accountPage, /\.maybeSingle\(\)/);
+  assert.match(accountPage, /fallbackProfile/);
+  assert.doesNotMatch(accountPage, /if \(!profile\) redirect/);
+  assert.match(dashboard, /profile\.telegram \? "telegram" : "phone"/);
+  assert.match(migration, /CREATE POLICY "users create own profile"/);
 });
 
 test("account login returns to the market page while keeping a visible signed-in header", async () => {

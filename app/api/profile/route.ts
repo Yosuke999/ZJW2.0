@@ -26,7 +26,8 @@ export async function PUT(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: "INVALID_PROFILE" }, { status: 400 });
   const value = parsed.data;
   const now = new Date().toISOString();
-  const { error } = await supabase.from("profiles").update({
+  const { error } = await supabase.from("profiles").upsert({
+    user_id: user.id,
     display_name: value.displayName,
     country_code: value.countryCode,
     preferred_language: value.preferredLanguage,
@@ -38,7 +39,7 @@ export async function PUT(request: Request) {
     contact_consent_at: now,
     profile_completed_at: now,
     updated_at: now,
-  }).eq("user_id", user.id);
+  }, { onConflict: "user_id" });
   if (error) return NextResponse.json({ error: "UPDATE_FAILED" }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

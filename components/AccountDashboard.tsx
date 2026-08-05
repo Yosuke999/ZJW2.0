@@ -15,7 +15,7 @@ export function AccountDashboard({ profile, intents, country, language, returnTo
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
-  const preferred = profile.contact_preference ?? (profile.phone ? "phone" : profile.whatsapp ? "whatsapp" : "telegram");
+  const preferred = profile.contact_preference ?? (profile.phone ? "phone" : profile.whatsapp ? "whatsapp" : profile.telegram ? "telegram" : "phone");
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setSaving(true); setMessage("");
