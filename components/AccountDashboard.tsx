@@ -10,7 +10,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type IntentRow = { id: string; intent_type: string; delivery_city: string | null; custom_product_name: string | null; quantity: number | null; message: string | null; status: string; created_at: string; products: { legacy_id: string } | null };
 
-export function AccountDashboard({ profile, intents, country, language, returnTo }: { profile: CustomerProfile; intents: IntentRow[]; country: CountryCode; language: Language; returnTo: string }) {
+export function AccountDashboard({ profile, intents, country, language, returnTo, showWelcome = false }: { profile: CustomerProfile; intents: IntentRow[]; country: CountryCode; language: Language; returnTo: string; showWelcome?: boolean }) {
   const copy = intentTranslations[language];
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -33,6 +33,7 @@ export function AccountDashboard({ profile, intents, country, language, returnTo
 
   return <>
     <div className="account-heading"><div><Link className="back-link" href={returnTo}>← {copy.backToMarket}</Link><h1>{copy.account}</h1></div><button className="text-button" onClick={signOut}>{copy.signOut}</button></div>
+    {showWelcome && <p className="account-welcome" role="status">{copy.loginSuccess}</p>}
     <section className="account-card"><h2>{copy.myProfile}</h2><form className="intent-form" onSubmit={saveProfile}>
       <label>{copy.displayName}<input name="displayName" defaultValue={profile.display_name ?? ""} minLength={2} required /></label>
       <label>{copy.city}<input name="city" defaultValue={profile.city ?? ""} minLength={2} required /></label>

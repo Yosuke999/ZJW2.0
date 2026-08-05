@@ -74,3 +74,24 @@ test("email confirmation callback supports both PKCE codes and token hashes", as
   assert.match(callback, /exchangeCodeForSession\(code\)/);
   assert.match(callback, /verifyOtp\(\{ type, token_hash: tokenHash \}\)/);
 });
+
+test("account login returns to account dashboard with a visible success cue", async () => {
+  const [accountPage, dashboard, header, accountNav, copy] = await Promise.all([
+    read("app/account/page.tsx"),
+    read("components/AccountDashboard.tsx"),
+    read("components/Header.tsx"),
+    read("components/AccountNav.tsx"),
+    read("data/intent-translations.ts"),
+  ]);
+
+  assert.match(accountPage, /accountReturnTo/);
+  assert.match(accountPage, /welcome=1/);
+  assert.match(accountPage, /returnTo=\$\{encodeURIComponent\(accountReturnTo\)\}/);
+  assert.match(dashboard, /showWelcome/);
+  assert.match(dashboard, /copy\.loginSuccess/);
+  assert.match(header, /<AccountNav country=\{country\.code\} language=\{language\} \/>/);
+  assert.match(accountNav, /supabase\.auth\.getUser\(\)/);
+  assert.match(accountNav, /\.from\("profiles"\)/);
+  assert.match(accountNav, /onAuthStateChange/);
+  assert.match(copy, /loginSuccess:/);
+});

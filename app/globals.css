@@ -25,7 +25,10 @@ button { color: inherit; }
 .shell { width: min(1160px, calc(100% - 32px)); margin-inline: auto; }
 .site-header { height: 76px; display: flex; align-items: center; justify-content: space-between; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
-.account-link { display: inline-flex; align-items: center; min-height: 42px; padding: 0 13px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--blue-dark); font-size: 14px; font-weight: 700; text-decoration: none; }
+.account-link { display: inline-flex; align-items: center; gap: 7px; min-height: 42px; max-width: 142px; padding: 0 13px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--blue-dark); font-size: 14px; font-weight: 700; text-decoration: none; }
+.account-link > span:last-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account-link.is-signed-in { border-color: rgba(34,166,154,.34); background: #f0faf8; color: #167a72; }
+.account-avatar { display: grid; flex: 0 0 22px; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: white; color: #167a72; font-size: 11px; font-weight: 850; }
 .brand { display: inline-flex; min-width: 0; max-width: min(70%, 620px); align-items: center; gap: 9px; color: var(--blue); text-decoration: none; font-weight: 750; line-height: 1.15; letter-spacing: .005em; }
 .brand > span:last-child { overflow-wrap: anywhere; }
 .brand-mark { display: grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; border: 1px solid #9ab5c9; border-radius: 50%; color: var(--blue); font-size: 8px; letter-spacing: .04em; }
@@ -254,6 +257,7 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .auth-tabs button.active { background: white; color: var(--blue-dark); box-shadow: 0 3px 10px rgba(23,74,126,.09); }
 .account-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; width: min(760px, 100%); margin: auto; }
 .account-heading h1 { margin: 12px 0 0; color: var(--blue-dark); }
+.account-welcome { width: min(760px, 100%); margin: 16px auto 0; padding: 13px 15px; border: 1px solid rgba(34,166,154,.25); border-radius: 14px; background: #f0faf8; color: #167a72; font-size: 14px; line-height: 1.45; }
 .text-button { padding: 9px 12px; border: 0; background: transparent; color: var(--blue); font-weight: 700; cursor: pointer; }
 .account-card { width: min(760px, 100%); }
 .account-card h2 { color: var(--blue-dark); }
