@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { intentTranslations } from "@/data/intent-translations";
+import { advisorTranslations } from "@/data/advisor-translations";
 import type { CountryCode, Language } from "@/data/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -66,7 +67,7 @@ export function AccountNav({ country, language }: { country: CountryCode; langua
 
   return (
     <>
-      {state.advisor && <Link className="account-link workspace-link" href="/advisor"><span>工作台</span></Link>}
+      {state.advisor && <Link className="account-link workspace-link" href={`/advisor?language=${language}`}><span>{advisorTranslations[language].workspace}</span></Link>}
       <Link className={`account-link${state.signedIn ? " is-signed-in" : ""}`} href={href}>
         <span>{label}</span>
       </Link>

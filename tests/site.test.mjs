@@ -244,9 +244,26 @@ test("contact context follows the selected product and language links preserve s
   assert.match(contact, /product\.name\[language\]/);
   assert.match(contact, /product\.id/);
   assert.match(contact, /country\.contact\.telegramUrl/);
+  assert.match(contact, /const serviceCountryLabel = country\.name\[language\]/);
+  assert.doesNotMatch(contact, /language === "zh" \? "中国"|language === "ru" \? null/);
+  assert.match(contact, /label: intentCopy\.phone/);
+  assert.match(contact, /<strong>\{channel\.label\}<\/strong>/);
   assert.match(contact, /copy\.contactOutcomes\.map/);
   assert.match(contact, /copy\.contactOutcomesTitle/);
   assert.doesNotMatch(contact, /t\.me\/share\/url/);
   assert.match(header, /encodeURIComponent\(source\)/);
   assert.match(footer, /encodeURIComponent\(source\)/);
+});
+
+test("query-string language controls protected-page html lang and metadata", async () => {
+  const [proxy, auth, account, advisor] = await Promise.all([
+    read("proxy.ts"), read("app/auth/page.tsx"), read("app/account/page.tsx"), read("app/advisor/page.tsx"),
+  ]);
+  assert.match(proxy, /const queryLanguage = request\.nextUrl\.searchParams\.get\("language"\)/);
+  assert.match(proxy, /queryLanguage === "ky"/);
+  for (const page of [auth, account, advisor]) {
+    assert.match(page, /export async function generateMetadata/);
+    assert.match(page, /robots: \{ index: false, follow: false \}/);
+    assert.match(page, /translations\[language\]\.brandName/);
+  }
 });

@@ -134,6 +134,7 @@ test("Kyrgyz and Uzbek customer flows use complete native-language copy", async 
   assert.match(copy, /externalContact: "Yoki to‘g‘ridan-to‘g‘ri bog‘laning"/);
   assert.match(intentActions, /setError\(copy\.authError\)/);
   assert.doesNotMatch(intentActions, /SUBMIT_FAILED/);
+  assert.match(copy, /authError: "Не удалось выполнить действие\. Проверьте данные и попробуйте снова\."/);
 });
 
 test("first-party analytics records anonymous funnels and scopes the advisor dashboard", async () => {
@@ -185,8 +186,10 @@ test("account page always shows a profile form for authenticated users", async (
 
   assert.match(accountPage, /\.maybeSingle\(\)/);
   assert.match(accountPage, /mergeCustomerProfile/);
+  assert.match(accountPage, /Array\.isArray\(item\.products\) \? item\.products\[0\] \?\? null : item\.products/);
   assert.doesNotMatch(accountPage, /if \(!profile\) redirect/);
   assert.match(dashboard, /profile\.telegram \? "telegram" : "phone"/);
+  assert.match(dashboard, /products\.find\(\(product\) => product\.id === legacyId\)\?\.name\[language\]/);
   assert.match(intentActions, /profileFromUserMetadata/);
   assert.match(intentActions, /mergeCustomerProfile/);
   assert.match(intentActions, /\.maybeSingle\(\)/);
@@ -245,6 +248,7 @@ test("advisor workspace is staff-only, localized, and market-scoped", async () =
   assert.doesNotMatch(dashboard, /\.delete\(/);
   assert.match(dashboard, /item\.message/);
   assert.match(dashboard, /item\.custom_product_name/);
+  assert.match(dashboard, /products\.find\(\(product\) => product\.id === legacyId\)\?\.name\[language\]/);
   assert.match(dashboard, /\{item\.message && <p className="advisor-note">\{item\.message\}<\/p>\}/);
   assert.match(dashboard, /filter === "new"/);
   assert.match(dashboard, /item\.status === filter/);
@@ -278,8 +282,9 @@ test("account login returns to the market page while keeping a visible signed-in
   assert.match(accountNav, /\.from\("profiles"\)/);
   assert.match(accountNav, /select\("display_name,role,status"\)/);
   assert.match(accountNav, /isAdvisorRole\(data\?\.role\)/);
-  assert.match(accountNav, /href="\/advisor"/);
-  assert.match(accountNav, /工作台/);
+  assert.match(accountNav, /advisorTranslations\[language\]\.workspace/);
+  assert.match(accountNav, /href=\{`\/advisor\?language=\$\{language\}`\}/);
+  assert.doesNotMatch(accountNav, />工作台<\/span>/);
   assert.match(accountNav, /onAuthStateChange/);
   assert.match(copy, /loginSuccess:/);
 });

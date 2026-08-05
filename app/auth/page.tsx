@@ -1,13 +1,33 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { AuthForm } from "@/components/AuthForm";
 import { intentTranslations } from "@/data/intent-translations";
+import { translations } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { safeReturnPath } from "@/lib/customer-intents";
 
-export default async function AuthPage({ searchParams }: { searchParams: Promise<{ country?: string; language?: string; returnTo?: string }> }) {
+type AuthSearchParams = Promise<{ country?: string; language?: string; returnTo?: string }>;
+
+function resolveLanguage(value: string | undefined, country: CountryCode): Language {
+  return value === "ky" || value === "uz" || value === "ru" || value === "zh" ? value : country === "uz" ? "uz" : "ky";
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: AuthSearchParams }): Promise<Metadata> {
   const query = await searchParams;
   const country: CountryCode = query.country === "uz" ? "uz" : "kg";
-  const language: Language = ["ky", "uz", "ru", "zh"].includes(query.language ?? "") ? query.language as Language : country === "uz" ? "uz" : "ky";
+  const language = resolveLanguage(query.language, country);
+  const copy = intentTranslations[language];
+  return {
+    title: `${copy.signIn} / ${copy.signUp}｜${translations[language].brandName}`,
+    description: copy.authIntro,
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function AuthPage({ searchParams }: { searchParams: AuthSearchParams }) {
+  const query = await searchParams;
+  const country: CountryCode = query.country === "uz" ? "uz" : "kg";
+  const language = resolveLanguage(query.language, country);
   const fallback = language === (country === "kg" ? "ky" : "uz") ? `/${country}` : `/${country}/${language}`;
   const returnTo = safeReturnPath(query.returnTo, fallback);
   const copy = intentTranslations[language];

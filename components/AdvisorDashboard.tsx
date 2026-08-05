@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { AdvisorCopy } from "@/data/advisor-translations";
+import { products } from "@/data/products";
 import type { Language } from "@/data/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -40,6 +41,11 @@ function formatDate(value: string, language: Language) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function productName(legacyId: string | undefined, language: Language) {
+  if (!legacyId) return null;
+  return products.find((product) => product.id === legacyId)?.name[language] ?? legacyId;
 }
 
 export function AdvisorDashboard({
@@ -139,7 +145,7 @@ function InquirySection({
             <div><dt>{copy.customer}</dt><dd>{item.name ?? copy.notProvided}</dd></div>
             <div><dt>{copy.contact}</dt><dd>{copy.channels[item.channel] ?? item.channel} · {item.contact}</dd></div>
             <div><dt>{copy.city}</dt><dd>{item.delivery_city ?? copy.notProvided}</dd></div>
-            <div><dt>{copy.product}</dt><dd>{item.products?.legacy_id ?? item.custom_product_name ?? copy.advisorConsultation}</dd></div>
+            <div><dt>{copy.product}</dt><dd>{productName(item.products?.legacy_id, language) ?? item.custom_product_name ?? copy.advisorConsultation}</dd></div>
             <div><dt>{copy.quantity}</dt><dd>{item.quantity ? item.quantity.toLocaleString(localeByLanguage[language]) : copy.notProvided}</dd></div>
             <div><dt>{copy.source}</dt><dd>{item.source ?? "website"}</dd></div>
           </dl>

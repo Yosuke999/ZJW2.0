@@ -41,17 +41,17 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
 
   if (!open) return null;
   const product = productId ? products.find((item) => item.id === productId) ?? null : null;
-  const serviceCountryLabel = language === "zh" ? "中国" : language === "ru" ? null : country.name[language];
+  const intentCopy = intentTranslations[language];
+  const serviceCountryLabel = country.name[language];
   const message = product
     ? `${copy.contactProduct}: ${product.name[language]} (${product.id}). ${copy.contactCountry}: ${country.name[language]}.`
     : `${copy.contactCountry}: ${country.name[language]}.`;
   const context = encodeURIComponent(message);
   const channels = [
-    { name: "WhatsApp", mark: "WA", detail: country.contact.phone, href: `${country.contact.whatsappUrl}?text=${context}` },
-    { name: "Telegram", mark: "TG", detail: `@${country.contact.telegramHandle}`, href: country.contact.telegramUrl },
-    { name: "Phone", mark: "TEL", detail: country.contact.phone, href: `tel:${country.contact.phone.replace(/\s/g, "")}` },
+    { name: "WhatsApp", label: "WhatsApp", mark: "WA", detail: country.contact.phone, href: `${country.contact.whatsappUrl}?text=${context}` },
+    { name: "Telegram", label: "Telegram", mark: "TG", detail: `@${country.contact.telegramHandle}`, href: country.contact.telegramUrl },
+    { name: "Phone", label: intentCopy.phone, mark: "TEL", detail: country.contact.phone, href: `tel:${country.contact.phone.replace(/\s/g, "")}` },
   ];
-  const intentCopy = intentTranslations[language];
   return (
     <div className="sheet-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
       <div ref={sheetRef} className="contact-sheet" role="dialog" aria-modal="true" aria-labelledby="contact-title">
@@ -78,7 +78,7 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
               {channels.map((channel) => (
                 <a key={channel.name} data-channel={channel.name.toLowerCase()} href={channel.href} target={channel.name === "Phone" ? undefined : "_blank"} rel="noreferrer" onClick={() => trackEvent("contact_channel_select", { country: country.code, language, channel: channel.name, productId })}>
                   <span className="channel-mark" aria-hidden="true">{channel.mark}</span>
-                  <span className="contact-choice-copy"><strong>{channel.name}</strong><small>{channel.detail}</small></span>
+                  <span className="contact-choice-copy"><strong>{channel.label}</strong><small>{channel.detail}</small></span>
                   <span className="contact-arrow" aria-hidden="true">→</span>
                 </a>
               ))}

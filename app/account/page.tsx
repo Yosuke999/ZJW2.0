@@ -1,13 +1,34 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { AccountDashboard } from "@/components/AccountDashboard";
+import { intentTranslations } from "@/data/intent-translations";
+import { translations } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { mergeCustomerProfile, profileFromUserMetadata, safeReturnPath, type CustomerProfile } from "@/lib/customer-intents";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export default async function AccountPage({ searchParams }: { searchParams: Promise<{ country?: string; language?: string; returnTo?: string }> }) {
+type AccountSearchParams = Promise<{ country?: string; language?: string; returnTo?: string }>;
+
+function resolveLanguage(value: string | undefined, country: CountryCode): Language {
+  return value === "ky" || value === "uz" || value === "ru" || value === "zh" ? value : country === "uz" ? "uz" : "ky";
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: AccountSearchParams }): Promise<Metadata> {
   const query = await searchParams;
   const country: CountryCode = query.country === "uz" ? "uz" : "kg";
-  const language: Language = ["ky", "uz", "ru", "zh"].includes(query.language ?? "") ? query.language as Language : country === "uz" ? "uz" : "ky";
+  const language = resolveLanguage(query.language, country);
+  const copy = intentTranslations[language];
+  return {
+    title: `${copy.account}｜${translations[language].brandName}`,
+    description: copy.myProfile,
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function AccountPage({ searchParams }: { searchParams: AccountSearchParams }) {
+  const query = await searchParams;
+  const country: CountryCode = query.country === "uz" ? "uz" : "kg";
+  const language = resolveLanguage(query.language, country);
   const fallback = language === (country === "kg" ? "ky" : "uz") ? `/${country}` : `/${country}/${language}`;
   const returnTo = safeReturnPath(query.returnTo, fallback);
   const supabase = await createSupabaseServerClient();
@@ -19,5 +40,9 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
   ]);
   const fallbackProfile = profileFromUserMetadata(user.id, user.user_metadata, { countryCode: country, language });
   const mergedProfile = mergeCustomerProfile((profile as CustomerProfile | null) ?? null, fallbackProfile);
-  return <main className="account-shell shell"><AccountDashboard profile={mergedProfile} intents={(intents ?? []) as never} country={country} language={language} returnTo={returnTo} /></main>;
+  const normalizedIntents = (intents ?? []).map((item) => ({
+    ...item,
+    products: Array.isArray(item.products) ? item.products[0] ?? null : item.products,
+  }));
+  return <main className="account-shell shell"><AccountDashboard profile={mergedProfile} intents={normalizedIntents as never} country={country} language={language} returnTo={returnTo} /></main>;
 }

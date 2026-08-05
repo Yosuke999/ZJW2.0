@@ -4,11 +4,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { intentTranslations } from "@/data/intent-translations";
+import { products } from "@/data/products";
 import type { CountryCode, Language } from "@/data/types";
 import type { CustomerProfile } from "@/lib/customer-intents";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type IntentRow = { id: string; intent_type: string; delivery_city: string | null; custom_product_name: string | null; quantity: number | null; message: string | null; status: string; created_at: string; products: { legacy_id: string } | null };
+
+function productName(legacyId: string | undefined, language: Language) {
+  if (!legacyId) return null;
+  return products.find((product) => product.id === legacyId)?.name[language] ?? legacyId;
+}
 
 export function AccountDashboard({ profile, intents, country, language, returnTo, showWelcome = false }: { profile: CustomerProfile; intents: IntentRow[]; country: CountryCode; language: Language; returnTo: string; showWelcome?: boolean }) {
   const copy = intentTranslations[language];
@@ -51,6 +57,6 @@ export function AccountDashboard({ profile, intents, country, language, returnTo
       <label className="consent-check"><input name="consent" type="checkbox" defaultChecked={Boolean(profile.contact_consent_at)} required /><span>{copy.consent}</span></label>
       <button className="primary-button" disabled={saving}>{saving ? copy.submitting : copy.saveProfile}</button>{message && <span role="status">{message}</span>}
     </form></section>
-    <section className="account-card"><h2>{copy.myIntents}</h2>{intents.length === 0 ? <p>{copy.noIntents}</p> : <div className="intent-history">{intents.map((item) => <article key={item.id}><div><strong>{copy.intentTypes[item.intent_type] ?? item.intent_type}</strong><span className={`status status-${item.status}`}>{copy.status[item.status] ?? item.status}</span></div><p>{item.products?.legacy_id ?? item.custom_product_name ?? "—"}{item.quantity ? ` · ${item.quantity}` : ""}{item.delivery_city ? ` · ${item.delivery_city}` : ""}</p><time dateTime={item.created_at}>{new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : language === "ru" ? "ru-RU" : language === "uz" ? "uz-UZ" : "ky-KG", { dateStyle: "medium" }).format(new Date(item.created_at))}</time></article>)}</div>}</section>
+    <section className="account-card"><h2>{copy.myIntents}</h2>{intents.length === 0 ? <p>{copy.noIntents}</p> : <div className="intent-history">{intents.map((item) => <article key={item.id}><div><strong>{copy.intentTypes[item.intent_type] ?? item.intent_type}</strong><span className={`status status-${item.status}`}>{copy.status[item.status] ?? item.status}</span></div><p>{productName(item.products?.legacy_id, language) ?? item.custom_product_name ?? "—"}{item.quantity ? ` · ${item.quantity}` : ""}{item.delivery_city ? ` · ${item.delivery_city}` : ""}</p><time dateTime={item.created_at}>{new Intl.DateTimeFormat(language === "zh" ? "zh-CN" : language === "ru" ? "ru-RU" : language === "uz" ? "uz-UZ" : "ky-KG", { dateStyle: "medium" }).format(new Date(item.created_at))}</time></article>)}</div>}</section>
   </>;
 }

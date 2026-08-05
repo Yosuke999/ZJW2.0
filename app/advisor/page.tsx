@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { AdvisorDashboard, type AdvisorInquiry } from "@/components/AdvisorDashboard";
 import { AnalyticsDashboard, type AnalyticsEventRow } from "@/components/AnalyticsDashboard";
 import { AdvisorLanguageSwitch } from "@/components/AdvisorLanguageSwitch";
 import { advisorTranslations } from "@/data/advisor-translations";
+import { translations } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -24,7 +26,20 @@ function marketHref(country: CountryCode, language: Language) {
   return language === defaultLanguage ? `/${country}` : `/${country}/${language}`;
 }
 
-export default async function AdvisorPage({ searchParams }: { searchParams: Promise<{ language?: string }> }) {
+type AdvisorSearchParams = Promise<{ language?: string }>;
+
+export async function generateMetadata({ searchParams }: { searchParams: AdvisorSearchParams }): Promise<Metadata> {
+  const query = await searchParams;
+  const language: Language = isLanguage(query.language) ? query.language : "zh";
+  const copy = advisorTranslations[language];
+  return {
+    title: `${copy.workspace}｜${translations[language].brandName}`,
+    description: copy.intro,
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function AdvisorPage({ searchParams }: { searchParams: AdvisorSearchParams }) {
   const query = await searchParams;
   const language: Language = isLanguage(query.language) ? query.language : "zh";
   const copy = advisorTranslations[language];
