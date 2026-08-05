@@ -75,6 +75,24 @@ test("email confirmation callback supports both PKCE codes and token hashes", as
   assert.match(callback, /verifyOtp\(\{ type, token_hash: tokenHash \}\)/);
 });
 
+test("password login syncs Supabase browser sessions into server cookies", async () => {
+  const [sessionRoute, authForm, dashboard, accountNav] = await Promise.all([
+    read("app/auth/session/route.ts"),
+    read("components/AuthForm.tsx"),
+    read("components/AccountDashboard.tsx"),
+    read("components/AccountNav.tsx"),
+  ]);
+
+  assert.match(sessionRoute, /auth\.setSession/);
+  assert.match(sessionRoute, /access_token/);
+  assert.match(sessionRoute, /refresh_token/);
+  assert.match(sessionRoute, /auth\.signOut\(\)/);
+  assert.match(authForm, /syncServerSession\(data\.session\)/);
+  assert.match(authForm, /fetch\("\/auth\/session"/);
+  assert.match(dashboard, /fetch\("\/auth\/session", \{ method: "DELETE" \}/);
+  assert.match(accountNav, /user\.user_metadata\?\.display_name/);
+});
+
 test("account login returns to the market page while keeping a visible signed-in header", async () => {
   const [accountPage, dashboard, header, accountNav, copy] = await Promise.all([
     read("app/account/page.tsx"),

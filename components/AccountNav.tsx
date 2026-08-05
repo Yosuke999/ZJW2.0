@@ -38,7 +38,12 @@ export function AccountNav({ country, language }: { country: CountryCode; langua
         .eq("user_id", user.id)
         .maybeSingle();
       if (!active) return;
-      setState({ signedIn: true, displayName: data?.display_name?.trim() ?? "" });
+      const metaName = typeof user.user_metadata?.display_name === "string"
+        ? user.user_metadata.display_name
+        : typeof user.user_metadata?.name === "string"
+          ? user.user_metadata.name
+          : "";
+      setState({ signedIn: true, displayName: data?.display_name?.trim() || metaName.trim() });
     }
 
     void loadAccount();

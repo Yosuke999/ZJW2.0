@@ -28,6 +28,7 @@ export function AccountDashboard({ profile, intents, country, language, returnTo
 
   async function signOut() {
     await createSupabaseBrowserClient().auth.signOut();
+    await fetch("/auth/session", { method: "DELETE" }).catch(() => null);
     router.replace(returnTo); router.refresh();
   }
 

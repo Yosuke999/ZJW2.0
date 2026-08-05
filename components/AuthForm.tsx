@@ -13,6 +13,16 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
+  async function syncServerSession(session: { access_token: string; refresh_token: string } | null) {
+    if (!session) return true;
+    const response = await fetch("/auth/session", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ accessToken: session.access_token, refreshToken: session.refresh_token }),
+    });
+    return response.ok;
+  }
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true); setMessage("");
@@ -21,8 +31,9 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
     const password = String(form.get("password") ?? "");
     const supabase = createSupabaseBrowserClient();
     if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) { setMessage(error.message); setBusy(false); return; }
+      if (!(await syncServerSession(data.session))) { setMessage(copy.authError); setBusy(false); return; }
       router.replace(returnTo); router.refresh(); return;
     }
     const phone = String(form.get("phone") ?? "").trim();
@@ -43,7 +54,10 @@ export function AuthForm({ country, language, returnTo }: { country: CountryCode
       },
     });
     if (error) { setMessage(error.message); setBusy(false); return; }
-    if (data.session) { router.replace(returnTo); router.refresh(); return; }
+    if (data.session) {
+      if (!(await syncServerSession(data.session))) { setMessage(copy.authError); setBusy(false); return; }
+      router.replace(returnTo); router.refresh(); return;
+    }
     setMessage(copy.checkEmail); setBusy(false);
   }
 
