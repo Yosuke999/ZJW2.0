@@ -21,7 +21,10 @@ export function AccountDashboard({ profile, intents, country, language, returnTo
     event.preventDefault(); setSaving(true); setMessage("");
     const form = new FormData(event.currentTarget);
     const body = { displayName: String(form.get("displayName") ?? ""), countryCode: country, preferredLanguage: language, city: String(form.get("city") ?? ""), phone: String(form.get("phone") ?? ""), whatsapp: String(form.get("whatsapp") ?? ""), telegram: String(form.get("telegram") ?? ""), contactPreference: String(form.get("contactPreference") ?? "phone"), consent: form.get("consent") === "on" };
-    const response = await fetch("/api/profile", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    const { data: { session } } = await createSupabaseBrowserClient().auth.getSession();
+    const headers: Record<string, string> = { "content-type": "application/json" };
+    if (session?.access_token) headers.authorization = `Bearer ${session.access_token}`;
+    const response = await fetch("/api/profile", { method: "PUT", headers, body: JSON.stringify(body) });
     setMessage(response.ok ? "✓" : copy.authError); setSaving(false);
     if (response.ok) router.refresh();
   }

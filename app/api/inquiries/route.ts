@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { inquiryInputSchema, isProfileComplete, profileContact, type CustomerProfile } from "@/lib/customer-intents";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { inquiryInputSchema, isProfileComplete, mergeCustomerProfile, profileContact, profileFromUserMetadata, type CustomerProfile } from "@/lib/customer-intents";
+import { createSupabaseRouteContext } from "@/lib/supabase/route";
 
 export async function POST(request: Request) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await createSupabaseRouteContext(request);
   if (!user) return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
 
   const parsed = inquiryInputSchema.safeParse(await request.json().catch(() => null));
@@ -15,9 +14,10 @@ export async function POST(request: Request) {
     .from("profiles")
     .select("user_id,display_name,country_code,preferred_language,phone,whatsapp,telegram,city,contact_preference,contact_consent_at,profile_completed_at")
     .eq("user_id", user.id)
-    .single();
-  const profile = rawProfile as CustomerProfile | null;
-  if (profileError || !profile || !isProfileComplete(profile)) {
+    .maybeSingle();
+  const fallback = profileFromUserMetadata(user.id, user.user_metadata, { countryCode: input.countryCode, language: input.language });
+  const profile = mergeCustomerProfile((rawProfile as CustomerProfile | null) ?? null, fallback);
+  if (profileError || !isProfileComplete(profile)) {
     return NextResponse.json({ error: "PROFILE_INCOMPLETE" }, { status: 409 });
   }
   const contact = profileContact(profile)!;

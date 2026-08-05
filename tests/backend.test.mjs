@@ -58,11 +58,17 @@ test("customer intent migration adds only the MVP profile and inquiry fields", a
 });
 
 test("intent endpoints require auth and never accept contact identity from the form", async () => {
-  const [route, profileRoute, form] = await Promise.all([
-    read("app/api/inquiries/route.ts"), read("app/api/profile/route.ts"), read("components/IntentActions.tsx"),
+  const [route, profileRoute, routeClient, form, dashboard] = await Promise.all([
+    read("app/api/inquiries/route.ts"), read("app/api/profile/route.ts"), read("lib/supabase/route.ts"), read("components/IntentActions.tsx"), read("components/AccountDashboard.tsx"),
   ]);
-  assert.match(route, /supabase\.auth\.getUser\(\)/);
+  assert.match(route, /createSupabaseRouteContext\(request\)/);
+  assert.match(profileRoute, /createSupabaseRouteContext\(request\)/);
+  assert.match(routeClient, /authorization/);
+  assert.match(routeClient, /getUser\(token\)/);
+  assert.match(form, /headers\.authorization = `Bearer \$\{session\.access_token\}`/);
+  assert.match(dashboard, /headers\.authorization = `Bearer \$\{session\.access_token\}`/);
   assert.match(route, /PROFILE_INCOMPLETE/);
+  assert.match(route, /mergeCustomerProfile/);
   assert.match(route, /profileContact\(profile\)/);
   assert.doesNotMatch(form, /name=\"(?:phone|whatsapp|telegram)\"/);
   assert.match(profileRoute, /contact_consent_at/);

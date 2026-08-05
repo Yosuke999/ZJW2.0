@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { contactChannels } from "@/lib/customer-intents";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseRouteContext } from "@/lib/supabase/route";
 
 const profileSchema = z.object({
   displayName: z.string().trim().min(2).max(120),
@@ -19,8 +19,7 @@ const profileSchema = z.object({
 });
 
 export async function PUT(request: Request) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const { supabase, user } = await createSupabaseRouteContext(request);
   if (!user) return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
   const parsed = profileSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "INVALID_PROFILE" }, { status: 400 });

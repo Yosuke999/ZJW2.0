@@ -40,7 +40,11 @@ export function IntentActions({ country, language, productId, source }: { countr
 
   async function send(payload: Record<string, unknown>) {
     setBusy(true); setError("");
-    const response = await fetch("/api/inquiries", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ countryCode: country, language, productLegacyId: productId ?? undefined, source: source ?? "website", website: "", ...payload }) });
+    const supabase = createSupabaseBrowserClient();
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers: Record<string, string> = { "content-type": "application/json" };
+    if (session?.access_token) headers.authorization = `Bearer ${session.access_token}`;
+    const response = await fetch("/api/inquiries", { method: "POST", headers, body: JSON.stringify({ countryCode: country, language, productLegacyId: productId ?? undefined, source: source ?? "website", website: "", ...payload }) });
     const result = await response.json().catch(() => ({}));
     if (response.ok) setMode("success");
     else if (response.status === 401) setAuthState("guest");
