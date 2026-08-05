@@ -11,10 +11,6 @@ type AccountNavState = {
   displayName: string;
 };
 
-function initials(name: string) {
-  return name.trim().slice(0, 1).toUpperCase();
-}
-
 export function AccountNav({ country, language }: { country: CountryCode; language: Language }) {
   const copy = intentTranslations[language];
   const href = `/account?country=${country}&language=${language}`;
@@ -61,7 +57,6 @@ export function AccountNav({ country, language }: { country: CountryCode; langua
 
   return (
     <Link className={`account-link${state.signedIn ? " is-signed-in" : ""}`} href={href}>
-      {state.signedIn && <span className="account-avatar" aria-hidden="true">{initials(label)}</span>}
       <span>{label}</span>
     </Link>
   );
