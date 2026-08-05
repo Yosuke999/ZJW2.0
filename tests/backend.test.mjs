@@ -66,6 +66,9 @@ test("intent endpoints require auth and never accept contact identity from the f
   assert.match(routeClient, /authorization/);
   assert.match(routeClient, /getUser\(token\)/);
   assert.match(form, /headers\.authorization = `Bearer \$\{session\.access_token\}`/);
+  assert.match(form, /readCurrentProfile/);
+  assert.match(form, /response\.status === 409/);
+  assert.match(form, /postInquiry\(payload\)/);
   assert.match(dashboard, /headers\.authorization = `Bearer \$\{session\.access_token\}`/);
   assert.match(route, /PROFILE_INCOMPLETE/);
   assert.match(route, /mergeCustomerProfile/);

@@ -22,29 +22,41 @@ export function IntentActions({ country, language, productId, source }: { countr
   const authHref = `/auth?country=${country}&language=${language}&returnTo=${encodeURIComponent(returnTo)}`;
   const accountHref = `/account?country=${country}&language=${language}&returnTo=${encodeURIComponent(returnTo)}`;
 
+  async function readCurrentProfile() {
+    const supabase = createSupabaseBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    const { data: profile } = await supabase.from("profiles").select("user_id,display_name,country_code,preferred_language,phone,whatsapp,telegram,city,contact_preference,contact_consent_at,profile_completed_at").eq("user_id", user.id).maybeSingle();
+    const fallback = profileFromUserMetadata(user.id, user.user_metadata, { countryCode: country, language });
+    return mergeCustomerProfile((profile as CustomerProfile | null) ?? null, fallback);
+  }
+
   useEffect(() => {
     let active = true;
-    const supabase = createSupabaseBrowserClient();
-    supabase.auth.getUser().then(async ({ data }) => {
+    readCurrentProfile().then((typed) => {
       if (!active) return;
-      if (!data.user) { setAuthState("guest"); return; }
-      const { data: profile } = await supabase.from("profiles").select("user_id,display_name,country_code,preferred_language,phone,whatsapp,telegram,city,contact_preference,contact_consent_at,profile_completed_at").eq("user_id", data.user.id).maybeSingle();
-      if (!active) return;
-      const fallback = profileFromUserMetadata(data.user.id, data.user.user_metadata, { countryCode: country, language });
-      const typed = mergeCustomerProfile((profile as CustomerProfile | null) ?? null, fallback);
+      if (!typed) { setAuthState("guest"); return; }
       setCity(typed.city ?? "");
       setAuthState(isProfileComplete(typed) ? "ready" : "incomplete");
     });
     return () => { active = false; };
   }, []);
 
-  async function send(payload: Record<string, unknown>) {
-    setBusy(true); setError("");
+  async function postInquiry(payload: Record<string, unknown>) {
     const supabase = createSupabaseBrowserClient();
     const { data: { session } } = await supabase.auth.getSession();
     const headers: Record<string, string> = { "content-type": "application/json" };
     if (session?.access_token) headers.authorization = `Bearer ${session.access_token}`;
-    const response = await fetch("/api/inquiries", { method: "POST", headers, body: JSON.stringify({ countryCode: country, language, productLegacyId: productId ?? undefined, source: source ?? "website", website: "", ...payload }) });
+    return fetch("/api/inquiries", { method: "POST", headers, body: JSON.stringify({ countryCode: country, language, productLegacyId: productId ?? undefined, source: source ?? "website", website: "", ...payload }) });
+  }
+
+  async function send(payload: Record<string, unknown>) {
+    setBusy(true); setError("");
+    let response = await postInquiry(payload);
+    if (response.status === 409) {
+      const typed = await readCurrentProfile();
+      if (typed && isProfileComplete(typed)) response = await postInquiry(payload);
+    }
     const result = await response.json().catch(() => ({}));
     if (response.ok) setMode("success");
     else if (response.status === 401) setAuthState("guest");
