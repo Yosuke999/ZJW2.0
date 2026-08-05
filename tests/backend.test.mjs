@@ -185,6 +185,10 @@ test("account login returns to the market page while keeping a visible signed-in
   assert.match(header, /<AccountNav country=\{country\.code\} language=\{language\} \/>/);
   assert.match(accountNav, /supabase\.auth\.getUser\(\)/);
   assert.match(accountNav, /\.from\("profiles"\)/);
+  assert.match(accountNav, /select\("display_name,role,status"\)/);
+  assert.match(accountNav, /isAdvisorRole\(data\?\.role\)/);
+  assert.match(accountNav, /href="\/advisor"/);
+  assert.match(accountNav, /工作台/);
   assert.match(accountNav, /onAuthStateChange/);
   assert.match(copy, /loginSuccess:/);
 });

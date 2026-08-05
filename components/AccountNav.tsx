@@ -9,12 +9,17 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 type AccountNavState = {
   signedIn: boolean;
   displayName: string;
+  advisor: boolean;
 };
+
+function isAdvisorRole(role: unknown) {
+  return role === "staff" || role === "reviewer" || role === "admin";
+}
 
 export function AccountNav({ country, language }: { country: CountryCode; language: Language }) {
   const copy = intentTranslations[language];
   const href = `/account?country=${country}&language=${language}`;
-  const [state, setState] = useState<AccountNavState>({ signedIn: false, displayName: "" });
+  const [state, setState] = useState<AccountNavState>({ signedIn: false, displayName: "", advisor: false });
 
   useEffect(() => {
     let active = true;
@@ -24,13 +29,13 @@ export function AccountNav({ country, language }: { country: CountryCode; langua
       const { data: { user } } = await supabase.auth.getUser();
       if (!active) return;
       if (!user) {
-        setState({ signedIn: false, displayName: "" });
+        setState({ signedIn: false, displayName: "", advisor: false });
         return;
       }
 
       const { data } = await supabase
         .from("profiles")
-        .select("display_name")
+        .select("display_name,role,status")
         .eq("user_id", user.id)
         .maybeSingle();
       if (!active) return;
@@ -39,7 +44,11 @@ export function AccountNav({ country, language }: { country: CountryCode; langua
         : typeof user.user_metadata?.name === "string"
           ? user.user_metadata.name
           : "";
-      setState({ signedIn: true, displayName: data?.display_name?.trim() || metaName.trim() });
+      setState({
+        signedIn: true,
+        displayName: data?.display_name?.trim() || metaName.trim(),
+        advisor: isAdvisorRole(data?.role) && data?.status === "active",
+      });
     }
 
     void loadAccount();
@@ -56,8 +65,11 @@ export function AccountNav({ country, language }: { country: CountryCode; langua
   const label = state.signedIn ? state.displayName || copy.account : copy.signIn;
 
   return (
-    <Link className={`account-link${state.signedIn ? " is-signed-in" : ""}`} href={href}>
-      <span>{label}</span>
-    </Link>
+    <>
+      {state.advisor && <Link className="account-link workspace-link" href="/advisor"><span>工作台</span></Link>}
+      <Link className={`account-link${state.signedIn ? " is-signed-in" : ""}`} href={href}>
+        <span>{label}</span>
+      </Link>
+    </>
   );
 }

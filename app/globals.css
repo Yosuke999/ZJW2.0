@@ -28,6 +28,7 @@ button { color: inherit; }
 .account-link { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; max-width: 168px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: white; color: var(--blue-dark); font-size: 14px; font-weight: 700; text-decoration: none; }
 .account-link > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .account-link.is-signed-in { border-color: rgba(34,166,154,.34); background: #f0faf8; color: #167a72; }
+.workspace-link { border-color: rgba(23,74,126,.24); background: #f4f8fb; color: var(--blue); }
 .brand { display: inline-flex; min-width: 0; max-width: min(70%, 620px); align-items: center; gap: 9px; color: var(--blue); text-decoration: none; font-weight: 750; line-height: 1.15; letter-spacing: .005em; }
 .brand > span:last-child { overflow-wrap: anywhere; }
 .brand-mark { display: grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; border: 1px solid #9ab5c9; border-radius: 50%; color: var(--blue); font-size: 8px; letter-spacing: .04em; }
