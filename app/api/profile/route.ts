@@ -15,8 +15,14 @@ const profileSchema = z.object({
   consent: z.literal(true),
 }).superRefine((value, context) => {
   if (!value.phone && !value.whatsapp && !value.telegram) context.addIssue({ code: "custom", path: ["phone"], message: "A contact is required" });
-  if (!value[value.contactPreference]) context.addIssue({ code: "custom", path: ["contactPreference"], message: "Preferred contact is empty" });
 });
+
+function firstFilledContact(value: z.infer<typeof profileSchema>) {
+  if (value[value.contactPreference]) return value.contactPreference;
+  if (value.phone) return "phone";
+  if (value.whatsapp) return "whatsapp";
+  return "telegram";
+}
 
 export async function PUT(request: Request) {
   const { supabase, user } = await createSupabaseRouteContext(request);
@@ -24,6 +30,7 @@ export async function PUT(request: Request) {
   const parsed = profileSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "INVALID_PROFILE" }, { status: 400 });
   const value = parsed.data;
+  const contactPreference = firstFilledContact(value);
   const now = new Date().toISOString();
   const { error } = await supabase.from("profiles").upsert({
     user_id: user.id,
@@ -34,7 +41,7 @@ export async function PUT(request: Request) {
     phone: value.phone || null,
     whatsapp: value.whatsapp || null,
     telegram: value.telegram || null,
-    contact_preference: value.contactPreference,
+    contact_preference: contactPreference,
     contact_consent_at: now,
     profile_completed_at: now,
     updated_at: now,

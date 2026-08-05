@@ -76,6 +76,8 @@ test("intent endpoints require auth and never accept contact identity from the f
   assert.doesNotMatch(form, /name=\"(?:phone|whatsapp|telegram)\"/);
   assert.match(profileRoute, /contact_consent_at/);
   assert.match(profileRoute, /\.upsert\(/);
+  assert.doesNotMatch(profileRoute, /Preferred contact is empty/);
+  assert.match(profileRoute, /firstFilledContact/);
   assert.match(profileRoute, /user_id:\s*user\.id/);
 });
 
@@ -106,6 +108,7 @@ test("password login syncs Supabase browser sessions into server cookies", async
   assert.doesNotMatch(authForm, /copy\.authError\); setBusy\(false\); return; }\s*router\.replace\(returnTo\)/);
   assert.match(authForm, /fetch\("\/auth\/session"/);
   assert.match(dashboard, /fetch\("\/auth\/session", \{ method: "DELETE" \}/);
+  assert.match(dashboard, /copy\.saveProfile/);
   assert.match(accountNav, /user\.user_metadata\?\.display_name/);
   assert.match(helpers, /export function profileFromUserMetadata/);
   assert.match(helpers, /export function mergeCustomerProfile/);
