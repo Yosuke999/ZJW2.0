@@ -5,7 +5,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { intentTranslations } from "@/data/intent-translations";
 import type { CountryCode, Language } from "@/data/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { isProfileComplete, type CustomerProfile } from "@/lib/customer-intents";
+import { isProfileComplete, mergeCustomerProfile, profileFromUserMetadata, type CustomerProfile } from "@/lib/customer-intents";
 
 export function IntentActions({ country, language, productId, source }: { country: CountryCode; language: Language; productId: string | null; source?: string }) {
   const copy = intentTranslations[language];
@@ -28,11 +28,12 @@ export function IntentActions({ country, language, productId, source }: { countr
     supabase.auth.getUser().then(async ({ data }) => {
       if (!active) return;
       if (!data.user) { setAuthState("guest"); return; }
-      const { data: profile } = await supabase.from("profiles").select("user_id,display_name,country_code,preferred_language,phone,whatsapp,telegram,city,contact_preference,contact_consent_at,profile_completed_at").eq("user_id", data.user.id).single();
+      const { data: profile } = await supabase.from("profiles").select("user_id,display_name,country_code,preferred_language,phone,whatsapp,telegram,city,contact_preference,contact_consent_at,profile_completed_at").eq("user_id", data.user.id).maybeSingle();
       if (!active) return;
-      const typed = profile as CustomerProfile | null;
-      setCity(typed?.city ?? "");
-      setAuthState(typed && isProfileComplete(typed) ? "ready" : "incomplete");
+      const fallback = profileFromUserMetadata(data.user.id, data.user.user_metadata, { countryCode: country, language });
+      const typed = mergeCustomerProfile((profile as CustomerProfile | null) ?? null, fallback);
+      setCity(typed.city ?? "");
+      setAuthState(isProfileComplete(typed) ? "ready" : "incomplete");
     });
     return () => { active = false; };
   }, []);

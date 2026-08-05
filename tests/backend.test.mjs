@@ -78,14 +78,18 @@ test("email confirmation callback supports both PKCE codes and token hashes", as
 });
 
 test("password login syncs Supabase browser sessions into server cookies", async () => {
-  const [sessionRoute, authForm, dashboard, accountNav] = await Promise.all([
+  const [sessionRoute, authForm, dashboard, accountNav, helpers] = await Promise.all([
     read("app/auth/session/route.ts"),
     read("components/AuthForm.tsx"),
     read("components/AccountDashboard.tsx"),
     read("components/AccountNav.tsx"),
+    read("lib/customer-intents.ts"),
   ]);
 
   assert.match(sessionRoute, /auth\.setSession/);
+  assert.match(sessionRoute, /profileFromUserMetadata/);
+  assert.match(sessionRoute, /mergeCustomerProfile/);
+  assert.match(sessionRoute, /\.upsert\(/);
   assert.match(sessionRoute, /access_token/);
   assert.match(sessionRoute, /refresh_token/);
   assert.match(sessionRoute, /auth\.signOut\(\)/);
@@ -93,19 +97,25 @@ test("password login syncs Supabase browser sessions into server cookies", async
   assert.match(authForm, /fetch\("\/auth\/session"/);
   assert.match(dashboard, /fetch\("\/auth\/session", \{ method: "DELETE" \}/);
   assert.match(accountNav, /user\.user_metadata\?\.display_name/);
+  assert.match(helpers, /export function profileFromUserMetadata/);
+  assert.match(helpers, /export function mergeCustomerProfile/);
 });
 
 test("account page always shows a profile form for authenticated users", async () => {
-  const [accountPage, dashboard, migration] = await Promise.all([
+  const [accountPage, dashboard, intentActions, migration] = await Promise.all([
     read("app/account/page.tsx"),
     read("components/AccountDashboard.tsx"),
+    read("components/IntentActions.tsx"),
     read("db/migrations/0002_profile_self_insert_policy.sql"),
   ]);
 
   assert.match(accountPage, /\.maybeSingle\(\)/);
-  assert.match(accountPage, /fallbackProfile/);
+  assert.match(accountPage, /mergeCustomerProfile/);
   assert.doesNotMatch(accountPage, /if \(!profile\) redirect/);
   assert.match(dashboard, /profile\.telegram \? "telegram" : "phone"/);
+  assert.match(intentActions, /profileFromUserMetadata/);
+  assert.match(intentActions, /mergeCustomerProfile/);
+  assert.match(intentActions, /\.maybeSingle\(\)/);
   assert.match(migration, /CREATE POLICY "users create own profile"/);
 });
 
