@@ -10,13 +10,18 @@ function isAdvisorRole(role: unknown) {
   return role === "staff" || role === "reviewer" || role === "admin";
 }
 
+function canProcessMarket(profile: { role?: unknown; country_code?: unknown } | null, marketCode: unknown) {
+  if (profile?.role === "admin") return true;
+  return typeof profile?.country_code === "string" && profile.country_code === marketCode;
+}
+
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { supabase, user } = await createSupabaseRouteContext(request);
   if (!user) return NextResponse.json({ error: "AUTH_REQUIRED" }, { status: 401 });
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("role,status")
+    .select("role,status,country_code")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -28,6 +33,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (!parsed.success) return NextResponse.json({ error: "INVALID_STATUS" }, { status: 400 });
 
   const { id } = await params;
+  const { data: inquiry } = await supabase
+    .from("inquiries")
+    .select("id,market_code")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (!inquiry) return NextResponse.json({ error: "NOT_FOUND" }, { status: 404 });
+  if (!canProcessMarket(profile, inquiry.market_code)) return NextResponse.json({ error: "FORBIDDEN_MARKET" }, { status: 403 });
+
   const { data, error } = await supabase
     .from("inquiries")
     .update({

@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { AdvisorCopy } from "@/data/advisor-translations";
+import type { Language } from "@/data/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export type AdvisorInquiry = {
@@ -21,33 +23,29 @@ export type AdvisorInquiry = {
   products: { legacy_id: string } | null;
 };
 
-const statusLabels: Record<string, string> = {
-  new: "待处理",
-  contacted: "已联系",
-  qualified: "跟进中",
-  closed: "已结束",
-  spam: "已关闭",
+const localeByLanguage: Record<Language, string> = {
+  zh: "zh-CN",
+  ru: "ru-RU",
+  ky: "ky-KG",
+  uz: "uz-UZ",
 };
 
-const intentLabels: Record<string, string> = {
-  callback: "咨询申请",
-  purchase_intent: "采购意向",
-};
-
-const channelLabels: Record<string, string> = {
-  phone: "手机",
-  whatsapp: "WhatsApp",
-  telegram: "Telegram",
-};
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("zh-CN", {
+function formatDate(value: string, language: Language) {
+  return new Intl.DateTimeFormat(localeByLanguage[language], {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
 }
 
-export function AdvisorDashboard({ initialInquiries }: { initialInquiries: AdvisorInquiry[] }) {
+export function AdvisorDashboard({
+  initialInquiries,
+  copy,
+  language,
+}: {
+  initialInquiries: AdvisorInquiry[];
+  copy: AdvisorCopy;
+  language: Language;
+}) {
   const [items, setItems] = useState(initialInquiries);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -67,7 +65,7 @@ export function AdvisorDashboard({ initialInquiries }: { initialInquiries: Advis
       body: JSON.stringify({ status }),
     });
     if (!response.ok) {
-      setMessage("处理失败，请刷新后重试。");
+      setMessage(copy.processFailed);
       setBusyId(null);
       return;
     }
@@ -77,14 +75,14 @@ export function AdvisorDashboard({ initialInquiries }: { initialInquiries: Advis
 
   return (
     <>
-      <section className="advisor-summary" aria-label="顾问处理概览">
-        <div><strong>{pending.length}</strong><span>待处理</span></div>
-        <div><strong>{processed.length}</strong><span>已处理</span></div>
-        <div><strong>{items.length}</strong><span>全部意向</span></div>
+      <section className="advisor-summary" aria-label={copy.workspace}>
+        <div><strong>{pending.length}</strong><span>{copy.pending}</span></div>
+        <div><strong>{processed.length}</strong><span>{copy.processed}</span></div>
+        <div><strong>{items.length}</strong><span>{copy.total}</span></div>
       </section>
       {message && <p className="form-message" role="status">{message}</p>}
-      <InquirySection title="待处理信息" empty="当前没有待处理意向。" items={pending} busyId={busyId} onUpdate={updateStatus} />
-      <InquirySection title="已处理信息" empty="当前没有已处理记录。" items={processed} busyId={busyId} onUpdate={updateStatus} />
+      <InquirySection title={copy.pendingInfo} empty={copy.noPending} items={pending} busyId={busyId} copy={copy} language={language} onUpdate={updateStatus} />
+      <InquirySection title={copy.processedInfo} empty={copy.noProcessed} items={processed} busyId={busyId} copy={copy} language={language} onUpdate={updateStatus} />
     </>
   );
 }
@@ -94,12 +92,16 @@ function InquirySection({
   empty,
   items,
   busyId,
+  copy,
+  language,
   onUpdate,
 }: {
   title: string;
   empty: string;
   items: AdvisorInquiry[];
   busyId: string | null;
+  copy: AdvisorCopy;
+  language: Language;
   onUpdate: (id: string, status: "contacted" | "qualified" | "closed" | "spam") => Promise<void>;
 }) {
   return (
@@ -109,25 +111,25 @@ function InquirySection({
         <article key={item.id} className="advisor-inquiry">
           <div className="advisor-inquiry-head">
             <div>
-              <strong>{intentLabels[item.intent_type] ?? item.intent_type}</strong>
-              <span>{item.market_code?.toUpperCase() ?? "—"} · {formatDate(item.created_at)}</span>
+              <strong>{copy.intentTypes[item.intent_type] ?? item.intent_type}</strong>
+              <span>{item.market_code?.toUpperCase() ?? "—"} · {formatDate(item.created_at, language)}</span>
             </div>
-            <span className={`status status-${item.status}`}>{statusLabels[item.status] ?? item.status}</span>
+            <span className={`status status-${item.status}`}>{copy.status[item.status] ?? item.status}</span>
           </div>
           <dl className="advisor-fields">
-            <div><dt>客户</dt><dd>{item.name ?? "未填写"}</dd></div>
-            <div><dt>联系方式</dt><dd>{channelLabels[item.channel] ?? item.channel} · {item.contact}</dd></div>
-            <div><dt>城市</dt><dd>{item.delivery_city ?? "未填写"}</dd></div>
-            <div><dt>商品</dt><dd>{item.products?.legacy_id ?? item.custom_product_name ?? "咨询顾问"}</dd></div>
-            <div><dt>数量</dt><dd>{item.quantity ? item.quantity.toLocaleString("zh-CN") : "未填写"}</dd></div>
-            <div><dt>来源</dt><dd>{item.source ?? "website"}</dd></div>
+            <div><dt>{copy.customer}</dt><dd>{item.name ?? copy.notProvided}</dd></div>
+            <div><dt>{copy.contact}</dt><dd>{copy.channels[item.channel] ?? item.channel} · {item.contact}</dd></div>
+            <div><dt>{copy.city}</dt><dd>{item.delivery_city ?? copy.notProvided}</dd></div>
+            <div><dt>{copy.product}</dt><dd>{item.products?.legacy_id ?? item.custom_product_name ?? copy.advisorConsultation}</dd></div>
+            <div><dt>{copy.quantity}</dt><dd>{item.quantity ? item.quantity.toLocaleString(localeByLanguage[language]) : copy.notProvided}</dd></div>
+            <div><dt>{copy.source}</dt><dd>{item.source ?? "website"}</dd></div>
           </dl>
           {item.message && <p className="advisor-note">{item.message}</p>}
           <div className="advisor-actions">
-            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "contacted")}>标记已联系</button>
-            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "qualified")}>标记跟进中</button>
-            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "closed")}>标记已结束</button>
-            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "spam")}>关闭</button>
+            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "contacted")}>{copy.markContacted}</button>
+            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "qualified")}>{copy.markQualified}</button>
+            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "closed")}>{copy.markClosed}</button>
+            <button type="button" disabled={busyId === item.id} onClick={() => onUpdate(item.id, "spam")}>{copy.close}</button>
           </div>
         </article>
       ))}</div>}

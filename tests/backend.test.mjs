@@ -148,25 +148,38 @@ test("customer tables grant the minimum privileges required by the app", async (
   assert.match(advisorMigration, /GRANT SELECT ON public\.products TO authenticated/);
 });
 
-test("advisor workspace is staff-only and can process inquiries", async () => {
-  const [page, dashboard, route] = await Promise.all([
+test("advisor workspace is staff-only, localized, and market-scoped", async () => {
+  const [page, dashboard, route, copy] = await Promise.all([
     read("app/advisor/page.tsx"),
     read("components/AdvisorDashboard.tsx"),
     read("app/api/advisor/inquiries/[id]/route.ts"),
+    read("data/advisor-translations.ts"),
   ]);
 
-  assert.match(page, /redirect\(`\/auth\?country=kg&language=zh&returnTo=/);
+  assert.match(page, /advisorTranslations\[language\]/);
+  assert.match(page, /AdvisorLanguageSwitch/);
+  assert.match(page, /language=\$\{language\}/);
   assert.match(page, /isAdvisorRole\(profile\?\.role\)/);
+  assert.match(page, /profile\.role === "admin"/);
+  assert.match(page, /\.eq\("market_code", advisorMarket\)/);
   assert.match(page, /\.from\("inquiries"\)/);
   assert.match(page, /products\(legacy_id\)/);
-  assert.match(dashboard, /待处理信息/);
-  assert.match(dashboard, /已处理信息/);
+  assert.match(page, /country_code/);
+  assert.match(dashboard, /copy\.pendingInfo/);
+  assert.match(dashboard, /copy\.processedInfo/);
+  assert.match(dashboard, /item\.message/);
+  assert.match(dashboard, /item\.custom_product_name/);
+  assert.match(dashboard, /\{item\.message && <p className="advisor-note">\{item\.message\}<\/p>\}/);
   assert.match(dashboard, /item\.status === "new"/);
   assert.match(dashboard, /\/api\/advisor\/inquiries\/\$\{id\}/);
   assert.match(route, /z\.enum\(\["contacted", "qualified", "closed", "spam"\]\)/);
+  assert.match(route, /canProcessMarket\(profile, inquiry\.market_code\)/);
+  assert.match(route, /FORBIDDEN_MARKET/);
   assert.match(route, /assigned_to: user\.id/);
   assert.match(route, /status: parsed\.data\.status/);
   assert.match(route, /isAdvisorRole\(profile\?\.role\)/);
+  assert.match(copy, /export const advisorTranslations/);
+  assert.match(copy, /zh, ru, ky, uz/);
 });
 
 test("account login returns to the market page while keeping a visible signed-in header", async () => {

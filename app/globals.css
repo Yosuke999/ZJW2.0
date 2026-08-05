@@ -273,6 +273,9 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .status-spam { background: #f9e7e4; color: #9d3128; }
 .advisor-shell { min-height: 100dvh; padding-top: 36px; padding-bottom: 64px; }
 .advisor-shell .account-heading p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
+.advisor-language-switch { display: flex; flex-wrap: wrap; gap: 8px; width: min(960px, 100%); margin: 16px auto 18px; }
+.advisor-language-switch a { min-height: 38px; padding: 9px 12px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--muted); font-size: 12px; font-weight: 800; text-decoration: none; }
+.advisor-language-switch a.active { border-color: rgba(34,166,154,.42); background: #f0faf8; color: #167a72; }
 .advisor-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; width: min(960px, 100%); margin: 18px auto; }
 .advisor-summary > div { display: grid; gap: 4px; padding: 18px; border: 1px solid rgba(34,166,154,.2); border-radius: 18px; background: rgba(255,255,255,.78); box-shadow: 0 12px 28px rgba(23,74,126,.06); }
 .advisor-summary strong { color: var(--blue); font-size: 28px; line-height: 1; }
