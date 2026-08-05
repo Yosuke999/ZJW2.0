@@ -171,11 +171,18 @@ test("advisor workspace is staff-only, localized, and market-scoped", async () =
   assert.match(page, /products\(legacy_id\)/);
   assert.match(page, /country_code/);
   assert.match(dashboard, /copy\.pendingInfo/);
-  assert.match(dashboard, /copy\.processedInfo/);
+  assert.match(dashboard, /advisor-filter/);
+  assert.match(dashboard, /filterStatuses/);
+  assert.match(dashboard, /setFilter\(status\)/);
+  assert.match(dashboard, /hiddenIds/);
+  assert.match(dashboard, /item\.status !== "spam"/);
+  assert.match(dashboard, /new Set\(current\)\.add\(id\)/);
+  assert.doesNotMatch(dashboard, /\.delete\(/);
   assert.match(dashboard, /item\.message/);
   assert.match(dashboard, /item\.custom_product_name/);
   assert.match(dashboard, /\{item\.message && <p className="advisor-note">\{item\.message\}<\/p>\}/);
-  assert.match(dashboard, /item\.status === "new"/);
+  assert.match(dashboard, /filter === "new"/);
+  assert.match(dashboard, /item\.status === filter/);
   assert.match(dashboard, /\/api\/advisor\/inquiries\/\$\{id\}/);
   assert.match(route, /z\.enum\(\["contacted", "qualified", "closed", "spam"\]\)/);
   assert.match(route, /canProcessMarket\(profile, inquiry\.market_code\)/);
@@ -184,6 +191,7 @@ test("advisor workspace is staff-only, localized, and market-scoped", async () =
   assert.match(route, /status: parsed\.data\.status/);
   assert.match(route, /isAdvisorRole\(profile\?\.role\)/);
   assert.match(copy, /export const advisorTranslations/);
+  assert.match(copy, /filters: Record<string, string>/);
   assert.match(copy, /zh, ru, ky, uz/);
 });
 

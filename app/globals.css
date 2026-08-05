@@ -284,6 +284,11 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .advisor-summary > div { display: grid; gap: 4px; padding: 18px; border: 1px solid rgba(34,166,154,.2); border-radius: 18px; background: rgba(255,255,255,.78); box-shadow: 0 12px 28px rgba(23,74,126,.06); }
 .advisor-summary strong { color: var(--blue); font-size: 28px; line-height: 1; }
 .advisor-summary span { color: var(--muted); font-size: 12px; font-weight: 800; }
+.advisor-filter { display: flex; flex-wrap: wrap; gap: 8px; width: min(960px, 100%); margin: 0 auto 18px; }
+.advisor-filter button { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: white; color: var(--blue); font-size: 12px; font-weight: 850; cursor: pointer; }
+.advisor-filter button.active { border-color: rgba(34,166,154,.46); background: #f0faf8; color: #167a72; }
+.advisor-filter span { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #eef3f6; color: var(--muted); font-size: 11px; }
+.advisor-filter button.active span { background: white; color: #167a72; }
 .advisor-card { width: min(960px, 100%); margin: 18px auto; padding: 22px; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: 0 14px 34px rgba(23,74,126,.08); }
 .advisor-card h2 { color: var(--blue-dark); }
 .advisor-card > p { color: var(--muted); line-height: 1.55; }

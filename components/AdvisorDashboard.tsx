@@ -5,6 +5,9 @@ import type { AdvisorCopy } from "@/data/advisor-translations";
 import type { Language } from "@/data/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
+type InquiryStatus = "new" | "contacted" | "qualified" | "closed" | "spam";
+type FilterStatus = "all" | InquiryStatus;
+
 export type AdvisorInquiry = {
   id: string;
   intent_type: "callback" | "purchase_intent";
@@ -22,6 +25,8 @@ export type AdvisorInquiry = {
   created_at: string;
   products: { legacy_id: string } | null;
 };
+
+const filterStatuses: FilterStatus[] = ["all", "new", "contacted", "qualified", "closed", "spam"];
 
 const localeByLanguage: Record<Language, string> = {
   zh: "zh-CN",
@@ -47,13 +52,19 @@ export function AdvisorDashboard({
   language: Language;
 }) {
   const [items, setItems] = useState(initialInquiries);
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set());
+  const [filter, setFilter] = useState<FilterStatus>("all");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
-  const pending = useMemo(() => items.filter((item) => item.status === "new"), [items]);
-  const processed = useMemo(() => items.filter((item) => item.status !== "new"), [items]);
+  const visibleItems = useMemo(() => items.filter((item) => !hiddenIds.has(item.id) && item.status !== "spam"), [items, hiddenIds]);
+  const filteredItems = useMemo(() => visibleItems.filter((item) => filter === "all" ? true : item.status === filter), [visibleItems, filter]);
+  const counts = useMemo(() => Object.fromEntries(filterStatuses.map((status) => [
+    status,
+    status === "all" ? visibleItems.length : visibleItems.filter((item) => item.status === status).length,
+  ])) as Record<FilterStatus, number>, [visibleItems]);
 
-  async function updateStatus(id: string, status: "contacted" | "qualified" | "closed" | "spam") {
+  async function updateStatus(id: string, status: Exclude<InquiryStatus, "new">) {
     setBusyId(id);
     setMessage("");
     const { data: { session } } = await createSupabaseBrowserClient().auth.getSession();
@@ -69,20 +80,30 @@ export function AdvisorDashboard({
       setBusyId(null);
       return;
     }
-    setItems((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+    if (status === "spam") {
+      setHiddenIds((current) => new Set(current).add(id));
+    } else {
+      setItems((current) => current.map((item) => item.id === id ? { ...item, status } : item));
+    }
     setBusyId(null);
   }
 
   return (
     <>
       <section className="advisor-summary" aria-label={copy.workspace}>
-        <div><strong>{pending.length}</strong><span>{copy.pending}</span></div>
-        <div><strong>{processed.length}</strong><span>{copy.processed}</span></div>
-        <div><strong>{items.length}</strong><span>{copy.total}</span></div>
+        <div><strong>{counts.new}</strong><span>{copy.pending}</span></div>
+        <div><strong>{counts.contacted + counts.qualified + counts.closed}</strong><span>{copy.processed}</span></div>
+        <div><strong>{counts.all}</strong><span>{copy.total}</span></div>
       </section>
+      <div className="advisor-filter" role="tablist" aria-label={copy.allVisible}>
+        {filterStatuses.map((status) => (
+          <button key={status} type="button" className={filter === status ? "active" : ""} onClick={() => setFilter(status)}>
+            {copy.filters[status]}<span>{counts[status]}</span>
+          </button>
+        ))}
+      </div>
       {message && <p className="form-message" role="status">{message}</p>}
-      <InquirySection title={copy.pendingInfo} empty={copy.noPending} items={pending} busyId={busyId} copy={copy} language={language} onUpdate={updateStatus} />
-      <InquirySection title={copy.processedInfo} empty={copy.noProcessed} items={processed} busyId={busyId} copy={copy} language={language} onUpdate={updateStatus} />
+      <InquirySection title={filter === "new" ? copy.pendingInfo : filter === "all" ? copy.allVisible : copy.filters[filter]} empty={filter === "new" ? copy.noPending : copy.noProcessed} items={filteredItems} busyId={busyId} copy={copy} language={language} onUpdate={updateStatus} />
     </>
   );
 }
@@ -102,7 +123,7 @@ function InquirySection({
   busyId: string | null;
   copy: AdvisorCopy;
   language: Language;
-  onUpdate: (id: string, status: "contacted" | "qualified" | "closed" | "spam") => Promise<void>;
+  onUpdate: (id: string, status: Exclude<InquiryStatus, "new">) => Promise<void>;
 }) {
   return (
     <section className="advisor-card">
