@@ -96,7 +96,7 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Advi
 
   let inquiryQuery = supabase
     .from("inquiries")
-    .select("id,intent_type,market_code,language,name,contact,channel,delivery_city,custom_product_name,quantity,message,source,status,created_at,products(legacy_id)")
+    .select("id,intent_type,market_code,language,name,email,contact,channel,delivery_city,custom_product_name,quantity,message,source,status,created_at,products(legacy_id)")
     .order("created_at", { ascending: false })
     .limit(200);
 

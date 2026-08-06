@@ -24,6 +24,7 @@ export type AdvisorCopy = {
   noProcessed: string;
   processFailed: string;
   customer: string;
+  email: string;
   contact: string;
   city: string;
   product: string;
@@ -64,6 +65,7 @@ const zh: AdvisorCopy = {
   noProcessed: "当前没有已处理记录。",
   processFailed: "处理失败，请刷新后重试。",
   customer: "客户",
+  email: "注册邮箱",
   contact: "联系方式",
   city: "城市",
   product: "商品",
@@ -105,6 +107,7 @@ const ru: AdvisorCopy = {
   noProcessed: "Обработанных записей пока нет.",
   processFailed: "Не удалось обновить статус. Обновите страницу и попробуйте снова.",
   customer: "Клиент",
+  email: "Электронная почта",
   contact: "Контакт",
   city: "Город",
   product: "Товар",
@@ -146,6 +149,7 @@ const ky: AdvisorCopy = {
   noProcessed: "Азырынча иштетилген жазуу жок.",
   processFailed: "Иштетүү ишке ашкан жок. Баракты жаңыртып кайра аракет кылыңыз.",
   customer: "Кардар",
+  email: "Электрондук почта",
   contact: "Байланыш",
   city: "Шаар",
   product: "Товар",
@@ -187,6 +191,7 @@ const uz: AdvisorCopy = {
   noProcessed: "Hozircha ko‘rib chiqilgan yozuv yo‘q.",
   processFailed: "Amal bajarilmadi. Sahifani yangilab qayta urinib ko‘ring.",
   customer: "Mijoz",
+  email: "E-pochta",
   contact: "Aloqa",
   city: "Shahar",
   product: "Mahsulot",
@@ -227,6 +232,7 @@ const en: AdvisorCopy = {
   noProcessed: "There are no processed records yet.",
   processFailed: "The update failed. Refresh the page and try again.",
   customer: "Customer",
+  email: "Registration email",
   contact: "Contact",
   city: "City",
   product: "Product",

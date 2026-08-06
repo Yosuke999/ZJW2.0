@@ -178,6 +178,7 @@ export const inquiries = pgTable("inquiries", {
   marketCode: varchar("market_code", { length: 2 }).references(() => markets.code),
   language: varchar("language", { length: 5 }).notNull(),
   name: text("name"),
+  email: text("email"),
   contact: text("contact").notNull(),
   channel: varchar("channel", { length: 30 }).notNull(),
   quantity: integer("quantity"),

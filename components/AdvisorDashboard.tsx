@@ -15,6 +15,7 @@ export type AdvisorInquiry = {
   market_code: string | null;
   language: string;
   name: string | null;
+  email: string | null;
   contact: string;
   channel: string;
   delivery_city: string | null;
@@ -144,6 +145,7 @@ function InquirySection({
           </div>
           <dl className="advisor-fields">
             <div><dt>{copy.customer}</dt><dd>{item.name ?? copy.notProvided}</dd></div>
+            <div><dt>{copy.email}</dt><dd>{item.email ?? copy.notProvided}</dd></div>
             <div><dt>{copy.contact}</dt><dd>{copy.channels[item.channel] ?? item.channel} · {item.contact}</dd></div>
             <div><dt>{copy.city}</dt><dd>{item.delivery_city ?? copy.notProvided}</dd></div>
             <div><dt>{copy.product}</dt><dd>{productName(item.products?.legacy_id, language) ?? item.custom_product_name ?? copy.advisorConsultation}</dd></div>

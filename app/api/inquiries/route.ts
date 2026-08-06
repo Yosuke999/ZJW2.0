@@ -38,6 +38,7 @@ export async function POST(request: Request) {
     market_code: input.countryCode,
     language: input.language,
     name: profile.display_name,
+    email: user.email ?? null,
     contact: contact.contact,
     channel: contact.channel,
     quantity: input.quantity ?? null,

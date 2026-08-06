@@ -81,6 +81,25 @@ test("intent endpoints require auth and never accept contact identity from the f
   assert.match(profileRoute, /user_id:\s*user\.id/);
 });
 
+test("inquiry snapshots the authenticated email for the advisor card", async () => {
+  const [schema, migration, submitRoute, advisorPage, dashboard, copy] = await Promise.all([
+    read("db/schema.ts"),
+    read("db/migrations/0006_inquiry_email.sql"),
+    read("app/api/inquiries/route.ts"),
+    read("app/advisor/page.tsx"),
+    read("components/AdvisorDashboard.tsx"),
+    read("data/advisor-translations.ts"),
+  ]);
+
+  assert.match(schema, /email: text\("email"\)/);
+  assert.match(migration, /ADD COLUMN IF NOT EXISTS "email" text/);
+  assert.match(submitRoute, /email: user\.email \?\? null/);
+  assert.match(advisorPage, /name,email,contact,channel/);
+  assert.match(dashboard, /email: string \| null/);
+  assert.match(dashboard, /<dt>\{copy\.email\}<\/dt><dd>\{item\.email \?\? copy\.notProvided\}<\/dd>/);
+  assert.match(copy, /email: "注册邮箱"/);
+});
+
 test("email confirmation callback supports both PKCE codes and token hashes", async () => {
   const callback = await read("app/auth/confirm/route.ts");
   assert.match(callback, /searchParams\.get\("code"\)/);
