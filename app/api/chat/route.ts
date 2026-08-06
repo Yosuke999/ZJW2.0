@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash";
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       signal: AbortSignal.timeout(20000),
@@ -52,17 +52,10 @@ export async function POST(request: Request) {
         generationConfig: { maxOutputTokens: 500, temperature: 0.2 },
       }),
     });
-    if (!response.ok) {
-      const data = await response.json() as { error?: { message?: string } };
-      return NextResponse.json({ error: data.error?.message || "AI 客服暂时不可用，请稍后再试。" }, { status: 502 });
-    }
-    return new Response(response.body, {
-      headers: {
-        "Content-Type": "text/event-stream; charset=utf-8",
-        "Cache-Control": "no-cache, no-transform",
-        Connection: "keep-alive",
-      },
-    });
+    const data = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>; error?: { message?: string } };
+    if (!response.ok) return NextResponse.json({ error: data.error?.message || "AI 客服暂时不可用，请稍后再试。" }, { status: 502 });
+    const message = data.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim();
+    return NextResponse.json({ message: message || "暂时没有生成有效回复，请联系人工顾问。" });
   } catch (error) {
     if (error instanceof DOMException && error.name === "TimeoutError") return NextResponse.json({ error: "AI 响应超时，请稍后重试。" }, { status: 504 });
     return NextResponse.json({ error: "AI 客服暂时无法连接，请稍后再试。" }, { status: 500 });

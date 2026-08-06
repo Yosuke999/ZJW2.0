@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import type { CountryCode, Language } from "@/data/types";
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -19,6 +19,11 @@ export function AiChat({ country, language }: { country: CountryCode; language: 
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: copy.welcome }]);
+  const messagesRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (open && messagesRef.current) messagesRef.current.scrollTo({ top: messagesRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages, loading, open]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,40 +40,8 @@ export function AiChat({ country, language }: { country: CountryCode; language: 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next, country, language }),
       });
-      if (!response.ok) {
-        const data = await response.json() as { error?: string };
-        setMessages([...next, { role: "assistant", content: data.error || "Sorry, I could not answer right now." }]);
-        return;
-      }
-      if (!response.body) throw new Error("Missing response stream");
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      let assistantText = "";
-      setMessages([...next, { role: "assistant", content: "" }]);
-      const consumeEvent = (event: string) => {
-        const data = event.split(/\r?\n/).filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trim()).join("\n");
-        if (!data || data === "[DONE]") return;
-        try {
-          const chunk = JSON.parse(data) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
-          const text = chunk.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("") || "";
-          if (text) {
-            assistantText += text;
-            setMessages([...next, { role: "assistant", content: assistantText }]);
-          }
-        } catch {
-          // Ignore incomplete or non-data SSE frames; the next frame may contain the rest.
-        }
-      };
-      while (true) {
-        const { value, done } = await reader.read();
-        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
-        const events = buffer.split(/\r?\n\r?\n/);
-        buffer = events.pop() || "";
-        for (const event of events) consumeEvent(event);
-        if (done) { consumeEvent(buffer); break; }
-      }
-      if (!assistantText) setMessages([...next, { role: "assistant", content: "暂时没有生成有效回复，请联系人工顾问。" }]);
+      const data = await response.json() as { message?: string; error?: string };
+      setMessages([...next, { role: "assistant", content: data.message || data.error || "Sorry, I could not answer right now." }]);
     } catch {
       setMessages([...next, { role: "assistant", content: "AI 客服响应超时或暂时不可用，请稍后重试。" }]);
     } finally {
@@ -83,7 +56,7 @@ export function AiChat({ country, language }: { country: CountryCode; language: 
           <strong>{copy.title}</strong>
           <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}>×</button>
         </div>
-        <div className="ai-chat-messages" aria-live="polite">
+        <div ref={messagesRef} className="ai-chat-messages" aria-live="polite">
           {messages.map((message, index) => <div className={`ai-chat-message ${message.role}`} key={`${message.role}-${index}`}>{message.content}</div>)}
           {loading && <div className="ai-chat-message assistant">{copy.loading}</div>}
         </div>
