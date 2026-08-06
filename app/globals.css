@@ -522,6 +522,21 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   background: linear-gradient(90deg, transparent, rgba(255,255,255,.76), rgba(255,255,255,.32), transparent);
 }
 
+.ai-chat-launcher { position: fixed; right: 18px; bottom: 18px; z-index: 45; display: flex; align-items: center; gap: 8px; min-height: 50px; padding: 0 17px; border: 1px solid var(--teal); border-radius: 999px; background: var(--teal); color: white; box-shadow: 0 15px 30px rgba(22,122,114,.28); font-weight: 800; cursor: pointer; }
+.ai-chat-launcher span { font-size: 18px; }
+.ai-chat-panel { position: fixed; right: 18px; bottom: 80px; z-index: 45; display: flex; width: min(370px, calc(100vw - 28px)); height: min(560px, calc(100vh - 110px)); flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: 20px; background: white; box-shadow: 0 24px 70px rgba(15,35,54,.24); }
+.ai-chat-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: var(--blue); color: white; }
+.ai-chat-head button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: rgba(255,255,255,.14); color: white; font-size: 22px; cursor: pointer; }
+.ai-chat-messages { display: flex; flex: 1; gap: 10px; padding: 16px; flex-direction: column; overflow-y: auto; background: #f7fafb; }
+.ai-chat-message { max-width: 88%; padding: 10px 12px; border-radius: 14px; font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
+.ai-chat-message.assistant { align-self: flex-start; border: 1px solid var(--line); background: white; }
+.ai-chat-message.user { align-self: flex-end; background: #dff3f0; color: #155d57; }
+.ai-chat-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid var(--line); background: white; }
+.ai-chat-form input { min-width: 0; flex: 1; padding: 0 12px; border: 1px solid var(--line); border-radius: 11px; outline: none; }
+.ai-chat-form input:focus { border-color: var(--teal); }
+.ai-chat-form button { padding: 0 13px; border: 0; border-radius: 11px; background: var(--blue); color: white; font-weight: 750; cursor: pointer; }
+.ai-chat-form button:disabled { opacity: .45; cursor: default; }
+
 @media (max-width: 430px) {
   .products-section { padding-block: 58px 54px; padding-inline: 8px; border-radius: 28px; }
   .products-section { --products-scene-size: 700px; }

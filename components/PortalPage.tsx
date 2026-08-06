@@ -12,6 +12,7 @@ import { ContactSheet } from "./ContactSheet";
 import { ServiceFlow } from "./ServiceFlow";
 import { Faq } from "./Faq";
 import { Footer } from "./Footer";
+import { AiChat } from "./AiChat";
 
 export function PortalPage({ countryCode, language, source, initialIntent, initialProductId }: { countryCode: CountryCode; language: Language; source?: string; initialIntent?: string; initialProductId?: string }) {
   const [contactOpen, setContactOpen] = useState(initialIntent === "purchase" || initialIntent === "callback");
@@ -48,6 +49,7 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
       <div id="privacy" className="privacy-placeholder shell">{copy.privacy} · {copy.demoData}</div>
       <Footer country={country} language={language} copy={copy} source={source} />
       <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} source={source} />
+      <AiChat country={countryCode} language={language} />
     </main>
   );
 }
