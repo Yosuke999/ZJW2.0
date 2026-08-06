@@ -34,7 +34,7 @@ export async function POST(request: Request) {
     const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : [];
     const countryCode: CountryCode = body.country === "uz" ? "uz" : "kg";
     const language: Language = ["zh", "ru", "ky", "uz", "en"].includes(body.language ?? "") ? body.language as Language : "zh";
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.gemini;
 
     if (!apiKey) return NextResponse.json({ error: "AI 客服尚未配置，请联系人工顾问。" }, { status: 503 });
     if (!messages.length || messages.some((message) => !message?.content?.trim() || !["user", "assistant"].includes(message.role))) {
