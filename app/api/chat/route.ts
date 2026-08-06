@@ -42,20 +42,29 @@ export async function POST(request: Request) {
     }
 
     const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash";
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:streamGenerateContent?alt=sse`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+      signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: `You are the purchasing assistant for Central Asia Opportunity Portal. Answer only from the website information below. Never invent inventory, final prices, MOQ, delivery times, or guarantees. Page prices are demo/reference prices and exclude shipping, customs, tax, and other costs. If the user asks for a final quote or information not present, say that a human advisor must verify it and ask for product, quantity, destination, and contact details. Reply in the user's language, briefly and professionally.\n\n${buildKnowledge(countryCode, language)}` }] },
         contents: messages.map((message) => ({ role: message.role === "assistant" ? "model" : "user", parts: [{ text: message.content.trim().slice(0, 2000) }] })),
         generationConfig: { maxOutputTokens: 500, temperature: 0.2 },
       }),
     });
-    const data = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>; error?: { message?: string } };
-    if (!response.ok) return NextResponse.json({ error: data.error?.message || "AI 客服暂时不可用，请稍后再试。" }, { status: 502 });
-    const message = data.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("").trim();
-    return NextResponse.json({ message: message || "暂时没有生成有效回复，请联系人工顾问。" });
-  } catch {
+    if (!response.ok) {
+      const data = await response.json() as { error?: { message?: string } };
+      return NextResponse.json({ error: data.error?.message || "AI 客服暂时不可用，请稍后再试。" }, { status: 502 });
+    }
+    return new Response(response.body, {
+      headers: {
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        Connection: "keep-alive",
+      },
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "TimeoutError") return NextResponse.json({ error: "AI 响应超时，请稍后重试。" }, { status: 504 });
     return NextResponse.json({ error: "AI 客服暂时无法连接，请稍后再试。" }, { status: 500 });
   }
 }

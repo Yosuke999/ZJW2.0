@@ -35,10 +35,37 @@ export function AiChat({ country, language }: { country: CountryCode; language: 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next, country, language }),
       });
-      const data = await response.json() as { message?: string; error?: string };
-      setMessages([...next, { role: "assistant", content: data.message || data.error || "Sorry, I could not answer right now." }]);
+      if (!response.ok) {
+        const data = await response.json() as { error?: string };
+        setMessages([...next, { role: "assistant", content: data.error || "Sorry, I could not answer right now." }]);
+        return;
+      }
+      if (!response.body) throw new Error("Missing response stream");
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let assistantText = "";
+      setMessages([...next, { role: "assistant", content: "" }]);
+      while (true) {
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+        const events = buffer.split("\n\n");
+        buffer = events.pop() || "";
+        for (const event of events) {
+          const line = event.split("\n").find((item) => item.startsWith("data:"));
+          if (!line) continue;
+          const chunk = JSON.parse(line.slice(5).trim()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+          const text = chunk.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("") || "";
+          if (text) {
+            assistantText += text;
+            setMessages([...next, { role: "assistant", content: assistantText }]);
+          }
+        }
+        if (done) break;
+      }
+      if (!assistantText) setMessages([...next, { role: "assistant", content: "暂时没有生成有效回复，请联系人工顾问。" }]);
     } catch {
-      setMessages([...next, { role: "assistant", content: "The AI assistant is temporarily unavailable. Please contact a local advisor." }]);
+      setMessages([...next, { role: "assistant", content: "AI 客服响应超时或暂时不可用，请稍后重试。" }]);
     } finally {
       setLoading(false);
     }
