@@ -5,7 +5,7 @@ import { useState } from "react";
 import { languageLabels } from "@/data/countries";
 import type { Language } from "@/data/types";
 
-const languages: Language[] = ["zh", "ru", "ky", "uz"];
+const languages: Language[] = ["zh", "ru", "ky", "uz", "en"];
 
 export function AdvisorLanguageSwitch({ language, ariaLabel }: { language: Language; ariaLabel: string }) {
   const [open, setOpen] = useState(false);

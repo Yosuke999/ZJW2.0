@@ -86,4 +86,26 @@ const uz: IntentCopy = {
   intentTypes: { callback: "Bog‘lanish so‘rovi", purchase_intent: "Xarid so‘rovi" },
 };
 
-export const intentTranslations: Record<Language, IntentCopy> = { zh, ru, ky, uz };
+const en: IntentCopy = {
+  account: "Account", signIn: "Sign in", signUp: "Register", signOut: "Sign out",
+  email: "Email", password: "Password", displayName: "Name", country: "Market", city: "City",
+  phone: "Phone", whatsapp: "WhatsApp", telegram: "Telegram", preferredContact: "Preferred contact channel",
+  consent: "I agree that these contact details may be used to follow up on this and future sourcing requests.",
+  authIntro: "Register to submit sourcing requests and track their status in your account.",
+  loginTab: "I have an account", registerTab: "Create an account", submitLogin: "Sign in", submitRegister: "Register and continue",
+  checkEmail: "Registration complete. Check your email and confirm your account before signing in.",
+  authError: "The action could not be completed. Check your information and try again.",
+  loginSuccess: "You are signed in. Your saved account details are shown below.",
+  callback: "Ask an advisor to contact me", callbackHint: "No long form is required. An advisor will use your preferred contact channel.",
+  purchaseIntent: "Submit a sourcing request", purchaseHint: "Enter an estimated quantity, city and a short note.",
+  signInRequired: "Sign in to submit", signInToContinue: "After signing in or registering, you will return to the selected product.",
+  quantity: "Estimated quantity (optional)", note: "Additional note (optional)", deliveryCity: "Delivery city",
+  customProduct: "Product you want to source", submitIntent: "Submit request", submitting: "Submitting…",
+  intentSuccess: "Request received. We will follow up through your preferred contact channel.",
+  profileIncomplete: "Add your name, city and at least one contact method in your account first.", externalContact: "Or contact us directly",
+  myProfile: "My profile", saveProfile: "Save", myIntents: "My requests", noIntents: "You have not submitted a request yet.", backToMarket: "Back to opportunities",
+  status: { new: "Awaiting contact", contacted: "Contacted", qualified: "In progress", closed: "Completed", spam: "Closed" },
+  intentTypes: { callback: "Contact request", purchase_intent: "Sourcing request" },
+};
+
+export const intentTranslations: Record<Language, IntentCopy> = { zh, ru, ky, uz, en };

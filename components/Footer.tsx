@@ -5,7 +5,7 @@ import type { Copy } from "@/data/translations";
 import type { Language } from "@/data/types";
 
 export function Footer({ country, language, copy, source }: { country: CountryConfig; language: Language; copy: Copy; source?: string }) {
-  const languages: Language[] = ["ky", "uz", "ru", "zh"];
+  const languages: Language[] = ["ky", "uz", "ru", "zh", "en"];
   const linkFor = (next: Language) => {
     const path = getLanguageRoute(country.code, next);
     return source ? `${path}?src=${encodeURIComponent(source)}` : path;

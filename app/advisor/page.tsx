@@ -14,7 +14,7 @@ function isAdvisorRole(role: unknown) {
 }
 
 function isLanguage(value: unknown): value is Language {
-  return value === "zh" || value === "ru" || value === "ky" || value === "uz";
+  return value === "zh" || value === "ru" || value === "ky" || value === "uz" || value === "en";
 }
 
 function isCountry(value: unknown): value is CountryCode {

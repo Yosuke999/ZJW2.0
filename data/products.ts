@@ -5,7 +5,8 @@ const localized = (
   ru: string,
   ky: string,
   uz: string,
-): Record<Language, string> => ({ zh, ru, ky, uz });
+  en: string,
+): Record<Language, string> => ({ zh, ru, ky, uz, en });
 
 const rows = [
   ["glass-kettle", "♨", "kitchen", "玻璃电热水壶", "Стеклянный электрочайник", "Айнек электр чайнек", "Shisha elektr choynak", "1.7L · 1500–2200W · 欧规插头", "1,7 л · 1500–2200 Вт · евровилка", "1,7 л · 1500–2200 Вт · евро сайгыч", "1,7 l · 1500–2200 Vt · Yevropa vilkasi"],
@@ -30,13 +31,59 @@ const rows = [
   ["screwdriver-set", "✣", "tools", "多功能螺丝刀套装", "Набор отвёрток", "Бурагычтар топтому", "Otvyortkalar toʻplami", "常用批头 · 带收纳盒", "основные биты · футляр", "негизги учтар · куту", "asosiy uchlar · quti"],
 ] as const;
 
+const englishNames: Record<string, string> = {
+  "glass-kettle": "Glass electric kettle",
+  "power-bank": "Power bank",
+  "led-bulb": "LED light bulb",
+  "tws-earbuds": "TWS wireless earbuds",
+  "hair-dryer": "Hair dryer",
+  "pd-charger": "Fast charger",
+  "type-c-cable": "Type-C cable",
+  "power-strip": "Power strip",
+  "hair-clipper": "Rechargeable hair clipper",
+  flashlight: "Rechargeable flashlight",
+  "car-holder": "Car phone holder",
+  "thermal-jug": "Stainless steel thermal jug",
+  "steam-iron": "Steam iron",
+  "desk-lamp": "Rechargeable LED desk lamp",
+  shaver: "Electric shaver",
+  "kitchen-scale": "Digital kitchen scale",
+  "toy-car": "Pull-back toy car",
+  backpack: "Backpack",
+  umbrella: "Folding umbrella",
+  "screwdriver-set": "Multi-purpose screwdriver set",
+};
+
+const englishSpecifications: Record<string, string> = {
+  "glass-kettle": "1.7 L · 1500–2200 W · EU plug",
+  "power-bank": "10,000 mAh · 22.5 W · digital display",
+  "led-bulb": "12 W · E27 · white light",
+  "tws-earbuds": "Bluetooth 5.3 · Type-C charging",
+  "hair-dryer": "1800 W · EU plug · hot/cold air",
+  "pd-charger": "20 W · USB-C PD · EU plug",
+  "type-c-cable": "1 m · 60 W · braided cable",
+  "power-strip": "3 outlets · 2 m · master switch",
+  "hair-clipper": "Lithium battery · Type-C · guide combs",
+  flashlight: "Lithium battery · Type-C · 500–1000 lm",
+  "car-holder": "Gravity clamp · air-vent mount",
+  "thermal-jug": "1 L · double-wall vacuum",
+  "steam-iron": "Approx. 2000 W · EU plug",
+  "desk-lamp": "Lithium battery · Type-C · 3 brightness levels",
+  shaver: "Lithium battery · Type-C · 3 heads",
+  "kitchen-scale": "5 kg / 1 g · LCD display",
+  "toy-car": "Approx. 1:32 · no remote control",
+  backpack: "Approx. 20–25 L · water-repellent",
+  umbrella: "Automatic · approx. 105 cm · 8 ribs",
+  "screwdriver-set": "Common bits · storage case",
+};
+
 export const products: Product[] = rows.map((row) => ({
   id: row[0],
   category: row[2],
   image: `/products/${row[0]}.webp`,
   imageStatus: "placeholder",
-  name: localized(row[3], row[4], row[5], row[6]),
-  specification: localized(row[7], row[8], row[9], row[10]),
+  name: localized(row[3], row[4], row[5], row[6], englishNames[row[0]]),
+  specification: localized(row[7], row[8], row[9], row[10], englishSpecifications[row[0]]),
 }));
 
 export const heroProducts = products.slice(0, 5);

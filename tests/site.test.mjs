@@ -14,6 +14,8 @@ test("resolves every supported country and preview route", () => {
   assert.deepEqual(resolveRoute("uz", ["ru"]), { country: "uz", language: "ru" });
   assert.deepEqual(resolveRoute("kg", ["zh"]), { country: "kg", language: "zh" });
   assert.deepEqual(resolveRoute("uz", ["zh"]), { country: "uz", language: "zh" });
+  assert.deepEqual(resolveRoute("kg", ["en"]), { country: "kg", language: "en" });
+  assert.deepEqual(resolveRoute("uz", ["en"]), { country: "uz", language: "en" });
   assert.equal(resolveRoute("kg", ["uz"]), null);
   assert.equal(resolveRoute("other"), null);
 });
@@ -34,6 +36,14 @@ test("both countries have 20 prices in their own currency", async () => {
   }
   assert.match(prices, /kg:\s*buildPrices\("kg",\s*"KGS"/);
   assert.match(prices, /uz:\s*buildPrices\("uz",\s*"UZS"/);
+  for (const mapping of [
+    /zh:\s*"CNY"/,
+    /uz:\s*"UZS"/,
+    /ky:\s*"KGS"/,
+    /ru:\s*"RUB"/,
+    /en:\s*"USD"/,
+  ]) assert.match(prices, mapping);
+  assert.match(prices, /formatPrice\(value: number, sourceCurrency: Currency, language: Language\)/);
 });
 
 test("localized brands are used by header, footer, metadata, and html lang", async () => {
@@ -46,6 +56,7 @@ test("localized brands are used by header, footer, metadata, and html lang", asy
     "Борбор Азия бизнес мүмкүнчүлүктөрү порталы",
     "Markaziy Osiyo biznes imkoniyatlari portali",
     "Портал бизнес-возможностей Центральной Азии",
+    "Central Asia Opportunity Portal",
   ]) assert.match(translations, new RegExp(brand));
   assert.match(header, /copy\.brandName/);
   assert.match(footer, /copy\.brandName/);

@@ -10,7 +10,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 type AccountSearchParams = Promise<{ country?: string; language?: string; returnTo?: string }>;
 
 function resolveLanguage(value: string | undefined, country: CountryCode): Language {
-  return value === "ky" || value === "uz" || value === "ru" || value === "zh" ? value : country === "uz" ? "uz" : "ky";
+  return value === "ky" || value === "uz" || value === "ru" || value === "zh" || value === "en" ? value : country === "uz" ? "uz" : "ky";
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: AccountSearchParams }): Promise<Metadata> {

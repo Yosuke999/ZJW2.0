@@ -63,7 +63,7 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
     trackEvent("hero_product_impression", { country, language, productId: product.id });
   }, [country, language, product.id]);
 
-  const liveSummary = `${product.name[language]}. ${copy.localPrice}: ${formatPrice(price.localRetailPrice, price.currency)}. ${copy.chinaPrice}: ${formatPrice(price.chinaReferencePrice, price.currency)}.`;
+  const liveSummary = `${product.name[language]}. ${copy.localPrice}: ${formatPrice(price.localRetailPrice, price.currency, language)}. ${copy.chinaPrice}: ${formatPrice(price.chinaReferencePrice, price.currency, language)}.`;
   const confirmedDate = formatConfirmedDate(copy.confirmedDate, language);
 
   return (
@@ -108,8 +108,8 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
           <strong>{product.name[language]}</strong>
           <span>{product.specification[language]}</span>
         </div>
-        <PriceTrack label={copy.localPrice} products={localPriceWindow} country={country} tone="local" direction={direction} />
-        <PriceTrack label={copy.chinaPrice} products={productWindow} country={country} tone="china" direction={direction} />
+        <PriceTrack label={copy.localPrice} products={localPriceWindow} country={country} language={language} tone="local" direction={direction} />
+        <PriceTrack label={copy.chinaPrice} products={productWindow} country={country} language={language} tone="china" direction={direction} />
         <div className="showcase-controls" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
           <button type="button" className="carousel-arrow" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={copy.previous}><span aria-hidden="true">‹</span></button>
           <span className="carousel-progress" aria-hidden="true">{index + 1} / {heroProducts.length}</span>

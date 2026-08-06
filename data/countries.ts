@@ -23,6 +23,7 @@ export const countries: Record<CountryCode, CountryConfig> = {
       uz: "Qirgʻiziston",
       ru: "Кыргызстан",
       zh: "吉尔吉斯斯坦",
+      en: "Kyrgyzstan",
     },
     currency: "KGS",
     defaultLanguage: "ky",
@@ -42,6 +43,7 @@ export const countries: Record<CountryCode, CountryConfig> = {
       uz: "Oʻzbekiston",
       ru: "Узбекистан",
       zh: "乌兹别克斯坦",
+      en: "Uzbekistan",
     },
     currency: "UZS",
     defaultLanguage: "uz",
@@ -61,6 +63,7 @@ export const languageLabels: Record<Language, string> = {
   uz: "Oʻzbekcha",
   ru: "Русский",
   zh: "中文预览",
+  en: "English",
 };
 
 export const languageCountry: Partial<Record<Language, CountryCode>> = {

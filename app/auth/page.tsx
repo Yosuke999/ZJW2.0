@@ -9,7 +9,7 @@ import { safeReturnPath } from "@/lib/customer-intents";
 type AuthSearchParams = Promise<{ country?: string; language?: string; returnTo?: string }>;
 
 function resolveLanguage(value: string | undefined, country: CountryCode): Language {
-  return value === "ky" || value === "uz" || value === "ru" || value === "zh" ? value : country === "uz" ? "uz" : "ky";
+  return value === "ky" || value === "uz" || value === "ru" || value === "zh" || value === "en" ? value : country === "uz" ? "uz" : "ky";
 }
 
 export async function generateMetadata({ searchParams }: { searchParams: AuthSearchParams }): Promise<Metadata> {

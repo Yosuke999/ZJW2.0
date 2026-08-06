@@ -1,6 +1,6 @@
 export type CountryCode = "kg" | "uz";
-export type Language = "ky" | "uz" | "ru" | "zh";
-export type Currency = "KGS" | "UZS";
+export type Language = "ky" | "uz" | "ru" | "zh" | "en";
+export type Currency = "KGS" | "UZS" | "CNY" | "RUB" | "USD";
 export type PriceStatus = "demo" | "pending-review" | "verified" | "stale";
 export type TranslationStatus =
   | "draft"

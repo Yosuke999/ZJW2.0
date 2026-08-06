@@ -9,7 +9,7 @@ import { trackEvent } from "@/lib/analytics";
 import { AccountNav } from "@/components/AccountNav";
 
 export function Header({ country, language, copy, source }: { country: CountryConfig; language: Language; copy: Copy; source?: string }) {
-  const languages: Language[] = ["ky", "uz", "ru", "zh"];
+  const languages: Language[] = ["ky", "uz", "ru", "zh", "en"];
   const linkFor = (next: Language) => {
     const path = getLanguageRoute(country.code, next);
     return source ? `${path}?src=${encodeURIComponent(source)}` : path;

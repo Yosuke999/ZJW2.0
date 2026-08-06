@@ -28,18 +28,18 @@ if (!connectionString) {
 
 const sql = postgres(connectionString, { max: 1, prepare: false });
 const db = drizzle(sql);
-const languages: Language[] = ["zh", "ru", "ky", "uz"];
+const languages: Language[] = ["zh", "ru", "ky", "uz", "en"];
 
 const categoryNames: Record<string, Record<Language, string>> = {
-  kitchen: { zh: "厨房用品", ru: "Кухня", ky: "Ашкана", uz: "Oshxona" },
-  electronics: { zh: "数码电子", ru: "Электроника", ky: "Электроника", uz: "Elektronika" },
-  lighting: { zh: "照明设备", ru: "Освещение", ky: "Жарыктандыруу", uz: "Yoritish" },
-  "personal-care": { zh: "个护电器", ru: "Уход за собой", ky: "Жеке кам көрүү", uz: "Shaxsiy parvarish" },
-  home: { zh: "家居用品", ru: "Товары для дома", ky: "Үй буюмдары", uz: "Uy-roʻzgʻor" },
-  auto: { zh: "汽车用品", ru: "Автотовары", ky: "Унаа буюмдары", uz: "Avtomobil buyumlari" },
-  toys: { zh: "玩具", ru: "Игрушки", ky: "Оюнчуктар", uz: "Oʻyinchoqlar" },
-  bags: { zh: "箱包", ru: "Сумки и рюкзаки", ky: "Сумкалар", uz: "Sumkalar" },
-  tools: { zh: "工具", ru: "Инструменты", ky: "Куралдар", uz: "Asboblar" },
+  kitchen: { zh: "厨房用品", ru: "Кухня", ky: "Ашкана", uz: "Oshxona", en: "Kitchen" },
+  electronics: { zh: "数码电子", ru: "Электроника", ky: "Электроника", uz: "Elektronika", en: "Electronics" },
+  lighting: { zh: "照明设备", ru: "Освещение", ky: "Жарыктандыруу", uz: "Yoritish", en: "Lighting" },
+  "personal-care": { zh: "个护电器", ru: "Уход за собой", ky: "Жеке кам көрүү", uz: "Shaxsiy parvarish", en: "Personal care" },
+  home: { zh: "家居用品", ru: "Товары для дома", ky: "Үй буюмдары", uz: "Uy-roʻzgʻor", en: "Home" },
+  auto: { zh: "汽车用品", ru: "Автотовары", ky: "Унаа буюмдары", uz: "Avtomobil buyumlari", en: "Automotive" },
+  toys: { zh: "玩具", ru: "Игрушки", ky: "Оюнчуктар", uz: "Oʻyinchoqlar", en: "Toys" },
+  bags: { zh: "箱包", ru: "Сумки и рюкзаки", ky: "Сумкалар", uz: "Sumkalar", en: "Bags" },
+  tools: { zh: "工具", ru: "Инструменты", ky: "Куралдар", uz: "Asboblar", en: "Tools" },
 };
 
 async function seed() {

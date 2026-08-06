@@ -8,7 +8,7 @@ const analyticsInput = z.object({
   eventName: z.enum(["page_view", "product_view", "consult_open", "registration", "inquiry_submit"]),
   productLegacyId: z.string().regex(/^[a-z0-9-]{1,80}$/).optional(),
   marketCode: z.enum(["kg", "uz"]),
-  language: z.enum(["ky", "uz", "ru", "zh"]),
+  language: z.enum(["ky", "uz", "ru", "zh", "en"]),
   source: z.string().trim().max(120).optional(),
   path: z.string().trim().max(240).optional(),
 });

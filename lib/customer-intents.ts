@@ -6,7 +6,7 @@ export type ContactChannel = (typeof contactChannels)[number];
 export const inquiryInputSchema = z.object({
   intentType: z.enum(["callback", "purchase_intent"]),
   countryCode: z.enum(["kg", "uz"]),
-  language: z.enum(["ky", "uz", "ru", "zh"]),
+  language: z.enum(["ky", "uz", "ru", "zh", "en"]),
   productLegacyId: z.string().regex(/^[a-z0-9-]{1,80}$/).optional(),
   customProductName: z.string().trim().min(2).max(160).optional(),
   deliveryCity: z.string().trim().min(2).max(120).optional(),

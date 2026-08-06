@@ -34,6 +34,7 @@ const localeByLanguage: Record<Language, string> = {
   ru: "ru-RU",
   ky: "ky-KG",
   uz: "uz-UZ",
+  en: "en-US",
 };
 
 function formatDate(value: string, language: Language) {

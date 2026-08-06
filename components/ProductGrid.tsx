@@ -102,8 +102,8 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
               <span className="tag">{copy.popularTag}</span>
               <strong>{product.name[language]}</strong>
               <small>{product.specification[language]}</small>
-              <span className="card-price local"><em>{copy.localPrice}</em>{formatPrice(price.localRetailPrice, price.currency)}</span>
-              <span className="card-price china"><em>{copy.chinaPrice}</em>{formatPrice(price.chinaReferencePrice, price.currency)}</span>
+              <span className="card-price local"><em>{copy.localPrice}</em>{formatPrice(price.localRetailPrice, price.currency, language)}</span>
+              <span className="card-price china"><em>{copy.chinaPrice}</em>{formatPrice(price.chinaReferencePrice, price.currency, language)}</span>
               <span className="card-detail-hint">{copy.viewDetails}<b aria-hidden="true">→</b></span>
             </button>
           );
@@ -136,10 +136,10 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
                   <h3 id="product-detail-title">{detailProduct.name[language]}</h3>
                   <p className="product-detail-spec">{detailProduct.specification[language]}</p>
                   <div className="product-detail-prices">
-                    <div><span>{copy.localPrice}</span><strong>{formatPrice(price.localRetailPrice, price.currency)}</strong></div>
-                    <div><span>{copy.chinaPrice}</span><strong>{formatPrice(price.chinaReferencePrice, price.currency)}</strong></div>
+                    <div><span>{copy.localPrice}</span><strong>{formatPrice(price.localRetailPrice, price.currency, language)}</strong></div>
+                    <div><span>{copy.chinaPrice}</span><strong>{formatPrice(price.chinaReferencePrice, price.currency, language)}</strong></div>
                   </div>
-                  <div className="product-detail-difference"><span>{copy.referenceDifference}</span><strong>{formatPrice(difference, price.currency)}</strong></div>
+                  <div className="product-detail-difference"><span>{copy.referenceDifference}</span><strong>{formatPrice(difference, price.currency, language)}</strong></div>
                   <div className="product-detail-cost-path" aria-label={`${copy.landedCostParts.join(" + ")} → ${copy.landedCostResult}`}>
                     <span>{copy.landedCostParts.join(" + ")}</span>
                     <strong>→ {copy.landedCostResult}</strong>
