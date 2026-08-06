@@ -6,7 +6,7 @@ import { createSupabaseRouteContext } from "@/lib/supabase/route";
 const profileSchema = z.object({
   displayName: z.string().trim().min(2).max(120),
   countryCode: z.enum(["kg", "uz"]),
-  preferredLanguage: z.enum(["ky", "uz", "ru", "zh"]),
+  preferredLanguage: z.enum(["ky", "uz", "ru", "zh", "en"]),
   city: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(80).optional(),
   whatsapp: z.string().trim().max(80).optional(),

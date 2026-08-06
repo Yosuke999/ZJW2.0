@@ -57,6 +57,15 @@ test("customer intent migration adds only the MVP profile and inquiry fields", a
   assert.match(migration, /CREATE OR REPLACE FUNCTION public\.handle_new_auth_user\(\)/);
 });
 
+test("English is accepted as a saved customer language", async () => {
+  const [migration, profileApi] = await Promise.all([
+    read("db/migrations/0007_support_english_preference.sql"),
+    read("app/api/profile/route.ts"),
+  ]);
+  assert.match(migration, /preferred_language' IN \('ky', 'uz', 'ru', 'zh', 'en'\)/);
+  assert.match(profileApi, /preferredLanguage:\s*z\.enum\(\["ky", "uz", "ru", "zh", "en"\]\)/);
+});
+
 test("intent endpoints require auth and never accept contact identity from the form", async () => {
   const [route, profileRoute, routeClient, form, dashboard] = await Promise.all([
     read("app/api/inquiries/route.ts"), read("app/api/profile/route.ts"), read("lib/supabase/route.ts"), read("components/IntentActions.tsx"), read("components/AccountDashboard.tsx"),

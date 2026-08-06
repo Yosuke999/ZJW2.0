@@ -50,6 +50,13 @@
       "when": 1785987600000,
       "tag": "0006_inquiry_email",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786074000000,
+      "tag": "0007_support_english_preference",
+      "breakpoints": true
     }
   ]
 }

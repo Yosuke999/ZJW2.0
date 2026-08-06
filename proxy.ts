@@ -7,10 +7,10 @@ export async function proxy(request: NextRequest) {
   const requestedLanguage = segments[1];
   const queryLanguage = request.nextUrl.searchParams.get("language");
   const language = country === "kg" || country === "uz"
-    ? requestedLanguage === "ru" || requestedLanguage === "zh"
+    ? requestedLanguage === "ru" || requestedLanguage === "zh" || requestedLanguage === "en"
       ? requestedLanguage
       : country === "kg" ? "ky" : "uz"
-    : queryLanguage === "ky" || queryLanguage === "uz" || queryLanguage === "ru" || queryLanguage === "zh"
+    : queryLanguage === "ky" || queryLanguage === "uz" || queryLanguage === "ru" || queryLanguage === "zh" || queryLanguage === "en"
       ? queryLanguage
       : "zh";
   const requestHeaders = new Headers(request.headers);

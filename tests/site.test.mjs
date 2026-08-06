@@ -277,11 +277,14 @@ test("contact context follows the selected product and language links preserve s
 });
 
 test("query-string language controls protected-page html lang and metadata", async () => {
-  const [proxy, auth, account, advisor] = await Promise.all([
-    read("proxy.ts"), read("app/auth/page.tsx"), read("app/account/page.tsx"), read("app/advisor/page.tsx"),
+  const [proxy, profileApi, auth, account, advisor] = await Promise.all([
+    read("proxy.ts"), read("app/api/profile/route.ts"), read("app/auth/page.tsx"), read("app/account/page.tsx"), read("app/advisor/page.tsx"),
   ]);
   assert.match(proxy, /const queryLanguage = request\.nextUrl\.searchParams\.get\("language"\)/);
   assert.match(proxy, /queryLanguage === "ky"/);
+  assert.match(proxy, /requestedLanguage === "en"/);
+  assert.match(proxy, /queryLanguage === "en"/);
+  assert.match(profileApi, /preferredLanguage:\s*z\.enum\(\["ky", "uz", "ru", "zh", "en"\]\)/);
   for (const page of [auth, account, advisor]) {
     assert.match(page, /export async function generateMetadata/);
     assert.match(page, /robots: \{ index: false, follow: false \}/);
