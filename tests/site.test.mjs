@@ -288,3 +288,23 @@ test("query-string language controls protected-page html lang and metadata", asy
     assert.match(page, /translations\[language\]\.brandName/);
   }
 });
+
+test("the fixed opportunity entry reserves its own right-side rail", async () => {
+  const [portal, styles] = await Promise.all([
+    read("components/PortalPage.tsx"), read("app/globals.css"),
+  ]);
+  assert.match(portal, /<main className="portal-page">/);
+  assert.match(portal, /className="opportunity-dock"/);
+  assert.match(portal, /openContact\("fixed_opportunity"\)/);
+  assert.match(portal, /copy\.floatingConsult/);
+  assert.match(styles, /\.portal-page \{ --opportunity-rail:\s*46px; width:\s*calc\(100% - var\(--opportunity-rail\)\); \}/);
+  assert.match(styles, /\.opportunity-dock \{[^}]*position:\s*fixed;[^}]*top:\s*50%; right:\s*0;/s);
+  assert.match(styles, /@media \(max-width:\s*430px\)[\s\S]*?\.portal-page \{ --opportunity-rail:\s*38px; \}/);
+});
+
+test("the fixed opportunity entry is translated in every supported language", async () => {
+  const translations = await read("data/translations.ts");
+  for (const label of ["Enquire", "咨询商机", "Консультация", "Кеңеш алуу", "Maslahat"]) {
+    assert.match(translations, new RegExp(`floatingConsult:\\s*${JSON.stringify(label)}`));
+  }
+});

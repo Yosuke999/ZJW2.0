@@ -28,8 +28,17 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
     trackEvent("page_loaded", { country: countryCode, language, src: source });
   }, [countryCode, language, source]);
   return (
-    <main>
+    <main className="portal-page">
       <Header country={country} language={language} copy={copy} source={source} />
+      <button
+        type="button"
+        className="opportunity-dock"
+        onClick={() => openContact("fixed_opportunity")}
+        aria-label={copy.consultOpportunity}
+      >
+        <span aria-hidden="true">◆</span>
+        <strong>{copy.floatingConsult}</strong>
+      </button>
       <HeroCarousel country={countryCode} language={language} copy={copy} onActiveProductChange={handleHeroProductChange} />
       <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => openContact("product_detail", productId)} />
       <section className="consult-section shell"><button className="primary-button" onClick={() => openContact("primary")}>{copy.consultOpportunity}</button><p>{copy.consultHelp}</p></section>

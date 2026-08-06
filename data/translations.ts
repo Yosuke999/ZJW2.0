@@ -27,6 +27,7 @@ export type Copy = {
   priceNote: string;
   trust: string[];
   consultOpportunity: string;
+  floatingConsult: string;
   consultHelp: string;
   contactTitle: string;
   demoContact: string;
@@ -86,6 +87,7 @@ const en: Copy = {
   priceNote: "The page shows a reference local retail price for a comparable product and a reference unit price for an order of 10 units from China. Demo prices exclude freight, customs, taxes and other charges. The price difference is not profit; actual prices are verified after an inquiry.",
   trust: ["Prices are reviewed and show the latest check date", "Support from sourcing through local delivery", "Local contacts in Kyrgyzstan and Uzbekistan"],
   consultOpportunity: "Ask about this opportunity",
+  floatingConsult: "Enquire",
   consultHelp: "Support with sourcing, inspection, freight, customs and delivery",
   contactTitle: "Choose a contact channel",
   demoContact: "Demo contact",
@@ -154,6 +156,7 @@ export const translations: Record<Language, Copy> = {
     priceNote: "页面展示同规格商品的当地参考零售价，以及采购10件时的中国进货参考单价。演示价格不含运输、清关、税费及其他附加费用，商品价差不等于利润，实际价格以咨询后的核验结果为准。",
     trust: ["价格持续核验，显示最后确认日期", "从采购到当地交付的流程协助", "吉尔吉斯斯坦、乌兹别克斯坦当地联系人"],
     consultOpportunity: "联系我们确认到货方案",
+    floatingConsult: "咨询商机",
     consultHelp: "可协助采购、验货、运输、清关、当地交付",
     contactTitle: "选择联系渠道",
     demoContact: "演示联系方式",
@@ -219,6 +222,7 @@ export const translations: Record<Language, Copy> = {
     priceNote: "Показаны ориентировочная местная розничная цена и ориентировочная цена за единицу при закупке 10 штук в Китае. Демо-цены не включают перевозку, таможню, налоги и другие расходы. Разница цен не равна прибыли; фактическая цена проверяется после обращения.",
     trust: ["Цены проверяются, указана дата последней проверки", "Сопровождение от закупки до местной доставки", "Местные контакты в Кыргызстане и Узбекистане"],
     consultOpportunity: "Узнать об этом товаре",
+    floatingConsult: "Консультация",
     consultHelp: "Помощь с закупкой, проверкой, перевозкой, таможней и доставкой",
     contactTitle: "Выберите способ связи",
     demoContact: "Демонстрационный контакт",
@@ -284,6 +288,7 @@ export const translations: Record<Language, Copy> = {
     priceNote: "Бул жерде бирдей мүнөздөмөдөгү товардын жергиликтүү чекене баасы жана Кытайдан 10 даана алганда бир даананын багыттоочу баасы көрсөтүлөт. Демо баага ташуу, бажы, салык жана башка чыгымдар кирбейт. Баалардын айырмасы пайдага барабар эмес; чыныгы баа кайрылуудан кийин такталат.",
     trust: ["Баалар текшерилип, акыркы күн көрсөтүлөт", "Сатып алуудан жергиликтүү жеткирүүгө чейин жардам", "Кыргызстан жана Өзбекстандагы жергиликтүү байланыш"],
     consultOpportunity: "Бул мүмкүнчүлүк тууралуу сураңыз",
+    floatingConsult: "Кеңеш алуу",
     consultHelp: "Сатып алуу, текшерүү, ташуу, бажы жана жеткирүүгө жардам",
     contactTitle: "Байланыш жолун тандаңыз",
     demoContact: "Демо байланыш",
@@ -349,6 +354,7 @@ export const translations: Record<Language, Copy> = {
     priceNote: "Sahifada bir xil xususiyatdagi mahsulotning mahalliy chakana narxi va Xitoydan 10 dona xarid qilingandagi bir dona uchun moʻljal narxi berilgan. Demo narxlarga tashish, bojxona, soliq va boshqa xarajatlar kirmaydi. Narxlar farqi foydaga teng emas; haqiqiy narx murojaatdan keyin tekshiriladi.",
     trust: ["Narxlar tekshiriladi va soʻnggi sana koʻrsatiladi", "Xariddan mahalliy yetkazishgacha koʻmak", "Qirgʻiziston va Oʻzbekistondagi mahalliy aloqa"],
     consultOpportunity: "Bu imkoniyat haqida soʻrang",
+    floatingConsult: "Maslahat",
     consultHelp: "Xarid, tekshiruv, tashish, bojxona va yetkazishda koʻmak",
     contactTitle: "Aloqa usulini tanlang",
     demoContact: "Demo aloqa",
