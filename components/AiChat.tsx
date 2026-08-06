@@ -46,22 +46,27 @@ export function AiChat({ country, language }: { country: CountryCode; language: 
       let buffer = "";
       let assistantText = "";
       setMessages([...next, { role: "assistant", content: "" }]);
-      while (true) {
-        const { value, done } = await reader.read();
-        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
-        const events = buffer.split("\n\n");
-        buffer = events.pop() || "";
-        for (const event of events) {
-          const line = event.split("\n").find((item) => item.startsWith("data:"));
-          if (!line) continue;
-          const chunk = JSON.parse(line.slice(5).trim()) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
+      const consumeEvent = (event: string) => {
+        const data = event.split(/\r?\n/).filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trim()).join("\n");
+        if (!data || data === "[DONE]") return;
+        try {
+          const chunk = JSON.parse(data) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
           const text = chunk.candidates?.[0]?.content?.parts?.map((part) => part.text || "").join("") || "";
           if (text) {
             assistantText += text;
             setMessages([...next, { role: "assistant", content: assistantText }]);
           }
+        } catch {
+          // Ignore incomplete or non-data SSE frames; the next frame may contain the rest.
         }
-        if (done) break;
+      };
+      while (true) {
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+        const events = buffer.split(/\r?\n\r?\n/);
+        buffer = events.pop() || "";
+        for (const event of events) consumeEvent(event);
+        if (done) { consumeEvent(buffer); break; }
       }
       if (!assistantText) setMessages([...next, { role: "assistant", content: "暂时没有生成有效回复，请联系人工顾问。" }]);
     } catch {
