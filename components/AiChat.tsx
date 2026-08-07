@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import type { CountryCode, Language } from "@/data/types";
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -13,16 +13,52 @@ const labels: Record<Language, { button: string; title: string; placeholder: str
   en: { button: "AI", title: "AI purchasing assistant", placeholder: "Ask about products or purchasing", send: "Send", welcome: "Hello! I can help with products, reference prices, and purchasing.", close: "Close chat", loading: "Thinking…" },
 };
 
+function buildStorageKey(country: CountryCode, language: Language, productId?: string | null) {
+  return `ai-chat:${country}:${language}:${productId ?? "general"}`;
+}
+
+function readMessages(storageKey: string, fallback: Message[]) {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = window.sessionStorage.getItem(storageKey);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw) as Message[];
+    if (!Array.isArray(parsed) || !parsed.length) return fallback;
+    return parsed.filter((message) => message && (message.role === "user" || message.role === "assistant") && typeof message.content === "string" && message.content.trim());
+  } catch {
+    return fallback;
+  }
+}
+
 export function AiChat({ country, language, productId }: { country: CountryCode; language: Language; productId?: string | null }) {
   const copy = labels[language];
+  const storageKey = buildStorageKey(country, language, productId);
+  const initialMessages = [{ role: "assistant", content: copy.welcome }] as Message[];
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: copy.welcome }]);
-  const messagesRef = useRef<HTMLDivElement>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [messages, setMessages] = useState<Message[]>(() => readMessages(storageKey, initialMessages));
 
   useEffect(() => {
-    if (open && messagesRef.current) messagesRef.current.scrollTo({ top: messagesRef.current.scrollHeight, behavior: "smooth" });
+    setHydrated(false);
+    setMessages(readMessages(storageKey, initialMessages));
+  }, [storageKey, copy.welcome]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!hydrated) {
+      setHydrated(true);
+      return;
+    }
+    window.sessionStorage.setItem(storageKey, JSON.stringify(messages.slice(-24)));
+  }, [hydrated, messages, storageKey]);
+
+  useEffect(() => {
+    if (open) {
+      const element = document.querySelector<HTMLDivElement>(".ai-chat-messages");
+      element?.scrollTo({ top: element.scrollHeight, behavior: "smooth" });
+    }
   }, [messages, loading, open]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
@@ -56,7 +92,7 @@ export function AiChat({ country, language, productId }: { country: CountryCode;
           <strong>{copy.title}</strong>
           <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}>×</button>
         </div>
-        <div ref={messagesRef} className="ai-chat-messages" aria-live="polite">
+        <div className="ai-chat-messages" aria-live="polite">
           {messages.map((message, index) => <div className={`ai-chat-message ${message.role}`} key={`${message.role}-${index}`}>{message.content}</div>)}
           {loading && <div className="ai-chat-message assistant">{copy.loading}</div>}
         </div>
