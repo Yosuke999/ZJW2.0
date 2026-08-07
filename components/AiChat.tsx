@@ -13,7 +13,7 @@ const labels: Record<Language, { button: string; title: string; placeholder: str
   en: { button: "AI", title: "AI purchasing assistant", placeholder: "Ask about products or purchasing", send: "Send", welcome: "Hello! I can help with products, reference prices, and purchasing.", close: "Close chat", loading: "Thinking…" },
 };
 
-export function AiChat({ country, language }: { country: CountryCode; language: Language }) {
+export function AiChat({ country, language, productId }: { country: CountryCode; language: Language; productId?: string | null }) {
   const copy = labels[language];
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
@@ -38,7 +38,7 @@ export function AiChat({ country, language }: { country: CountryCode; language: 
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next, country, language }),
+        body: JSON.stringify({ messages: next, country, language, productLegacyId: productId ?? undefined }),
       });
       const data = await response.json() as { message?: string; error?: string };
       setMessages([...next, { role: "assistant", content: data.message || data.error || "Sorry, I could not answer right now." }]);
