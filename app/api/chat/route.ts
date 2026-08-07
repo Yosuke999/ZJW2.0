@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { countries } from "@/data/countries";
-import { knowledgeBase, knowledgeByProduct, knowledgeForCountry, type KnowledgeEntry } from "@/data/knowledge-base";
+import { knowledgeByProduct, knowledgeForCountry, type KnowledgeEntry } from "@/data/knowledge-base";
 import type { CountryCode, Language } from "@/data/types";
 
 export const runtime = "nodejs";
