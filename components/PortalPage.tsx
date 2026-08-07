@@ -49,7 +49,7 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
       <div id="privacy" className="privacy-placeholder shell">{copy.privacy} · {copy.demoData}</div>
       <Footer country={country} language={language} copy={copy} source={source} />
       <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} source={source} />
-      <AiChat country={countryCode} language={language} />
+      <AiChat country={countryCode} language={language} productId={selectedProductId} />
     </main>
   );
 }
