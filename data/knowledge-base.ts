@@ -64,7 +64,7 @@ const policyTerms = {
   en: "MOQ, payment, returns, prohibited goods, certification, brand authorization, and customs responsibility must be checked separately for each product, country, and channel. Questions about battery-powered goods, liquids, powders, food, cosmetics, medicines, medical devices, branded goods, or taxes, customs, DDP, and all-inclusive delivery should be handed to a human advisor first.",
 } as const;
 
-function makeProductCard(country: CountryCode, productId: string) {
+function makeProductCard(country: CountryCode, productId: string): KnowledgeEntry {
   const countryName = countries[country].name;
   const product = products.find((item) => item.id === productId)!;
   const price = getPrice(country, product.id);
@@ -81,7 +81,7 @@ function makeProductCard(country: CountryCode, productId: string) {
       applicableCountries: [country],
       updatedAt: price.confirmedAt,
       isDemoData: price.status === "demo",
-      confidence: price.status === "verified" ? "verified" : "demo",
+      confidence: (price.status === "verified" ? "verified" : "demo") as KnowledgeConfidence,
     },
   };
 }
