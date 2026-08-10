@@ -42,6 +42,7 @@ function formatDate(value: string, language: Language) {
   return new Intl.DateTimeFormat(localeByLanguage[language], {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: "UTC",
   }).format(new Date(value));
 }
 

@@ -252,7 +252,7 @@ test("section headings stay centered across desktop and mobile", async () => {
   const styles = await read("app/globals.css");
   assert.match(styles, /\.section-heading \{[^}]*align-items:\s*center;[^}]*flex-direction:\s*column;[^}]*justify-content:\s*center;[^}]*text-align:\s*center/s);
   assert.match(styles, /\.section-heading > p \{[^}]*margin:\s*0/s);
-  assert.doesNotMatch(styles, /@media \(max-width:\s*759px\)[\s\S]*\.section-heading/);
+  assert.match(styles, /\.products-section \.section-heading,[\s\S]*?\.faq-section \.section-heading \{[^}]*align-items:\s*center;[^}]*flex-direction:\s*column;[^}]*justify-content:\s*center;[^}]*text-align:\s*center/s);
 });
 
 test("contact context follows the selected product and language links preserve src", async () => {
@@ -300,14 +300,27 @@ test("the fixed opportunity entry reserves its own right-side rail", async () =>
   assert.match(portal, /className="opportunity-dock"/);
   assert.match(portal, /openContact\("fixed_opportunity"\)/);
   assert.match(portal, /copy\.floatingConsult/);
-  assert.match(styles, /\.portal-page \{ --opportunity-rail:\s*46px; width:\s*calc\(100% - var\(--opportunity-rail\)\); \}/);
+  assert.match(styles, /\.portal-page \{ --opportunity-rail:\s*42px; width:\s*calc\(100% - var\(--opportunity-rail\)\); \}/);
   assert.match(styles, /\.opportunity-dock \{[^}]*position:\s*fixed;[^}]*top:\s*50%; right:\s*0;/s);
-  assert.match(styles, /@media \(max-width:\s*430px\)[\s\S]*?\.portal-page \{ --opportunity-rail:\s*38px; \}/);
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*?\.portal-page \{ --opportunity-rail:\s*40px; \}/);
 });
 
 test("the fixed opportunity entry is translated in every supported language", async () => {
   const translations = await read("data/translations.ts");
-  for (const label of ["Enquire", "咨询商机", "Консультация", "Кеңеш алуу", "Maslahat"]) {
+  for (const label of ["Contact", "联系我们", "Связь", "Байланыш", "Aloqa"]) {
     assert.match(translations, new RegExp(`floatingConsult:\\s*${JSON.stringify(label)}`));
   }
+});
+
+test("responsive copy and advisor dates remain deterministic", async () => {
+  const [styles, advisorDashboard, analyticsDashboard, advisorPage] = await Promise.all([
+    read("app/globals.css"), read("components/AdvisorDashboard.tsx"), read("components/AnalyticsDashboard.tsx"), read("app/advisor/page.tsx"),
+  ]);
+  assert.match(styles, /\.footer-grid \{ grid-template-columns:\s*minmax\(0, 1fr\); \}/);
+  assert.match(styles, /\.product-card-content > strong \{[^}]*-webkit-line-clamp:\s*2/s);
+  assert.match(styles, /\.card-price em \{[^}]*white-space:\s*normal/s);
+  assert.match(advisorDashboard, /timeZone:\s*"UTC"/);
+  assert.match(analyticsDashboard, /anchorDate:\s*string/);
+  assert.match(analyticsDashboard, /new Date\(anchorDate\)/);
+  assert.match(advisorPage, /anchorDate=\{analyticsAnchorDate\}/);
 });

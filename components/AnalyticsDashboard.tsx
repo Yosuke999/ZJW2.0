@@ -29,7 +29,7 @@ function dayKey(value: Date | string) {
   return new Date(value).toISOString().slice(0, 10);
 }
 
-export function AnalyticsDashboard({ events, language }: { events: AnalyticsEventRow[]; language: Language }) {
+export function AnalyticsDashboard({ events, language, anchorDate }: { events: AnalyticsEventRow[]; language: Language; anchorDate: string }) {
   const copy = analyticsCopy[language] as typeof analyticsCopy.zh;
   const [mobileRange, setMobileRange] = useState<7 | 30>(7);
   const pageEvents = events.filter((event) => event.event_name === "page_view");
@@ -39,7 +39,7 @@ export function AnalyticsDashboard({ events, language }: { events: AnalyticsEven
   const inquiries = events.filter((event) => event.event_name === "inquiry_submit").length;
 
   const days = Array.from({ length: 30 }, (_, index) => {
-    const date = new Date();
+    const date = new Date(anchorDate);
     date.setUTCDate(date.getUTCDate() - (29 - index));
     const key = dayKey(date);
     const rows = events.filter((event) => dayKey(event.created_at) === key);
