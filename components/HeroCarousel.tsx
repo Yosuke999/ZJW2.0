@@ -109,10 +109,8 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
         </div>
         <PriceTrack label={copy.localPrice} products={localPriceWindow} country={country} language={language} tone="local" direction={direction} />
         <PriceTrack label={copy.chinaPrice} products={productWindow} country={country} language={language} tone="china" direction={direction} />
-        <div className="showcase-controls" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
-          <button type="button" className="carousel-arrow" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={copy.previous}><span aria-hidden="true">‹</span></button>
+        <div className="showcase-controls">
           <span className="carousel-progress" aria-hidden="true">{index + 1} / {heroProducts.length}</span>
-          <button type="button" className="carousel-arrow" onClick={() => move(1)} disabled={Boolean(direction)} aria-label={copy.next}><span aria-hidden="true">›</span></button>
         </div>
         <p className="hero-price-disclaimer">{copy.priceDisclaimer}</p>
       </div>
