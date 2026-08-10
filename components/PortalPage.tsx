@@ -46,7 +46,6 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
       <ServiceFlow copy={copy} />
       <Faq copy={copy} />
       <section className="final-cta"><div className="shell"><h2>{copy.finalTitle}</h2><button className="primary-button light" onClick={() => openContact("footer_cta")}>{copy.localAdvisor}</button></div></section>
-      <div id="privacy" className="privacy-placeholder shell">{copy.privacy} · {copy.demoData}</div>
       <Footer country={country} language={language} copy={copy} source={source} />
       <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} source={source} />
       <AiChat country={countryCode} language={language} />

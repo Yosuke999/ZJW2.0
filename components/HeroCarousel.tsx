@@ -69,7 +69,6 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
   return (
     <section className="hero shell" aria-labelledby="hero-title">
       <div className="hero-copy">
-        <span className="eyebrow">{copy.demoData}</span>
         <h1 id="hero-title" tabIndex={-1}>{copy.heroTitle}</h1>
         <p>{copy.heroSubtitle}</p>
       </div>

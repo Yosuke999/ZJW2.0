@@ -59,7 +59,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
   return (
     <section id="products" className="products-section shell" aria-labelledby="products-title">
       <div className="section-heading">
-        <div><span className="eyebrow">{copy.demoData}</span><h2 id="products-title">{copy.popularTitle}</h2></div>
+        <div><h2 id="products-title">{copy.popularTitle}</h2></div>
         <p>{confirmedDate}</p>
       </div>
       <div className="product-filter" aria-label={copy.popularTitle}>

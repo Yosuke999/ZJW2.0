@@ -14,10 +14,10 @@ export function Footer({ country, language, copy, source }: { country: CountryCo
     <footer className="footer">
       <div className="shell footer-grid">
         <div><div className="brand footer-brand"><span className="brand-mark" aria-hidden="true">CA</span><span>{copy.brandName}</span></div><p>{country.name[language]} · {copy.demoContact}</p><p>{country.contact.phone}</p></div>
-        <nav><a href="#pricing">{copy.footerPriceNote}</a><a href="#privacy">{copy.privacy}</a></nav>
+        <nav><a href="#pricing">{copy.footerPriceNote}</a></nav>
         <nav>{languages.map((item) => <Link key={item} href={linkFor(item)}>{languageLabels[item]}</Link>)}</nav>
       </div>
-      <div className="shell footer-bottom"><span>© 2026 {copy.brandName}</span><span>{copy.demoData}</span></div>
+      <div className="shell footer-bottom"><span>© 2026 {copy.brandName}</span></div>
     </footer>
   );
 }
