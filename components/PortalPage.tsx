@@ -10,6 +10,7 @@ import { HeroCarousel } from "./HeroCarousel";
 import { ProductGrid } from "./ProductGrid";
 import { ContactSheet } from "./ContactSheet";
 import { ServiceFlow } from "./ServiceFlow";
+import { StoryShowcase } from "./StoryShowcase";
 import { Faq } from "./Faq";
 import { Footer } from "./Footer";
 import { AiChat } from "./AiChat";
@@ -37,13 +38,14 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
         onClick={() => openContact("fixed_opportunity")}
         aria-label={copy.consultOpportunity}
       >
-        <span aria-hidden="true">◆</span>
+        <span aria-hidden="true">☎</span>
         <strong>{copy.floatingConsult}</strong>
       </button>
       <HeroCarousel country={countryCode} language={language} copy={copy} onActiveProductChange={handleHeroProductChange} />
       <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => openContact("product_detail", productId)} />
       <section className="consult-section shell"><button className="primary-button" onClick={() => openContact("primary")}>{copy.consultOpportunity}</button><p>{copy.consultHelp}</p></section>
       <ServiceFlow copy={copy} />
+      <StoryShowcase language={language} />
       <Faq copy={copy} />
       <section className="final-cta"><div className="shell"><h2>{copy.finalTitle}</h2><button className="primary-button light" onClick={() => openContact("footer_cta")}>{copy.localAdvisor}</button></div></section>
       <Footer country={country} language={language} copy={copy} source={source} />

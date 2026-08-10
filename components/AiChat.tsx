@@ -65,8 +65,8 @@ export function AiChat({ country, language }: { country: CountryCode; language: 
           <button type="submit" disabled={loading || !input.trim()}>{copy.send}</button>
         </form>
       </section>}
-      <button type="button" className="ai-chat-launcher" onClick={() => setOpen(!open)} aria-expanded={open}>
-        <span aria-hidden="true">✦</span>{copy.button}
+      <button type="button" className="ai-chat-launcher" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={copy.title} title={copy.title}>
+        <span className="ai-chat-headset-icon" aria-hidden="true"><i /></span>
       </button>
     </>
   );
