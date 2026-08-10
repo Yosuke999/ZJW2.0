@@ -13,8 +13,6 @@ type StoryContent = {
   eyebrow: string;
   heading: string;
   slides: StorySlide[];
-  previous: string;
-  next: string;
   goTo: string;
 };
 
@@ -22,8 +20,6 @@ const content: Record<Language, StoryContent> = {
   zh: {
     eyebrow: "真实采购现场",
     heading: "从中国货源到当地交付，每一步都看得见",
-    previous: "上一张",
-    next: "下一张",
     goTo: "查看场景",
     slides: [
       { image: "/story/product-sourcing-market.png", title: "义乌市场现场选品", description: "在小商品城档口对照样品、数量和报价，把采购条件当面谈清楚。" },
@@ -37,8 +33,6 @@ const content: Record<Language, StoryContent> = {
   en: {
     eyebrow: "Sourcing in action",
     heading: "A visible journey from China sourcing to local delivery",
-    previous: "Previous",
-    next: "Next",
     goTo: "View scene",
     slides: [
       { image: "/story/product-sourcing-market.png", title: "Sourcing in Yiwu market", description: "Compare samples, quantities and quotations directly with wholesale-market suppliers." },
@@ -52,8 +46,6 @@ const content: Record<Language, StoryContent> = {
   ru: {
     eyebrow: "Закупки на практике",
     heading: "Весь путь от закупки в Китае до местной доставки",
-    previous: "Назад",
-    next: "Вперёд",
     goTo: "Открыть сцену",
     slides: [
       { image: "/story/product-sourcing-market.png", title: "Закупка на рынке Иу", description: "Сравниваем образцы, объёмы и цены напрямую с поставщиками оптового рынка." },
@@ -67,8 +59,6 @@ const content: Record<Language, StoryContent> = {
   ky: {
     eyebrow: "Сатып алуу процесси",
     heading: "Кытайдан сатып алуудан жергиликтүү жеткирүүгө чейинки жол",
-    previous: "Мурунку",
-    next: "Кийинки",
     goTo: "Көрүнүштү ачуу",
     slides: [
       { image: "/story/product-sourcing-market.png", title: "Иу базарында товар тандоо", description: "Үлгүлөрдү, көлөмдү жана бааны дүң сатуучулар менен түз салыштырабыз." },
@@ -82,8 +72,6 @@ const content: Record<Language, StoryContent> = {
   uz: {
     eyebrow: "Xarid jarayoni",
     heading: "Xitoydagi xariddan mahalliy yetkazib berishgacha",
-    previous: "Oldingi",
-    next: "Keyingi",
     goTo: "Sahnani ko‘rish",
     slides: [
       { image: "/story/product-sourcing-market.png", title: "Yiwu bozorida mahsulot tanlash", description: "Namunalar, miqdor va narxlarni ulgurji yetkazib beruvchilar bilan bevosita solishtiramiz." },
@@ -121,12 +109,6 @@ export function StoryShowcase({ language }: { language: Language }) {
     const timer = window.setTimeout(() => setPrevious(null), 720);
     return () => window.clearTimeout(timer);
   }, [active, previous]);
-
-  const move = (delta: number) => {
-    setPrevious(active);
-    setDirection(delta > 0 ? 1 : -1);
-    setActive((active + delta + copy.slides.length) % copy.slides.length);
-  };
 
   const goTo = (index: number) => {
     if (index === active) return;
@@ -170,10 +152,6 @@ export function StoryShowcase({ language }: { language: Language }) {
           <span className="story-index">{String(active + 1).padStart(2, "0")}</span>
           <h3>{slide.title}</h3>
           <p>{slide.description}</p>
-          <div className="story-arrows">
-            <button type="button" onClick={() => move(-1)} aria-label={copy.previous}>←</button>
-            <button type="button" onClick={() => move(1)} aria-label={copy.next}>→</button>
-          </div>
         </div>
       </div>
       <div className="story-dots" role="tablist" aria-label={copy.heading}>
