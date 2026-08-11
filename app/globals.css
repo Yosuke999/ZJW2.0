@@ -578,6 +578,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .ai-chat-summary dt { color: var(--muted); }
 .ai-chat-summary dd { margin: 0; color: var(--ink); font-weight: 750; overflow-wrap: anywhere; }
 .ai-chat-summary button { min-height: 39px; border: 0; border-radius: 9px; background: var(--teal); color: white; font-weight: 750; cursor: pointer; }
+.ai-chat-summary-actions { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 7px; }
+.ai-chat-summary-actions button.secondary { padding-inline: 11px; border: 1px solid #cbdcda; background: white; color: #35645f; }
 .ai-chat-summary small { color: var(--muted); font-size: 10px; line-height: 1.4; }
 
 @media (max-width: 430px) {

@@ -388,3 +388,21 @@ test("AI chat preserves purchase context and requires review before inquiry subm
   assert.match(styles, /\.intent-prefill-note/);
   assert.match(styles, /\.intent-review-confirm/);
 });
+
+test("AI chat never exposes structured response JSON to customers", async () => {
+  const [chat, route, styles] = await Promise.all([
+    read("components/AiChat.tsx"), read("app/api/chat/route.ts"), read("app/globals.css"),
+  ]);
+  assert.match(route, /function parseModelAnswer/);
+  assert.match(route, /replace\(\/\^```\(\?:json\)\?/);
+  assert.match(route, /cleaned\.slice\(firstBrace, lastBrace \+ 1\)/);
+  assert.match(route, /typeof parsed\.answer !== "string"/);
+  assert.match(route, /errorCopy\[language\]\.malformed/);
+  assert.doesNotMatch(route, /parsed = \{ answer: raw \}/);
+  assert.match(route, /Do not repeat the summary in the answer/);
+  assert.match(chat, /leakedStructuredData/);
+  assert.match(chat, /copy\.readyMessage/);
+  assert.match(chat, /copy\.modify/);
+  assert.match(chat, /inputRef\.current\?\.focus\(\)/);
+  assert.match(styles, /\.ai-chat-summary-actions/);
+});

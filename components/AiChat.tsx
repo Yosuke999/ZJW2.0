@@ -15,7 +15,7 @@ type ChatResponse = { message?: string; error?: string; suggestions?: string[]; 
 const labels: Record<Language, {
   button: string; title: string; placeholder: string; send: string; welcome: string; close: string; loading: string;
   viewing: string; quickQuestions: string[]; advisor: string; inquiry: string; retry: string; retryAction: string;
-  progress: string; product: string; quantity: string; city: string; pending: string; summary: string; confirmForm: string; confirmHint: string;
+  progress: string; product: string; quantity: string; city: string; pending: string; summary: string; confirmForm: string; confirmHint: string; readyMessage: string; modify: string;
 }> = {
   zh: {
     button: "AI客服", title: "AI采购客服", placeholder: "请输入你的问题", send: "发送", close: "关闭客服", loading: "正在查询…",
@@ -24,6 +24,7 @@ const labels: Record<Language, {
     advisor: "联系当地顾问", inquiry: "填写需求表单", retry: "暂时无法回答，请稍后重试。", retryAction: "重新发送",
     progress: "采购需求", product: "商品", quantity: "数量", city: "送达城市", pending: "待确认", summary: "需求摘要",
     confirmForm: "确认并填写表单", confirmHint: "打开表单后仍需由你检查并主动提交。",
+    readyMessage: "采购信息已整理好，请核对下方内容。", modify: "修改需求",
   },
   ru: {
     button: "AI", title: "AI-консультант", placeholder: "Введите ваш вопрос", send: "Отправить", close: "Закрыть чат", loading: "Уточняю…",
@@ -32,6 +33,7 @@ const labels: Record<Language, {
     advisor: "Связаться с консультантом", inquiry: "Заполнить заявку", retry: "Сейчас не удаётся ответить. Попробуйте позже.", retryAction: "Отправить снова",
     progress: "Запрос на закупку", product: "Товар", quantity: "Количество", city: "Город доставки", pending: "Нужно уточнить", summary: "Сводка запроса",
     confirmForm: "Подтвердить и заполнить", confirmHint: "Проверьте данные в форме и отправьте её самостоятельно.",
+    readyMessage: "Данные собраны. Проверьте сводку ниже.", modify: "Изменить данные",
   },
   ky: {
     button: "AI", title: "AI кеңешчи", placeholder: "Сурооңузду жазыңыз", send: "Жөнөтүү", close: "Чатты жабуу", loading: "Тактап жатам…",
@@ -40,6 +42,7 @@ const labels: Record<Language, {
     advisor: "Жергиликтүү кеңешчи", inquiry: "Өтүнмө толтуруу", retry: "Азыр жооп берүү мүмкүн эмес. Кийинчерээк аракет кылыңыз.", retryAction: "Кайра жөнөтүү",
     progress: "Сатып алуу талабы", product: "Товар", quantity: "Саны", city: "Жеткирүү шаары", pending: "Тактоо керек", summary: "Талаптын жыйынтыгы",
     confirmForm: "Ырастап, форманы толтуруу", confirmHint: "Формадагы маалыматты текшерип, өзүңүз жөнөтөсүз.",
+    readyMessage: "Маалымат даяр. Төмөнкү жыйынтыкты текшериңиз.", modify: "Маалыматты өзгөртүү",
   },
   uz: {
     button: "AI", title: "AI maslahatchi", placeholder: "Savolingizni yozing", send: "Yuborish", close: "Chatni yopish", loading: "Aniqlayapman…",
@@ -48,6 +51,7 @@ const labels: Record<Language, {
     advisor: "Mahalliy maslahatchi", inquiry: "So‘rov formasini to‘ldirish", retry: "Hozir javob berib bo‘lmadi. Keyinroq urinib ko‘ring.", retryAction: "Qayta yuborish",
     progress: "Xarid talabi", product: "Mahsulot", quantity: "Miqdor", city: "Yetkazish shahri", pending: "Aniqlash kerak", summary: "Talab xulosasi",
     confirmForm: "Tasdiqlash va formani to‘ldirish", confirmHint: "Formadagi ma’lumotlarni tekshirib, o‘zingiz yuborasiz.",
+    readyMessage: "Ma’lumotlar tayyor. Quyidagi xulosani tekshiring.", modify: "Talabni o‘zgartirish",
   },
   en: {
     button: "AI", title: "AI purchasing assistant", placeholder: "Type your question", send: "Send", close: "Close chat", loading: "Checking…",
@@ -56,6 +60,7 @@ const labels: Record<Language, {
     advisor: "Contact local advisor", inquiry: "Complete inquiry form", retry: "I can’t answer right now. Please try again shortly.", retryAction: "Send again",
     progress: "Sourcing request", product: "Product", quantity: "Quantity", city: "Delivery city", pending: "To confirm", summary: "Request summary",
     confirmForm: "Confirm and complete form", confirmHint: "You will still review and submit the form yourself.",
+    readyMessage: "Your request details are ready. Please review the summary below.", modify: "Edit request",
   },
 };
 
@@ -74,6 +79,7 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
   const [purchaseContext, setPurchaseContext] = useState<PurchaseContext>({ productId: null, quantity: null, destinationCity: "" });
   const [lastFailedQuestion, setLastFailedQuestion] = useState("");
   const messagesRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const selectedProduct = useMemo(() => products.find((product) => product.id === purchaseContext.productId) ?? null, [purchaseContext.productId]);
   const selectedPrice = selectedProduct ? getPrice(country, selectedProduct.id) : null;
   const hasPurchaseContext = Boolean(selectedProduct || purchaseContext.quantity || purchaseContext.destinationCity);
@@ -101,11 +107,16 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
         body: JSON.stringify({ messages: next, country, language, viewedProductId, purchaseContext }),
       });
       const data = await response.json() as ChatResponse;
-      setMessages([...next, { role: "assistant", content: data.message || data.error || copy.retry }]);
+      const updatedContext = data.purchaseContext ?? purchaseContext;
+      const completeContext = Boolean(updatedContext.productId && updatedContext.quantity && updatedContext.destinationCity);
+      const rawMessage = data.message || data.error || copy.retry;
+      const leakedStructuredData = /^\s*[\[{]/.test(rawMessage) && /"(?:answer|suggestedQuestions|handoffRecommended|purchaseContext)"/.test(rawMessage);
+      const displayMessage = response.ok && completeContext ? copy.readyMessage : leakedStructuredData ? copy.retry : rawMessage;
+      setMessages([...next, { role: "assistant", content: displayMessage }]);
       setSuggestions(Array.isArray(data.suggestions) ? data.suggestions.slice(0, 3) : []);
       setShowHandoff(Boolean(data.handoffRecommended));
       if (data.purchaseContext) setPurchaseContext(data.purchaseContext);
-      if (!response.ok) setLastFailedQuestion(question);
+      if (!response.ok || leakedStructuredData) setLastFailedQuestion(question);
     } catch {
       setMessages([...next, { role: "assistant", content: copy.retry }]);
       setSuggestions(copy.quickQuestions.slice(0, 2));
@@ -150,7 +161,10 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
           {!loading && requestReady && selectedProduct && <div className="ai-chat-summary">
             <strong>{copy.summary}</strong>
             <dl><div><dt>{copy.product}</dt><dd>{selectedProduct.name[language]}</dd></div><div><dt>{copy.quantity}</dt><dd>{purchaseContext.quantity}</dd></div><div><dt>{copy.city}</dt><dd>{purchaseContext.destinationCity}</dd></div></dl>
-            <button type="button" onClick={() => onOpenInquiry({ productId: selectedProduct.id, quantity: purchaseContext.quantity, destinationCity: purchaseContext.destinationCity })}>{copy.confirmForm}</button>
+            <div className="ai-chat-summary-actions">
+              <button type="button" onClick={() => onOpenInquiry({ productId: selectedProduct.id, quantity: purchaseContext.quantity, destinationCity: purchaseContext.destinationCity })}>{copy.confirmForm}</button>
+              <button type="button" className="secondary" onClick={() => inputRef.current?.focus()}>{copy.modify}</button>
+            </div>
             <small>{copy.confirmHint}</small>
           </div>}
           {!loading && showHandoff && !requestReady && <div className="ai-chat-handoff">
@@ -163,7 +177,7 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
           </div>}
         </div>
         <form className="ai-chat-form" onSubmit={submit}>
-          <input value={input} onChange={(event) => setInput(event.target.value)} placeholder={copy.placeholder} aria-label={copy.placeholder} maxLength={1000} />
+          <input ref={inputRef} value={input} onChange={(event) => setInput(event.target.value)} placeholder={copy.placeholder} aria-label={copy.placeholder} maxLength={1000} />
           <button type="submit" disabled={loading || !input.trim()}>{copy.send}</button>
         </form>
       </section>}

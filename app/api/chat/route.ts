@@ -22,13 +22,32 @@ type ModelAnswer = {
 
 type PurchaseContext = { productId: string | null; quantity: number | null; destinationCity: string };
 
-const errorCopy: Record<Language, { unavailable: string; invalid: string; timeout: string }> = {
-  zh: { unavailable: "AI客服暂时不可用，请稍后重试或联系当地顾问。", invalid: "请输入一个有效的问题。", timeout: "响应时间较长，请稍后重试。" },
-  ru: { unavailable: "AI-консультант временно недоступен. Попробуйте позже или свяжитесь с местным консультантом.", invalid: "Введите корректный вопрос.", timeout: "Ответ занимает слишком много времени. Попробуйте позже." },
-  ky: { unavailable: "AI кеңешчи убактылуу жеткиликсиз. Кийинчерээк аракет кылыңыз же жергиликтүү кеңешчиге кайрылыңыз.", invalid: "Туура суроо жазыңыз.", timeout: "Жооп узакка созулду. Кийинчерээк аракет кылыңыз." },
-  uz: { unavailable: "AI maslahatchi hozircha ishlamayapti. Keyinroq urinib ko‘ring yoki mahalliy maslahatchi bilan bog‘laning.", invalid: "To‘g‘ri savol kiriting.", timeout: "Javob uzoq vaqt olyapti. Keyinroq urinib ko‘ring." },
-  en: { unavailable: "The AI assistant is temporarily unavailable. Please try again or contact a local advisor.", invalid: "Please enter a valid question.", timeout: "The response took too long. Please try again." },
+const errorCopy: Record<Language, { unavailable: string; invalid: string; timeout: string; malformed: string }> = {
+  zh: { unavailable: "AI客服暂时不可用，请稍后重试或联系当地顾问。", invalid: "请输入一个有效的问题。", timeout: "响应时间较长，请稍后重试。", malformed: "这次回复没有正确生成，请重新发送。" },
+  ru: { unavailable: "AI-консультант временно недоступен. Попробуйте позже или свяжитесь с местным консультантом.", invalid: "Введите корректный вопрос.", timeout: "Ответ занимает слишком много времени. Попробуйте позже.", malformed: "Ответ сформирован некорректно. Отправьте вопрос ещё раз." },
+  ky: { unavailable: "AI кеңешчи убактылуу жеткиликсиз. Кийинчерээк аракет кылыңыз же жергиликтүү кеңешчиге кайрылыңыз.", invalid: "Туура суроо жазыңыз.", timeout: "Жооп узакка созулду. Кийинчерээк аракет кылыңыз.", malformed: "Жооп туура түзүлгөн жок. Суроону кайра жөнөтүңүз." },
+  uz: { unavailable: "AI maslahatchi hozircha ishlamayapti. Keyinroq urinib ko‘ring yoki mahalliy maslahatchi bilan bog‘laning.", invalid: "To‘g‘ri savol kiriting.", timeout: "Javob uzoq vaqt olyapti. Keyinroq urinib ko‘ring.", malformed: "Javob to‘g‘ri shakllanmadi. Savolni qayta yuboring." },
+  en: { unavailable: "The AI assistant is temporarily unavailable. Please try again or contact a local advisor.", invalid: "Please enter a valid question.", timeout: "The response took too long. Please try again.", malformed: "The response was not generated correctly. Please send the question again." },
 };
+
+function parseModelAnswer(raw: string): ModelAnswer | null {
+  const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+  const candidates = [cleaned];
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) candidates.push(cleaned.slice(firstBrace, lastBrace + 1));
+  for (const candidate of candidates) {
+    try {
+      const parsed = JSON.parse(candidate) as unknown;
+      if (typeof parsed === "string") {
+        const nested = JSON.parse(parsed) as unknown;
+        if (nested && typeof nested === "object") return nested as ModelAnswer;
+      }
+      if (parsed && typeof parsed === "object") return parsed as ModelAnswer;
+    } catch { /* Try the next safe candidate. */ }
+  }
+  return null;
+}
 
 function buildKnowledge(countryCode: CountryCode, language: Language, viewedProductId?: string) {
   const country = countries[countryCode];
@@ -85,7 +104,7 @@ You are a professional and patient purchasing advisor for the Central Asia Oppor
 - For a final quote, collect information gradually in this order: product, quantity, destination city. Ask only for the next missing item.
 - Preserve already confirmed purchase details shown in Current purchase context. Update a field only when the user clearly provides or corrects it.
 - Use the exact product ID from the website knowledge. Use an empty string or 0 when a value is unknown.
-- When product, quantity and destination city are all known, briefly summarize them and ask the user to confirm before opening the inquiry form.
+- When product, quantity and destination city are all known, say only that the details are ready for review below. Do not repeat the summary in the answer because the interface renders it separately.
 
 # Human handoff
 - Recommend human handoff when the user asks for a final quote, asks to contact an advisor, wants to submit a purchase request, or needs facts unavailable in the knowledge.
@@ -163,8 +182,10 @@ export async function POST(request: Request) {
     const data = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string; thought?: boolean }> } }>; error?: { message?: string } };
     if (!response.ok) return NextResponse.json({ error: data.error?.message || errorCopy[language].unavailable, handoffRecommended: true }, { status: 502 });
     const raw = data.candidates?.[0]?.content?.parts?.filter((part) => !part.thought).map((part) => part.text || "").join("").trim() ?? "";
-    let parsed: ModelAnswer = {};
-    try { parsed = JSON.parse(raw) as ModelAnswer; } catch { parsed = { answer: raw }; }
+    const parsed = parseModelAnswer(raw);
+    if (!parsed || typeof parsed.answer !== "string") {
+      return NextResponse.json({ error: errorCopy[language].malformed, suggestions: [], handoffRecommended: false, purchaseContext }, { status: 502 });
+    }
     const updatedContext = sanitizePurchaseContext(parsed.purchaseContext, purchaseContext);
     return NextResponse.json({
       message: parsed.answer?.trim() || errorCopy[language].unavailable,
