@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { countries } from "@/data/countries";
 import { translations } from "@/data/translations";
-import type { CountryCode, Language } from "@/data/types";
+import type { CountryCode, InquiryPrefill, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 import { Header } from "./Header";
 import { HeroCarousel } from "./HeroCarousel";
@@ -19,10 +19,12 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
   const [contactOpen, setContactOpen] = useState(initialIntent === "purchase" || initialIntent === "callback");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(initialProductId ?? null);
   const [chatProductId, setChatProductId] = useState<string | null>(initialProductId ?? null);
+  const [inquiryPrefill, setInquiryPrefill] = useState<InquiryPrefill | null>(null);
   const country = countries[countryCode];
   const copy = translations[language];
-  const openContact = (origin: string, productId: string | null = null) => {
+  const openContact = (origin: string, productId: string | null = null, prefill: InquiryPrefill | null = null) => {
     setSelectedProductId(productId);
+    setInquiryPrefill(prefill);
     trackEvent("consult_click", { country: countryCode, language, origin, productId });
     setContactOpen(true);
   };
@@ -50,8 +52,11 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
       <Faq copy={copy} />
       <section className="final-cta"><div className="shell"><h2>{copy.finalTitle}</h2><button className="primary-button light" onClick={() => openContact("footer_cta")}>{copy.localAdvisor}</button></div></section>
       <Footer country={country} language={language} copy={copy} source={source} />
-      <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} source={source} />
-      <AiChat key={`${countryCode}-${language}`} country={countryCode} language={language} viewedProductId={chatProductId} onOpenInquiry={() => openContact("ai_chat", chatProductId)} />
+      <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} source={source} prefill={inquiryPrefill} />
+      <AiChat key={`${countryCode}-${language}`} country={countryCode} language={language} viewedProductId={chatProductId} onOpenInquiry={(prefill) => {
+        sessionStorage.setItem("ai-inquiry-prefill", JSON.stringify(prefill));
+        openContact("ai_chat", prefill.productId, prefill);
+      }} />
     </main>
   );
 }

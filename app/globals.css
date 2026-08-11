@@ -245,6 +245,9 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .intent-form input, .intent-form select, .intent-form textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #cad8df; border-radius: 10px; background: #fff; color: var(--ink); font: inherit; }
 .intent-form textarea { min-height: 78px; resize: vertical; }
 .intent-form input:focus, .intent-form select:focus, .intent-form textarea:focus { outline: 3px solid rgba(34,166,154,.16); border-color: var(--teal); }
+.intent-prefill-note { margin: 0; padding: 10px 12px; border-left: 3px solid var(--teal); background: #eef8f6; color: #35645f; font-size: 12px; line-height: 1.5; }
+.intent-form .intent-review-confirm { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 9px; align-items: start; color: #435761; font-size: 12px; font-weight: 600; line-height: 1.45; }
+.intent-form .intent-review-confirm input { width: 18px; height: 18px; min-height: 0; margin: 1px 0 0; padding: 0; accent-color: var(--teal); }
 .intent-form-actions { display: grid; grid-template-columns: 48px 1fr; gap: 9px; }
 .secondary-button { border: 1px solid var(--line); border-radius: 12px; background: white; cursor: pointer; }
 .form-message { margin: 0; color: #a33b32; font-size: 13px; }
@@ -554,6 +557,28 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .ai-chat-contact-links a { min-height: 32px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--blue); font-size: 11px; font-weight: 750; text-decoration: none; }
 .ai-chat-contact-links a:hover { border-color: var(--teal); color: var(--teal); }
 .ai-chat-inquiry { min-height: 38px; border: 0; border-radius: 9px; background: var(--teal); color: white; font-weight: 750; cursor: pointer; }
+.ai-chat-progress { display: grid; gap: 7px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: white; }
+.ai-chat-progress > strong { color: #53636e; font-size: 11px; }
+.ai-chat-progress > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
+.ai-chat-progress span { display: grid; min-width: 0; gap: 2px; padding: 6px; border-radius: 7px; background: #f3f5f6; color: #7b8991; font-size: 9px; }
+.ai-chat-progress span.is-complete { background: #eaf7f5; color: #176f68; }
+.ai-chat-progress b { overflow: hidden; color: #394b56; font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.ai-chat-retry { align-self: flex-start; min-height: 32px; padding: 6px 10px; border: 1px solid #d0dcdf; border-radius: 8px; background: white; color: var(--blue); font-weight: 700; cursor: pointer; }
+.ai-chat-product-card { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-self: stretch; gap: 10px; padding: 10px; border: 1px solid var(--line); background: white; }
+.ai-chat-product-card img { width: 64px; height: 64px; border-radius: 9px; background: #f3f5f6; object-fit: contain; }
+.ai-chat-product-card > div { display: grid; min-width: 0; gap: 2px; align-content: center; }
+.ai-chat-product-card strong, .ai-chat-product-card span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-chat-product-card strong { color: var(--ink); font-size: 12px; }
+.ai-chat-product-card span { color: var(--muted); font-size: 10px; }
+.ai-chat-product-card b { color: var(--teal); font-size: 15px; }
+.ai-chat-summary { display: grid; align-self: stretch; gap: 9px; padding: 12px; border: 1px solid #bcded9; background: #f3faf9; }
+.ai-chat-summary > strong { color: #176f68; font-size: 13px; }
+.ai-chat-summary dl { display: grid; gap: 5px; margin: 0; }
+.ai-chat-summary dl > div { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 8px; font-size: 11px; }
+.ai-chat-summary dt { color: var(--muted); }
+.ai-chat-summary dd { margin: 0; color: var(--ink); font-weight: 750; overflow-wrap: anywhere; }
+.ai-chat-summary button { min-height: 39px; border: 0; border-radius: 9px; background: var(--teal); color: white; font-weight: 750; cursor: pointer; }
+.ai-chat-summary small { color: var(--muted); font-size: 10px; line-height: 1.4; }
 
 @media (max-width: 430px) {
   .products-section { padding-block: 58px 54px; padding-inline: 8px; border-radius: 28px; }

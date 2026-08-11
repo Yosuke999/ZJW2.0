@@ -27,3 +27,9 @@ export type CountryPrice = {
   status: PriceStatus;
   referenceQuantity: 10;
 };
+
+export type InquiryPrefill = {
+  productId: string | null;
+  quantity: number | null;
+  destinationCity: string;
+};

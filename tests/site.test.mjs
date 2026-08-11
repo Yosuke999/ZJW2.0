@@ -360,3 +360,31 @@ test("AI purchasing assistant asks focused questions and supports human handoff"
   assert.match(styles, /\.ai-chat-suggestions/);
   assert.match(styles, /\.ai-chat-handoff/);
 });
+
+test("AI chat preserves purchase context and requires review before inquiry submission", async () => {
+  const [chat, route, portal, contact, intents, types, styles] = await Promise.all([
+    read("components/AiChat.tsx"), read("app/api/chat/route.ts"), read("components/PortalPage.tsx"),
+    read("components/ContactSheet.tsx"), read("components/IntentActions.tsx"), read("data/types.ts"), read("app/globals.css"),
+  ]);
+  assert.match(types, /export type InquiryPrefill/);
+  assert.match(route, /sanitizePurchaseContext/);
+  assert.match(route, /Current purchase context/);
+  assert.match(route, /Preserve already confirmed purchase details/);
+  assert.match(route, /purchaseContext:\s*updatedContext/);
+  assert.match(chat, /setPurchaseContext/);
+  assert.match(chat, /className="ai-chat-progress"/);
+  assert.match(chat, /className="ai-chat-product-card"/);
+  assert.match(chat, /className="ai-chat-summary"/);
+  assert.match(chat, /onOpenInquiry\(\{ productId:/);
+  assert.match(portal, /inquiryPrefill/);
+  assert.match(portal, /sessionStorage\.setItem\("ai-inquiry-prefill"/);
+  assert.match(contact, /prefill=\{prefill\}/);
+  assert.match(intents, /prefill \? "purchase" : "choices"/);
+  assert.match(intents, /value=\{quantity\}/);
+  assert.match(intents, /value=\{city\}/);
+  assert.match(intents, /name="reviewConfirmed" type="checkbox" required/);
+  assert.match(intents, /sessionStorage\.getItem\("ai-inquiry-prefill"\)/);
+  assert.match(intents, /sessionStorage\.removeItem\("ai-inquiry-prefill"\)/);
+  assert.match(styles, /\.intent-prefill-note/);
+  assert.match(styles, /\.intent-review-confirm/);
+});

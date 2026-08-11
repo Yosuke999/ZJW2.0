@@ -1,52 +1,66 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { countries } from "@/data/countries";
+import { formatPrice, getPrice } from "@/data/prices";
 import { products } from "@/data/products";
-import type { CountryCode, Language } from "@/data/types";
+import type { CountryCode, InquiryPrefill, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 
 type Message = { role: "user" | "assistant"; content: string };
-type ChatResponse = { message?: string; error?: string; suggestions?: string[]; handoffRecommended?: boolean };
+type PurchaseContext = { productId: string | null; quantity: number | null; destinationCity: string };
+type ChatResponse = { message?: string; error?: string; suggestions?: string[]; handoffRecommended?: boolean; purchaseContext?: PurchaseContext };
 
 const labels: Record<Language, {
   button: string; title: string; placeholder: string; send: string; welcome: string; close: string; loading: string;
-  viewing: string; quickQuestions: string[]; advisor: string; inquiry: string; retry: string;
+  viewing: string; quickQuestions: string[]; advisor: string; inquiry: string; retry: string; retryAction: string;
+  progress: string; product: string; quantity: string; city: string; pending: string; summary: string; confirmForm: string; confirmHint: string;
 }> = {
   zh: {
     button: "AI客服", title: "AI采购客服", placeholder: "请输入你的问题", send: "发送", close: "关闭客服", loading: "正在查询…",
     welcome: "你好，我是采购顾问。你想了解商品价格、采购流程，还是运输与清关？",
     viewing: "当前浏览", quickQuestions: ["我想了解商品价格", "采购流程是什么？", "如何联系当地顾问？"],
-    advisor: "联系当地顾问", inquiry: "填写需求表单", retry: "暂时无法回答，请稍后重试。",
+    advisor: "联系当地顾问", inquiry: "填写需求表单", retry: "暂时无法回答，请稍后重试。", retryAction: "重新发送",
+    progress: "采购需求", product: "商品", quantity: "数量", city: "送达城市", pending: "待确认", summary: "需求摘要",
+    confirmForm: "确认并填写表单", confirmHint: "打开表单后仍需由你检查并主动提交。",
   },
   ru: {
     button: "AI", title: "AI-консультант", placeholder: "Введите ваш вопрос", send: "Отправить", close: "Закрыть чат", loading: "Уточняю…",
     welcome: "Здравствуйте! Я консультант по закупкам. Вас интересует цена товара, процесс закупки или доставка и таможня?",
     viewing: "Вы смотрите", quickQuestions: ["Узнать цену товара", "Как проходит закупка?", "Как связаться с консультантом?"],
-    advisor: "Связаться с консультантом", inquiry: "Заполнить заявку", retry: "Сейчас не удаётся ответить. Попробуйте позже.",
+    advisor: "Связаться с консультантом", inquiry: "Заполнить заявку", retry: "Сейчас не удаётся ответить. Попробуйте позже.", retryAction: "Отправить снова",
+    progress: "Запрос на закупку", product: "Товар", quantity: "Количество", city: "Город доставки", pending: "Нужно уточнить", summary: "Сводка запроса",
+    confirmForm: "Подтвердить и заполнить", confirmHint: "Проверьте данные в форме и отправьте её самостоятельно.",
   },
   ky: {
     button: "AI", title: "AI кеңешчи", placeholder: "Сурооңузду жазыңыз", send: "Жөнөтүү", close: "Чатты жабуу", loading: "Тактап жатам…",
     welcome: "Салам! Мен сатып алуу боюнча кеңешчимин. Товардын баасы, сатып алуу тартиби же жеткирүү жана бажы тууралуу билгиңиз келеби?",
     viewing: "Азыр көрүп жатасыз", quickQuestions: ["Товардын баасын билүү", "Сатып алуу кандай жүрөт?", "Кеңешчи менен кантип байланышам?"],
-    advisor: "Жергиликтүү кеңешчи", inquiry: "Өтүнмө толтуруу", retry: "Азыр жооп берүү мүмкүн эмес. Кийинчерээк аракет кылыңыз.",
+    advisor: "Жергиликтүү кеңешчи", inquiry: "Өтүнмө толтуруу", retry: "Азыр жооп берүү мүмкүн эмес. Кийинчерээк аракет кылыңыз.", retryAction: "Кайра жөнөтүү",
+    progress: "Сатып алуу талабы", product: "Товар", quantity: "Саны", city: "Жеткирүү шаары", pending: "Тактоо керек", summary: "Талаптын жыйынтыгы",
+    confirmForm: "Ырастап, форманы толтуруу", confirmHint: "Формадагы маалыматты текшерип, өзүңүз жөнөтөсүз.",
   },
   uz: {
     button: "AI", title: "AI maslahatchi", placeholder: "Savolingizni yozing", send: "Yuborish", close: "Chatni yopish", loading: "Aniqlayapman…",
     welcome: "Salom! Men xarid bo‘yicha maslahatchiman. Mahsulot narxi, xarid jarayoni yoki yetkazib berish va bojxona haqida bilmoqchimisiz?",
     viewing: "Hozir ko‘ryapsiz", quickQuestions: ["Mahsulot narxini bilish", "Xarid jarayoni qanday?", "Maslahatchi bilan qanday bog‘lanaman?"],
-    advisor: "Mahalliy maslahatchi", inquiry: "So‘rov formasini to‘ldirish", retry: "Hozir javob berib bo‘lmadi. Keyinroq urinib ko‘ring.",
+    advisor: "Mahalliy maslahatchi", inquiry: "So‘rov formasini to‘ldirish", retry: "Hozir javob berib bo‘lmadi. Keyinroq urinib ko‘ring.", retryAction: "Qayta yuborish",
+    progress: "Xarid talabi", product: "Mahsulot", quantity: "Miqdor", city: "Yetkazish shahri", pending: "Aniqlash kerak", summary: "Talab xulosasi",
+    confirmForm: "Tasdiqlash va formani to‘ldirish", confirmHint: "Formadagi ma’lumotlarni tekshirib, o‘zingiz yuborasiz.",
   },
   en: {
     button: "AI", title: "AI purchasing assistant", placeholder: "Type your question", send: "Send", close: "Close chat", loading: "Checking…",
     welcome: "Hello! I’m a purchasing advisor. Are you asking about a product price, the purchasing process, or shipping and customs?",
     viewing: "Currently viewing", quickQuestions: ["Check a product price", "How does purchasing work?", "How can I contact an advisor?"],
-    advisor: "Contact local advisor", inquiry: "Complete inquiry form", retry: "I can’t answer right now. Please try again shortly.",
+    advisor: "Contact local advisor", inquiry: "Complete inquiry form", retry: "I can’t answer right now. Please try again shortly.", retryAction: "Send again",
+    progress: "Sourcing request", product: "Product", quantity: "Quantity", city: "Delivery city", pending: "To confirm", summary: "Request summary",
+    confirmForm: "Confirm and complete form", confirmHint: "You will still review and submit the form yourself.",
   },
 };
 
 export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
-  country: CountryCode; language: Language; viewedProductId: string | null; onOpenInquiry: () => void;
+  country: CountryCode; language: Language; viewedProductId: string | null; onOpenInquiry: (prefill: InquiryPrefill) => void;
 }) {
   const copy = labels[language];
   const countryConfig = countries[country];
@@ -57,7 +71,13 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
   const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: copy.welcome }]);
   const [suggestions, setSuggestions] = useState(copy.quickQuestions);
   const [showHandoff, setShowHandoff] = useState(false);
+  const [purchaseContext, setPurchaseContext] = useState<PurchaseContext>({ productId: null, quantity: null, destinationCity: "" });
+  const [lastFailedQuestion, setLastFailedQuestion] = useState("");
   const messagesRef = useRef<HTMLDivElement>(null);
+  const selectedProduct = useMemo(() => products.find((product) => product.id === purchaseContext.productId) ?? null, [purchaseContext.productId]);
+  const selectedPrice = selectedProduct ? getPrice(country, selectedProduct.id) : null;
+  const hasPurchaseContext = Boolean(selectedProduct || purchaseContext.quantity || purchaseContext.destinationCity);
+  const requestReady = Boolean(selectedProduct && purchaseContext.quantity && purchaseContext.destinationCity);
 
   useEffect(() => {
     if (open && messagesRef.current) messagesRef.current.scrollTo({ top: messagesRef.current.scrollHeight, behavior: "smooth" });
@@ -71,21 +91,25 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
     setInput("");
     setSuggestions([]);
     setShowHandoff(false);
+    setLastFailedQuestion("");
     setLoading(true);
     trackEvent("ai_chat_question", { country, language, viewedProductId });
     try {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next, country, language, viewedProductId }),
+        body: JSON.stringify({ messages: next, country, language, viewedProductId, purchaseContext }),
       });
       const data = await response.json() as ChatResponse;
       setMessages([...next, { role: "assistant", content: data.message || data.error || copy.retry }]);
       setSuggestions(Array.isArray(data.suggestions) ? data.suggestions.slice(0, 3) : []);
       setShowHandoff(Boolean(data.handoffRecommended));
+      if (data.purchaseContext) setPurchaseContext(data.purchaseContext);
+      if (!response.ok) setLastFailedQuestion(question);
     } catch {
       setMessages([...next, { role: "assistant", content: copy.retry }]);
       setSuggestions(copy.quickQuestions.slice(0, 2));
+      setLastFailedQuestion(question);
     } finally {
       setLoading(false);
     }
@@ -104,19 +128,38 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
           <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}>×</button>
         </div>
         {viewedProduct && <div className="ai-chat-context"><span>{copy.viewing}</span><strong>{viewedProduct.name[language]}</strong></div>}
+        {hasPurchaseContext && <div className="ai-chat-progress" aria-label={copy.progress}>
+          <strong>{copy.progress}</strong>
+          <div>
+            <span className={selectedProduct ? "is-complete" : ""}>{copy.product}<b>{selectedProduct?.name[language] ?? copy.pending}</b></span>
+            <span className={purchaseContext.quantity ? "is-complete" : ""}>{copy.quantity}<b>{purchaseContext.quantity ?? copy.pending}</b></span>
+            <span className={purchaseContext.destinationCity ? "is-complete" : ""}>{copy.city}<b>{purchaseContext.destinationCity || copy.pending}</b></span>
+          </div>
+        </div>}
         <div ref={messagesRef} className="ai-chat-messages" aria-live="polite">
           {messages.map((message, index) => <div className={`ai-chat-message ${message.role}`} key={`${message.role}-${index}`}>{message.content}</div>)}
           {loading && <div className="ai-chat-message assistant">{copy.loading}</div>}
           {!loading && suggestions.length > 0 && <div className="ai-chat-suggestions" aria-label={copy.title}>
             {suggestions.map((question) => <button type="button" key={question} onClick={() => ask(question)}>{question}</button>)}
           </div>}
-          {!loading && showHandoff && <div className="ai-chat-handoff">
+          {!loading && lastFailedQuestion && <button type="button" className="ai-chat-retry" onClick={() => ask(lastFailedQuestion)}>{copy.retryAction}</button>}
+          {!loading && selectedProduct && selectedPrice && <div className="ai-chat-product-card">
+            <Image src={selectedProduct.image} alt="" width={72} height={72} />
+            <div><strong>{selectedProduct.name[language]}</strong><span>{selectedProduct.specification[language]}</span><b>{formatPrice(selectedPrice.chinaReferencePrice, selectedPrice.currency, language)}</b></div>
+          </div>}
+          {!loading && requestReady && selectedProduct && <div className="ai-chat-summary">
+            <strong>{copy.summary}</strong>
+            <dl><div><dt>{copy.product}</dt><dd>{selectedProduct.name[language]}</dd></div><div><dt>{copy.quantity}</dt><dd>{purchaseContext.quantity}</dd></div><div><dt>{copy.city}</dt><dd>{purchaseContext.destinationCity}</dd></div></dl>
+            <button type="button" onClick={() => onOpenInquiry({ productId: selectedProduct.id, quantity: purchaseContext.quantity, destinationCity: purchaseContext.destinationCity })}>{copy.confirmForm}</button>
+            <small>{copy.confirmHint}</small>
+          </div>}
+          {!loading && showHandoff && !requestReady && <div className="ai-chat-handoff">
             <div className="ai-chat-contact-links">
               <a href={countryConfig.contact.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a>
               <a href={countryConfig.contact.telegramUrl} target="_blank" rel="noreferrer">Telegram</a>
               <a href={`tel:${countryConfig.contact.phone.replace(/\s/g, "")}`}>{copy.advisor}</a>
             </div>
-            <button type="button" className="ai-chat-inquiry" onClick={() => { trackEvent("ai_chat_handoff", { country, language, viewedProductId }); onOpenInquiry(); }}>{copy.inquiry}</button>
+            <button type="button" className="ai-chat-inquiry" onClick={() => { trackEvent("ai_chat_handoff", { country, language, viewedProductId }); onOpenInquiry({ productId: selectedProduct?.id ?? null, quantity: purchaseContext.quantity, destinationCity: purchaseContext.destinationCity }); }}>{copy.inquiry}</button>
           </div>}
         </div>
         <form className="ai-chat-form" onSubmit={submit}>

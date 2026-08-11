@@ -13,7 +13,14 @@ type ModelAnswer = {
   suggestedQuestions?: string[];
   handoffRecommended?: boolean;
   missingInformation?: string[];
+  purchaseContext?: {
+    productId?: string;
+    quantity?: number;
+    destinationCity?: string;
+  };
 };
+
+type PurchaseContext = { productId: string | null; quantity: number | null; destinationCity: string };
 
 const errorCopy: Record<Language, { unavailable: string; invalid: string; timeout: string }> = {
   zh: { unavailable: "AI客服暂时不可用，请稍后重试或联系当地顾问。", invalid: "请输入一个有效的问题。", timeout: "响应时间较长，请稍后重试。" },
@@ -45,7 +52,22 @@ function buildKnowledge(countryCode: CountryCode, language: Language, viewedProd
   ].join("\n");
 }
 
-function buildSystemInstruction(countryCode: CountryCode, language: Language, viewedProductId?: string) {
+function sanitizePurchaseContext(value: unknown, fallback: PurchaseContext): PurchaseContext {
+  if (!value || typeof value !== "object") return fallback;
+  const candidate = value as Record<string, unknown>;
+  const productId = typeof candidate.productId === "string" && products.some((product) => product.id === candidate.productId)
+    ? candidate.productId
+    : fallback.productId;
+  const quantity = typeof candidate.quantity === "number" && Number.isInteger(candidate.quantity) && candidate.quantity > 0 && candidate.quantity <= 100_000_000
+    ? candidate.quantity
+    : fallback.quantity;
+  const destinationCity = typeof candidate.destinationCity === "string" && candidate.destinationCity.trim().length >= 2
+    ? candidate.destinationCity.trim().slice(0, 120)
+    : fallback.destinationCity;
+  return { productId, quantity, destinationCity };
+}
+
+function buildSystemInstruction(countryCode: CountryCode, language: Language, viewedProductId: string | undefined, purchaseContext: PurchaseContext) {
   return `# Role
 You are a professional and patient purchasing advisor for the Central Asia Opportunity Portal.
 
@@ -61,23 +83,29 @@ You are a professional and patient purchasing advisor for the Central Asia Oppor
 - Once the product is clear, give the China purchase reference price first. Give the local retail reference only if the user asks for it or asks for a comparison.
 - Clearly call prices reference prices. Never invent stock, MOQ, final landed price, delivery time, profit, or guarantees.
 - For a final quote, collect information gradually in this order: product, quantity, destination city. Ask only for the next missing item.
+- Preserve already confirmed purchase details shown in Current purchase context. Update a field only when the user clearly provides or corrects it.
+- Use the exact product ID from the website knowledge. Use an empty string or 0 when a value is unknown.
+- When product, quantity and destination city are all known, briefly summarize them and ask the user to confirm before opening the inquiry form.
 
 # Human handoff
 - Recommend human handoff when the user asks for a final quote, asks to contact an advisor, wants to submit a purchase request, or needs facts unavailable in the knowledge.
 - When recommending handoff, briefly say they may contact a local advisor directly or complete the inquiry form and wait for a callback.
 
 # Output
-Return structured JSON only. "answer" is the concise reply. "suggestedQuestions" contains 0-3 short, relevant follow-ups in the user's language. "handoffRecommended" controls whether contact and inquiry actions are shown. "missingInformation" lists only information still needed for a quote.
+Return structured JSON only. "answer" is the concise reply. "suggestedQuestions" contains 0-3 short, relevant follow-ups in the user's language. "handoffRecommended" controls whether contact and inquiry actions are shown. "missingInformation" lists only information still needed for a quote. "purchaseContext" returns the full updated productId, quantity and destinationCity after this turn.
 
 # Examples
 User: How much is this?
-Assistant: {"answer":"Which product would you like to check?","suggestedQuestions":[],"handoffRecommended":false,"missingInformation":["product"]}
+Assistant: {"answer":"Which product would you like to check?","suggestedQuestions":[],"handoffRecommended":false,"missingInformation":["product"],"purchaseContext":{"productId":"","quantity":0,"destinationCity":""}}
 
 User: What is the China price for the glass electric kettle?
-Assistant: {"answer":"The China purchase reference price is the price shown in the knowledge for the kettle. How many units are you considering?","suggestedQuestions":["Does this include shipping?"],"handoffRecommended":false,"missingInformation":["quantity","destination city"]}
+Assistant: {"answer":"The China purchase reference price is the price shown in the knowledge for the kettle. How many units are you considering?","suggestedQuestions":["Does this include shipping?"],"handoffRecommended":false,"missingInformation":["quantity","destination city"],"purchaseContext":{"productId":"glass-kettle","quantity":0,"destinationCity":""}}
 
 User: I need a final delivered quote.
-Assistant: {"answer":"I can help prepare the request. Which product do you need?","suggestedQuestions":[],"handoffRecommended":true,"missingInformation":["product","quantity","destination city"]}
+Assistant: {"answer":"I can help prepare the request. Which product do you need?","suggestedQuestions":[],"handoffRecommended":true,"missingInformation":["product","quantity","destination city"],"purchaseContext":{"productId":"","quantity":0,"destinationCity":""}}
+
+# Current purchase context
+${JSON.stringify(purchaseContext)}
 
 # Website knowledge
 ${buildKnowledge(countryCode, language, viewedProductId)}`;
@@ -86,12 +114,13 @@ ${buildKnowledge(countryCode, language, viewedProductId)}`;
 export async function POST(request: Request) {
   let language: Language = "zh";
   try {
-    const body = await request.json() as { messages?: ChatMessage[]; country?: CountryCode; language?: Language; viewedProductId?: string | null };
+    const body = await request.json() as { messages?: ChatMessage[]; country?: CountryCode; language?: Language; viewedProductId?: string | null; purchaseContext?: unknown };
     const messages = Array.isArray(body.messages) ? body.messages.slice(-12) : [];
     const countryCode: CountryCode = body.country === "uz" ? "uz" : "kg";
     language = ["zh", "ru", "ky", "uz", "en"].includes(body.language ?? "") ? body.language as Language : "zh";
     const apiKey = process.env.GEMINI_API_KEY || process.env.gemini;
     const viewedProductId = products.some((product) => product.id === body.viewedProductId) ? body.viewedProductId ?? undefined : undefined;
+    const purchaseContext = sanitizePurchaseContext(body.purchaseContext, { productId: null, quantity: null, destinationCity: "" });
 
     if (!apiKey) return NextResponse.json({ error: errorCopy[language].unavailable, handoffRecommended: true }, { status: 503 });
     if (!messages.length || messages.some((message) => !message?.content?.trim() || !["user", "assistant"].includes(message.role))) {
@@ -104,7 +133,7 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: buildSystemInstruction(countryCode, language, viewedProductId) }] },
+        systemInstruction: { parts: [{ text: buildSystemInstruction(countryCode, language, viewedProductId, purchaseContext) }] },
         contents: messages.map((message) => ({ role: message.role === "assistant" ? "model" : "user", parts: [{ text: message.content.trim().slice(0, 2000) }] })),
         generationConfig: {
           maxOutputTokens: 800,
@@ -116,8 +145,17 @@ export async function POST(request: Request) {
               suggestedQuestions: { type: "ARRAY", items: { type: "STRING" } },
               handoffRecommended: { type: "BOOLEAN" },
               missingInformation: { type: "ARRAY", items: { type: "STRING" } },
+              purchaseContext: {
+                type: "OBJECT",
+                properties: {
+                  productId: { type: "STRING" },
+                  quantity: { type: "INTEGER" },
+                  destinationCity: { type: "STRING" },
+                },
+                required: ["productId", "quantity", "destinationCity"],
+              },
             },
-            required: ["answer", "suggestedQuestions", "handoffRecommended", "missingInformation"],
+            required: ["answer", "suggestedQuestions", "handoffRecommended", "missingInformation", "purchaseContext"],
           },
         },
       }),
@@ -127,10 +165,12 @@ export async function POST(request: Request) {
     const raw = data.candidates?.[0]?.content?.parts?.filter((part) => !part.thought).map((part) => part.text || "").join("").trim() ?? "";
     let parsed: ModelAnswer = {};
     try { parsed = JSON.parse(raw) as ModelAnswer; } catch { parsed = { answer: raw }; }
+    const updatedContext = sanitizePurchaseContext(parsed.purchaseContext, purchaseContext);
     return NextResponse.json({
       message: parsed.answer?.trim() || errorCopy[language].unavailable,
       suggestions: Array.isArray(parsed.suggestedQuestions) ? parsed.suggestedQuestions.filter((item) => typeof item === "string" && item.trim()).slice(0, 3) : [],
       handoffRecommended: Boolean(parsed.handoffRecommended),
+      purchaseContext: updatedContext,
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === "TimeoutError") return NextResponse.json({ error: errorCopy[language].timeout }, { status: 504 });
