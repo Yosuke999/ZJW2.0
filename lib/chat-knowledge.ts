@@ -8,11 +8,16 @@ import { translations } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
 import { getDatabase } from "@/db/client";
 import {
+  exchangeRateSnapshots,
   knowledgeArticles,
   knowledgeArticleTranslations,
   priceSnapshots,
+  productMarketFacts,
+  productMarketFactTranslations,
   products,
   productTranslations,
+  shippingRoutes,
+  shippingRouteTranslations,
 } from "@/db/schema";
 
 type PurchaseContext = { productId: string | null; quantity: number | null; destinationCity: string };
@@ -53,6 +58,51 @@ type ProductKnowledge = {
   taxIncluded: boolean | null;
   confirmedAt: string | null;
   validUntil: string | null;
+  marketFact?: ProductMarketKnowledge;
+};
+
+type ProductMarketKnowledge = {
+  productId: string;
+  availability: string;
+  minimumOrderQuantity: number | null;
+  maximumOrderQuantity: number | null;
+  sampleAvailable: boolean | null;
+  productionDaysMin: number | null;
+  productionDaysMax: number | null;
+  availabilityNote: string | null;
+  warrantyNote: string | null;
+  returnNote: string | null;
+  complianceNote: string | null;
+  confirmedAt: Date | null;
+};
+
+type ShippingRouteKnowledge = {
+  slug: string;
+  name: string;
+  summary: string;
+  limitations: string | null;
+  originCountry: string;
+  originCity: string | null;
+  destinationCity: string | null;
+  transportMode: string;
+  transitDaysMin: number | null;
+  transitDaysMax: number | null;
+  costBasis: string;
+  costMin: string | null;
+  costMax: string | null;
+  currency: string | null;
+  freightUnit: string | null;
+  customsIncluded: boolean | null;
+  confirmedAt: Date | null;
+  validUntil: Date | null;
+};
+
+type ExchangeRateKnowledge = {
+  baseCurrency: string;
+  quoteCurrency: string;
+  rate: string;
+  capturedAt: Date;
+  validUntil: Date | null;
 };
 
 type ArticleKnowledge = {
@@ -64,7 +114,12 @@ type ArticleKnowledge = {
   priority: number;
 };
 
-type DatabaseKnowledge = { products: ProductKnowledge[]; articles: ArticleKnowledge[] };
+type DatabaseKnowledge = {
+  products: ProductKnowledge[];
+  articles: ArticleKnowledge[];
+  shippingRoutes: ShippingRouteKnowledge[];
+  exchangeRates: ExchangeRateKnowledge[];
+};
 
 const topicHints: Record<string, string[]> = {
   pricing: ["price", "cost", "多少钱", "价格", "报价", "цена", "стоим", "баа", "narx"],
@@ -140,9 +195,31 @@ function formatDatabaseKnowledge(data: DatabaseKnowledge, request: KnowledgeRequ
     ].join(" | ");
     const structured = Object.keys(product.attributes).length ? ` | attributes: ${JSON.stringify(product.attributes)}` : "";
     const compliance = product.complianceNotes ? ` | compliance: ${product.complianceNotes}` : "";
-    return `${product.legacyId} | ${product.name} | ${product.shortDescription ?? product.specification} | China reference: ${chinaPrice} ${product.currency ?? ""} | local retail reference: ${localPrice} ${product.currency ?? ""} | ${conditions}${structured}${compliance}`;
+    const marketFact = product.marketFact ? [
+      `market availability: ${product.marketFact.availability}`,
+      `MOQ: ${product.marketFact.minimumOrderQuantity ?? "not verified"}`,
+      `sample available: ${product.marketFact.sampleAvailable === null ? "not verified" : product.marketFact.sampleAvailable ? "yes" : "no"}`,
+      `production days: ${product.marketFact.productionDaysMin ?? "n/a"}-${product.marketFact.productionDaysMax ?? "n/a"}`,
+      product.marketFact.availabilityNote,
+      product.marketFact.complianceNote,
+      product.marketFact.warrantyNote,
+      product.marketFact.returnNote,
+    ].filter(Boolean).join(" | ") : "market terms: not verified";
+    return `${product.legacyId} | ${product.name} | ${product.shortDescription ?? product.specification} | China reference: ${chinaPrice} ${product.currency ?? ""} | local retail reference: ${localPrice} ${product.currency ?? ""} | ${conditions} | ${marketFact}${structured}${compliance}`;
   });
   const articleLines = articles.map((article) => `Topic: ${article.topic}\nQ: ${article.title}\nA: ${article.content}`);
+  const routeLines = data.shippingRoutes.slice(0, 5).map((route) => {
+    const transit = route.transitDaysMin === null && route.transitDaysMax === null
+      ? "not verified"
+      : `${route.transitDaysMin ?? "n/a"}-${route.transitDaysMax ?? "n/a"} days`;
+    const cost = route.costMin === null && route.costMax === null
+      ? "quote required"
+      : `${route.costMin ?? "n/a"}-${route.costMax ?? "n/a"} ${route.currency ?? ""} ${route.freightUnit ?? ""}`.trim();
+    return `${route.slug} | ${route.name} | ${route.summary} | mode: ${route.transportMode} | transit: ${transit} | cost: ${cost} | customs included: ${route.customsIncluded === null ? "not verified" : route.customsIncluded ? "yes" : "no"} | limitations: ${route.limitations ?? "none recorded"}`;
+  });
+  const exchangeRateLines = data.exchangeRates.slice(0, 10).map((rate) => (
+    `${rate.baseCurrency}/${rate.quoteCurrency}: ${rate.rate} | captured: ${rate.capturedAt.toISOString()} | valid until: ${rate.validUntil?.toISOString() ?? "not specified"}`
+  ));
 
   return [
     `Country: ${country.name[request.language]} (${request.countryCode})`,
@@ -156,6 +233,10 @@ function formatDatabaseKnowledge(data: DatabaseKnowledge, request: KnowledgeRequ
     ...catalogLines,
     "Relevant product details:",
     ...(productLines.length ? productLines : ["No product has been confirmed. Ask the user which product they mean."]),
+    "Approved shipping routes for this market:",
+    ...(routeLines.length ? routeLines : ["No current route terms have been approved. A human advisor must confirm route, timing and cost."]),
+    "Verified exchange-rate snapshots:",
+    ...(exchangeRateLines.length ? exchangeRateLines : ["No current exchange rate has been verified. Do not perform currency conversion."]),
   ].join("\n");
 }
 
@@ -208,6 +289,35 @@ async function loadDatabaseKnowledge(request: KnowledgeRequest): Promise<Databas
 
   const productMap = new Map<string, ProductKnowledge>();
   for (const row of productRows) if (!productMap.has(row.legacyId)) productMap.set(row.legacyId, row);
+  const marketFactRows = await db.select({
+    productId: productMarketFacts.productId,
+    availability: productMarketFacts.availability,
+    minimumOrderQuantity: productMarketFacts.minimumOrderQuantity,
+    maximumOrderQuantity: productMarketFacts.maximumOrderQuantity,
+    sampleAvailable: productMarketFacts.sampleAvailable,
+    productionDaysMin: productMarketFacts.productionDaysMin,
+    productionDaysMax: productMarketFacts.productionDaysMax,
+    availabilityNote: productMarketFactTranslations.availabilityNote,
+    warrantyNote: productMarketFactTranslations.warrantyNote,
+    returnNote: productMarketFactTranslations.returnNote,
+    complianceNote: productMarketFactTranslations.complianceNote,
+    confirmedAt: productMarketFacts.confirmedAt,
+  }).from(productMarketFacts)
+    .innerJoin(productMarketFactTranslations, and(
+      eq(productMarketFactTranslations.factId, productMarketFacts.id),
+      eq(productMarketFactTranslations.locale, request.language),
+      eq(productMarketFactTranslations.status, "approved"),
+    ))
+    .where(and(
+      eq(productMarketFacts.marketCode, request.countryCode),
+      eq(productMarketFacts.status, "approved"),
+      or(isNull(productMarketFacts.validUntil), gt(productMarketFacts.validUntil, now)),
+    ))
+    .orderBy(desc(productMarketFacts.confirmedAt));
+  const marketFactMap = new Map<string, ProductMarketKnowledge>();
+  for (const row of marketFactRows) if (!marketFactMap.has(row.productId)) marketFactMap.set(row.productId, row);
+  for (const product of productMap.values()) product.marketFact = marketFactMap.get(product.databaseId);
+
   const currentProduct = request.viewedProductId ? productMap.get(request.viewedProductId) : undefined;
   const articleScope = or(
     eq(knowledgeArticles.scope, "global"),
@@ -236,8 +346,60 @@ async function loadDatabaseKnowledge(request: KnowledgeRequest): Promise<Databas
     .orderBy(desc(knowledgeArticles.priority))
     .limit(20);
 
+  const routeRows = await db.select({
+    slug: shippingRoutes.slug,
+    name: shippingRouteTranslations.name,
+    summary: shippingRouteTranslations.summary,
+    limitations: shippingRouteTranslations.limitations,
+    originCountry: shippingRoutes.originCountry,
+    originCity: shippingRoutes.originCity,
+    destinationCity: shippingRoutes.destinationCity,
+    transportMode: shippingRoutes.transportMode,
+    transitDaysMin: shippingRoutes.transitDaysMin,
+    transitDaysMax: shippingRoutes.transitDaysMax,
+    costBasis: shippingRoutes.costBasis,
+    costMin: shippingRoutes.costMin,
+    costMax: shippingRoutes.costMax,
+    currency: shippingRoutes.currency,
+    freightUnit: shippingRoutes.freightUnit,
+    customsIncluded: shippingRoutes.customsIncluded,
+    confirmedAt: shippingRoutes.confirmedAt,
+    validUntil: shippingRoutes.validUntil,
+  }).from(shippingRoutes)
+    .innerJoin(shippingRouteTranslations, and(
+      eq(shippingRouteTranslations.routeId, shippingRoutes.id),
+      eq(shippingRouteTranslations.locale, request.language),
+      eq(shippingRouteTranslations.status, "approved"),
+    ))
+    .where(and(
+      eq(shippingRoutes.destinationMarketCode, request.countryCode),
+      eq(shippingRoutes.status, "approved"),
+      or(isNull(shippingRoutes.validUntil), gt(shippingRoutes.validUntil, now)),
+    ))
+    .orderBy(desc(shippingRoutes.confirmedAt))
+    .limit(20);
+
+  const marketCurrency = countries[request.countryCode].currency;
+  const rateRows = await db.select({
+    baseCurrency: exchangeRateSnapshots.baseCurrency,
+    quoteCurrency: exchangeRateSnapshots.quoteCurrency,
+    rate: exchangeRateSnapshots.rate,
+    capturedAt: exchangeRateSnapshots.capturedAt,
+    validUntil: exchangeRateSnapshots.validUntil,
+  }).from(exchangeRateSnapshots)
+    .where(and(
+      eq(exchangeRateSnapshots.status, "verified"),
+      or(isNull(exchangeRateSnapshots.validUntil), gt(exchangeRateSnapshots.validUntil, now)),
+      or(
+        inArray(exchangeRateSnapshots.baseCurrency, ["CNY", "USD", marketCurrency]),
+        inArray(exchangeRateSnapshots.quoteCurrency, ["CNY", "USD", marketCurrency]),
+      ),
+    ))
+    .orderBy(desc(exchangeRateSnapshots.capturedAt))
+    .limit(20);
+
   if (!productMap.size) throw new Error("No approved product knowledge is available");
-  return { products: [...productMap.values()], articles: articleRows };
+  return { products: [...productMap.values()], articles: articleRows, shippingRoutes: routeRows, exchangeRates: rateRows };
 }
 
 function buildStaticFallback(request: KnowledgeRequest) {

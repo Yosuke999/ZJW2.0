@@ -53,6 +53,9 @@ export const knowledgeSourceType = pgEnum("knowledge_source_type", [
   "platform_policy",
   "internal_record",
 ]);
+export const availabilityStatus = pgEnum("availability_status", ["unknown", "available_on_request", "limited", "unavailable"]);
+export const transportMode = pgEnum("transport_mode", ["road", "rail", "multimodal", "air"]);
+export const freightCostBasis = pgEnum("freight_cost_basis", ["per_kg", "per_cubic_meter", "per_shipment", "quote_only"]);
 export const applicationStatus = pgEnum("application_status", [
   "draft",
   "submitted",
@@ -271,6 +274,123 @@ export const knowledgeArticleTranslations = pgTable("knowledge_article_translati
 }, (table) => [
   primaryKey({ columns: [table.articleId, table.locale] }),
   index("knowledge_article_translations_lookup_idx").on(table.locale, table.status),
+]);
+
+export const productMarketFacts = pgTable("product_market_facts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  productId: uuid("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
+  marketCode: varchar("market_code", { length: 2 }).notNull().references(() => markets.code),
+  availability: availabilityStatus("availability").default("unknown").notNull(),
+  minimumOrderQuantity: integer("minimum_order_quantity"),
+  maximumOrderQuantity: integer("maximum_order_quantity"),
+  sampleAvailable: boolean("sample_available"),
+  productionDaysMin: integer("production_days_min"),
+  productionDaysMax: integer("production_days_max"),
+  sourceId: uuid("source_id").references(() => knowledgeSources.id, { onDelete: "set null" }),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  validUntil: timestamp("valid_until", { withTimezone: true }),
+  status: reviewStatus("status").default("draft").notNull(),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  check("product_market_facts_quantity_check", sql`
+    (${table.minimumOrderQuantity} IS NULL OR ${table.minimumOrderQuantity} > 0)
+    AND (${table.maximumOrderQuantity} IS NULL OR ${table.maximumOrderQuantity} > 0)
+    AND (${table.minimumOrderQuantity} IS NULL OR ${table.maximumOrderQuantity} IS NULL OR ${table.minimumOrderQuantity} <= ${table.maximumOrderQuantity})
+  `),
+  check("product_market_facts_production_days_check", sql`
+    (${table.productionDaysMin} IS NULL OR ${table.productionDaysMin} >= 0)
+    AND (${table.productionDaysMax} IS NULL OR ${table.productionDaysMax} >= 0)
+    AND (${table.productionDaysMin} IS NULL OR ${table.productionDaysMax} IS NULL OR ${table.productionDaysMin} <= ${table.productionDaysMax})
+  `),
+  index("product_market_facts_lookup_idx").on(table.productId, table.marketCode, table.status, table.confirmedAt),
+]);
+
+export const productMarketFactTranslations = pgTable("product_market_fact_translations", {
+  factId: uuid("fact_id").notNull().references(() => productMarketFacts.id, { onDelete: "cascade" }),
+  locale: varchar("locale", { length: 5 }).notNull(),
+  availabilityNote: text("availability_note"),
+  warrantyNote: text("warranty_note"),
+  returnNote: text("return_note"),
+  complianceNote: text("compliance_note"),
+  status: reviewStatus("status").default("draft").notNull(),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  primaryKey({ columns: [table.factId, table.locale] }),
+  index("product_market_fact_translations_lookup_idx").on(table.locale, table.status),
+]);
+
+export const shippingRoutes = pgTable("shipping_routes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull().unique(),
+  originCountry: varchar("origin_country", { length: 2 }).notNull(),
+  originCity: text("origin_city"),
+  destinationMarketCode: varchar("destination_market_code", { length: 2 }).notNull().references(() => markets.code),
+  destinationCity: text("destination_city"),
+  transportMode: transportMode("transport_mode").notNull(),
+  transitDaysMin: integer("transit_days_min"),
+  transitDaysMax: integer("transit_days_max"),
+  costBasis: freightCostBasis("cost_basis").default("quote_only").notNull(),
+  costMin: numeric("cost_min", { precision: 18, scale: 4 }),
+  costMax: numeric("cost_max", { precision: 18, scale: 4 }),
+  currency: varchar("currency", { length: 3 }),
+  freightUnit: varchar("freight_unit", { length: 20 }),
+  customsIncluded: boolean("customs_included"),
+  sourceId: uuid("source_id").references(() => knowledgeSources.id, { onDelete: "set null" }),
+  confirmedAt: timestamp("confirmed_at", { withTimezone: true }),
+  validUntil: timestamp("valid_until", { withTimezone: true }),
+  status: reviewStatus("status").default("draft").notNull(),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  check("shipping_routes_transit_days_check", sql`
+    (${table.transitDaysMin} IS NULL OR ${table.transitDaysMin} >= 0)
+    AND (${table.transitDaysMax} IS NULL OR ${table.transitDaysMax} >= 0)
+    AND (${table.transitDaysMin} IS NULL OR ${table.transitDaysMax} IS NULL OR ${table.transitDaysMin} <= ${table.transitDaysMax})
+  `),
+  check("shipping_routes_cost_check", sql`
+    (${table.costMin} IS NULL OR ${table.costMin} >= 0)
+    AND (${table.costMax} IS NULL OR ${table.costMax} >= 0)
+    AND (${table.costMin} IS NULL OR ${table.costMax} IS NULL OR ${table.costMin} <= ${table.costMax})
+  `),
+  index("shipping_routes_lookup_idx").on(table.destinationMarketCode, table.transportMode, table.status, table.confirmedAt),
+]);
+
+export const shippingRouteTranslations = pgTable("shipping_route_translations", {
+  routeId: uuid("route_id").notNull().references(() => shippingRoutes.id, { onDelete: "cascade" }),
+  locale: varchar("locale", { length: 5 }).notNull(),
+  name: text("name").notNull(),
+  summary: text("summary").notNull(),
+  limitations: text("limitations"),
+  status: reviewStatus("status").default("draft").notNull(),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  primaryKey({ columns: [table.routeId, table.locale] }),
+  index("shipping_route_translations_lookup_idx").on(table.locale, table.status),
+]);
+
+export const exchangeRateSnapshots = pgTable("exchange_rate_snapshots", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  baseCurrency: varchar("base_currency", { length: 3 }).notNull(),
+  quoteCurrency: varchar("quote_currency", { length: 3 }).notNull(),
+  rate: numeric("rate", { precision: 24, scale: 10 }).notNull(),
+  sourceId: uuid("source_id").references(() => knowledgeSources.id, { onDelete: "set null" }),
+  capturedAt: timestamp("captured_at", { withTimezone: true }).notNull(),
+  validUntil: timestamp("valid_until", { withTimezone: true }),
+  status: priceStatus("status").default("pending_review").notNull(),
+  createdBy: uuid("created_by"),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  check("exchange_rate_snapshots_rate_check", sql`${table.rate} > 0 AND ${table.baseCurrency} <> ${table.quoteCurrency}`),
+  index("exchange_rate_snapshots_lookup_idx").on(table.baseCurrency, table.quoteCurrency, table.status, table.capturedAt),
 ]);
 
 export const profiles = pgTable("profiles", {

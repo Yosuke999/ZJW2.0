@@ -78,6 +78,39 @@ test("AI chat reads reviewed database knowledge with a safe static fallback", as
   assert.doesNotMatch(loader, /sourcingReferences|supplierName|sourceUrl/);
 });
 
+test("second knowledge batch keeps volatile market, route, and exchange data review-gated", async () => {
+  const [schema, migration, seed, loader, route] = await Promise.all([
+    read("db/schema.ts"),
+    read("db/migrations/0009_warm_flatman.sql"),
+    read("scripts/seed-second-knowledge.ts"),
+    read("lib/chat-knowledge.ts"),
+    read("app/api/chat/route.ts"),
+  ]);
+
+  for (const table of [
+    "product_market_facts",
+    "product_market_fact_translations",
+    "shipping_routes",
+    "shipping_route_translations",
+    "exchange_rate_snapshots",
+  ]) {
+    assert.match(schema, new RegExp(`pgTable\\(\\"${table}\\"`));
+    assert.match(migration, new RegExp(`ALTER TABLE \\"${table}\\" ENABLE ROW LEVEL SECURITY`));
+  }
+  assert.match(migration, /public reads approved product market facts/);
+  assert.match(migration, /public reads approved shipping routes/);
+  assert.match(migration, /public reads verified exchange rates/);
+  assert.doesNotMatch(migration, /DROP TABLE|DROP COLUMN|DROP INDEX/);
+  assert.match(seed, /status: "draft"/);
+  assert.match(seed, /costBasis: "quote_only"/);
+  assert.match(seed, /No exchange rates were invented/);
+  assert.doesNotMatch(seed, /status: "approved"|status: "verified"/);
+  assert.match(loader, /eq\(productMarketFacts\.status, "approved"\)/);
+  assert.match(loader, /eq\(shippingRoutes\.status, "approved"\)/);
+  assert.match(loader, /eq\(exchangeRateSnapshots\.status, "verified"\)/);
+  assert.match(route, /Never turn a historical transit example into a delivery promise/);
+});
+
 test("initial migration protects user data and uploaded application files", async () => {
   const migration = await read("db/migrations/0000_silent_hex.sql");
 
