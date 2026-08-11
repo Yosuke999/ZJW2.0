@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { countries } from "@/data/countries";
-import { prices } from "@/data/prices";
 import { products } from "@/data/products";
-import { translations } from "@/data/translations";
 import type { CountryCode, Language } from "@/data/types";
+import { buildChatKnowledge } from "@/lib/chat-knowledge";
 
 export const runtime = "nodejs";
 
@@ -49,28 +47,6 @@ function parseModelAnswer(raw: string): ModelAnswer | null {
   return null;
 }
 
-function buildKnowledge(countryCode: CountryCode, language: Language, viewedProductId?: string) {
-  const country = countries[countryCode];
-  const countryPrices = prices[countryCode];
-  const copy = translations[language];
-  const viewedProduct = viewedProductId ? products.find((product) => product.id === viewedProductId) : undefined;
-  const productLines = products.map((product) => {
-    const price = countryPrices.find((item) => item.productId === product.id);
-    return `${product.id} | ${product.name[language]} | ${product.specification[language]} | local retail reference: ${price?.localRetailPrice ?? "n/a"} ${price?.currency ?? ""} | China purchase reference: ${price?.chinaReferencePrice ?? "n/a"} ${price?.currency ?? ""}`;
-  });
-  const faqLines = copy.faqs.map((faq) => `Q: ${faq.question}\nA: ${faq.answer}`);
-  return [
-    `Country: ${country.name[language]} (${countryCode})`,
-    `Reply language: ${language}`,
-    `Page context product: ${viewedProduct ? `${viewedProduct.name[language]} (${viewedProduct.id})` : "none"}`,
-    "The page context is only a hint. If the user says 'this product' without naming it, ask them to confirm the product instead of assuming.",
-    "FAQ:",
-    ...faqLines,
-    "Products and reference prices:",
-    ...productLines,
-  ].join("\n");
-}
-
 function sanitizePurchaseContext(value: unknown, fallback: PurchaseContext): PurchaseContext {
   if (!value || typeof value !== "object") return fallback;
   const candidate = value as Record<string, unknown>;
@@ -86,7 +62,7 @@ function sanitizePurchaseContext(value: unknown, fallback: PurchaseContext): Pur
   return { productId, quantity, destinationCity };
 }
 
-function buildSystemInstruction(countryCode: CountryCode, language: Language, viewedProductId: string | undefined, purchaseContext: PurchaseContext) {
+function buildSystemInstruction(language: Language, purchaseContext: PurchaseContext, knowledge: string) {
   return `# Role
 You are a professional and patient purchasing advisor for the Central Asia Opportunity Portal.
 
@@ -127,7 +103,7 @@ Assistant: {"answer":"I can help prepare the request. Which product do you need?
 ${JSON.stringify(purchaseContext)}
 
 # Website knowledge
-${buildKnowledge(countryCode, language, viewedProductId)}`;
+${knowledge}`;
 }
 
 export async function POST(request: Request) {
@@ -146,13 +122,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: errorCopy[language].invalid }, { status: 400 });
     }
 
+    const latestUserMessage = [...messages].reverse().find((message) => message.role === "user")?.content ?? "";
+    const knowledge = await buildChatKnowledge({
+      countryCode,
+      language,
+      viewedProductId,
+      purchaseContext,
+      latestUserMessage,
+    });
+
     const model = process.env.GEMINI_MODEL?.trim() || "gemini-3.6-flash";
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       signal: AbortSignal.timeout(20000),
       body: JSON.stringify({
-        systemInstruction: { parts: [{ text: buildSystemInstruction(countryCode, language, viewedProductId, purchaseContext) }] },
+        systemInstruction: { parts: [{ text: buildSystemInstruction(language, purchaseContext, knowledge) }] },
         contents: messages.map((message) => ({ role: message.role === "assistant" ? "model" : "user", parts: [{ text: message.content.trim().slice(0, 2000) }] })),
         generationConfig: {
           maxOutputTokens: 800,

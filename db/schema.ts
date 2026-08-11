@@ -28,6 +28,31 @@ export const priceStatus = pgEnum("price_status", ["demo", "pending_review", "ve
 export const userRole = pgEnum("user_role", ["customer", "staff", "reviewer", "admin"]);
 export const inquiryStatus = pgEnum("inquiry_status", ["new", "contacted", "qualified", "closed", "spam"]);
 export const inquiryIntentType = pgEnum("inquiry_intent_type", ["callback", "purchase_intent"]);
+export const knowledgeTopic = pgEnum("knowledge_topic", [
+  "pricing",
+  "minimum_order",
+  "sourcing",
+  "inspection",
+  "shipping",
+  "customs",
+  "payment",
+  "delivery",
+  "warranty",
+  "returns",
+  "compliance",
+  "platform_process",
+  "railway_project",
+]);
+export const knowledgeScope = pgEnum("knowledge_scope", ["global", "market", "category", "product"]);
+export const knowledgeAccessLevel = pgEnum("knowledge_access_level", ["public", "internal", "restricted"]);
+export const knowledgeSourceType = pgEnum("knowledge_source_type", [
+  "government",
+  "carrier",
+  "supplier",
+  "market_research",
+  "platform_policy",
+  "internal_record",
+]);
 export const applicationStatus = pgEnum("application_status", [
   "draft",
   "submitted",
@@ -81,6 +106,13 @@ export const products = pgTable("products", {
   imageStatus: varchar("image_status", { length: 20 }).default("placeholder").notNull(),
   displayOrder: integer("display_order").default(0).notNull(),
   featured: boolean("featured").default(false).notNull(),
+  unitCode: varchar("unit_code", { length: 20 }).default("piece").notNull(),
+  originCountry: varchar("origin_country", { length: 2 }).default("CN").notNull(),
+  hsCode: varchar("hs_code", { length: 16 }),
+  attributes: jsonb("attributes").$type<Record<string, string | number | boolean | null>>().default({}).notNull(),
+  packaging: jsonb("packaging").$type<Record<string, string | number | boolean | null>>().default({}).notNull(),
+  complianceNotes: text("compliance_notes"),
+  knowledgeUpdatedAt: timestamp("knowledge_updated_at", { withTimezone: true }),
   status: recordStatus("status").default("active").notNull(),
   ...timestamps,
 }, (table) => [index("products_listing_idx").on(table.status, table.featured, table.displayOrder)]);
@@ -91,6 +123,13 @@ export const productTranslations = pgTable("product_translations", {
   name: text("name").notNull(),
   specification: text("specification").notNull(),
   description: text("description"),
+  shortDescription: text("short_description"),
+  sellingPoints: jsonb("selling_points").$type<string[]>().default([]).notNull(),
+  usageNotes: text("usage_notes"),
+  aliases: jsonb("aliases").$type<string[]>().default([]).notNull(),
+  translatedBy: varchar("translated_by", { length: 30 }),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   status: reviewStatus("status").default("approved").notNull(),
   ...timestamps,
 }, (table) => [
@@ -123,12 +162,27 @@ export const priceSnapshots = pgTable("price_snapshots", {
   marketCode: varchar("market_code", { length: 2 }).notNull().references(() => markets.code),
   localRetailPrice: numeric("local_retail_price", { precision: 18, scale: 2 }).notNull(),
   chinaReferencePrice: numeric("china_reference_price", { precision: 18, scale: 2 }).notNull(),
+  chinaPriceMin: numeric("china_price_min", { precision: 18, scale: 2 }),
+  chinaPriceMax: numeric("china_price_max", { precision: 18, scale: 2 }),
+  localPriceMin: numeric("local_price_min", { precision: 18, scale: 2 }),
+  localPriceMax: numeric("local_price_max", { precision: 18, scale: 2 }),
   currency: varchar("currency", { length: 3 }).notNull(),
   referenceQuantity: integer("reference_quantity").notNull(),
+  quantityMin: integer("quantity_min"),
+  quantityMax: integer("quantity_max"),
+  priceUnit: varchar("price_unit", { length: 20 }).default("piece").notNull(),
+  incoterm: varchar("incoterm", { length: 10 }),
+  freightIncluded: boolean("freight_included").default(false).notNull(),
+  customsIncluded: boolean("customs_included").default(false).notNull(),
+  taxIncluded: boolean("tax_included").default(false).notNull(),
   confirmedAt: date("confirmed_at", { mode: "string" }).notNull(),
+  validUntil: date("valid_until", { mode: "string" }),
   status: priceStatus("status").default("pending_review").notNull(),
   sourceNote: text("source_note"),
+  sourceId: uuid("source_id"),
   createdBy: uuid("created_by"),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   ...timestamps,
 }, (table) => [
   index("price_snapshots_latest_idx").on(table.productId, table.marketCode, table.status, table.confirmedAt),
@@ -143,11 +197,81 @@ export const sourcingReferences = pgTable("sourcing_references", {
   minimumOrderQuantity: integer("minimum_order_quantity"),
   purchasePriceMin: numeric("purchase_price_min", { precision: 18, scale: 2 }),
   purchasePriceMax: numeric("purchase_price_max", { precision: 18, scale: 2 }),
+  currency: varchar("currency", { length: 3 }),
+  priceUnit: varchar("price_unit", { length: 20 }).default("piece").notNull(),
+  marketCode: varchar("market_code", { length: 2 }).references(() => markets.code),
+  status: reviewStatus("status").default("pending_review").notNull(),
   capturedAt: timestamp("captured_at", { withTimezone: true }),
+  lastVerifiedAt: timestamp("last_verified_at", { withTimezone: true }),
+  validUntil: timestamp("valid_until", { withTimezone: true }),
+  sourceId: uuid("source_id"),
   note: text("note"),
   createdBy: uuid("created_by"),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
   ...timestamps,
 }, (table) => [index("sourcing_references_product_idx").on(table.productId, table.capturedAt)]);
+
+export const knowledgeSources = pgTable("knowledge_sources", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: text("title").notNull(),
+  publisher: text("publisher"),
+  sourceType: knowledgeSourceType("source_type").notNull(),
+  sourceUrl: text("source_url"),
+  sourceNote: text("source_note"),
+  accessLevel: knowledgeAccessLevel("access_level").default("internal").notNull(),
+  confidenceLevel: integer("confidence_level").default(3).notNull(),
+  capturedAt: timestamp("captured_at", { withTimezone: true }).defaultNow().notNull(),
+  validUntil: timestamp("valid_until", { withTimezone: true }),
+  createdBy: uuid("created_by"),
+  ...timestamps,
+}, (table) => [
+  check("knowledge_sources_confidence_check", sql`${table.confidenceLevel} BETWEEN 1 AND 5`),
+  index("knowledge_sources_access_idx").on(table.accessLevel, table.validUntil),
+]);
+
+export const knowledgeArticles = pgTable("knowledge_articles", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: text("slug").notNull().unique(),
+  topic: knowledgeTopic("topic").notNull(),
+  scope: knowledgeScope("scope").default("global").notNull(),
+  marketCode: varchar("market_code", { length: 2 }).references(() => markets.code),
+  productId: uuid("product_id").references(() => products.id, { onDelete: "cascade" }),
+  categoryId: uuid("category_id").references(() => categories.id, { onDelete: "cascade" }),
+  priority: integer("priority").default(0).notNull(),
+  status: reviewStatus("status").default("draft").notNull(),
+  validFrom: timestamp("valid_from", { withTimezone: true }).defaultNow().notNull(),
+  validUntil: timestamp("valid_until", { withTimezone: true }),
+  sourceId: uuid("source_id").references(() => knowledgeSources.id, { onDelete: "set null" }),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  check("knowledge_articles_scope_check", sql`
+    (${table.scope} = 'global' AND ${table.marketCode} IS NULL AND ${table.productId} IS NULL AND ${table.categoryId} IS NULL)
+    OR (${table.scope} = 'market' AND ${table.marketCode} IS NOT NULL AND ${table.productId} IS NULL AND ${table.categoryId} IS NULL)
+    OR (${table.scope} = 'product' AND ${table.productId} IS NOT NULL)
+    OR (${table.scope} = 'category' AND ${table.categoryId} IS NOT NULL)
+  `),
+  index("knowledge_articles_lookup_idx").on(table.status, table.topic, table.scope, table.marketCode, table.priority),
+]);
+
+export const knowledgeArticleTranslations = pgTable("knowledge_article_translations", {
+  articleId: uuid("article_id").notNull().references(() => knowledgeArticles.id, { onDelete: "cascade" }),
+  locale: varchar("locale", { length: 5 }).notNull(),
+  title: text("title").notNull(),
+  summary: text("summary"),
+  content: text("content").notNull(),
+  sampleQuestions: jsonb("sample_questions").$type<string[]>().default([]).notNull(),
+  keywords: jsonb("keywords").$type<string[]>().default([]).notNull(),
+  status: reviewStatus("status").default("draft").notNull(),
+  reviewedBy: uuid("reviewed_by"),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  ...timestamps,
+}, (table) => [
+  primaryKey({ columns: [table.articleId, table.locale] }),
+  index("knowledge_article_translations_lookup_idx").on(table.locale, table.status),
+]);
 
 export const profiles = pgTable("profiles", {
   userId: uuid("user_id").primaryKey(),

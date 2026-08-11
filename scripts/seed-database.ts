@@ -4,10 +4,14 @@ import postgres from "postgres";
 import { countries } from "../data/countries";
 import { prices as staticPrices } from "../data/prices";
 import { products as staticProducts } from "../data/products";
+import { translations } from "../data/translations";
 import type { Language } from "../data/types";
 import {
   categories,
   categoryTranslations,
+  knowledgeArticles,
+  knowledgeArticleTranslations,
+  knowledgeSources,
   markets,
   priceSnapshots,
   productCategories,
@@ -29,6 +33,15 @@ if (!connectionString) {
 const sql = postgres(connectionString, { max: 1, prepare: false });
 const db = drizzle(sql);
 const languages: Language[] = ["zh", "ru", "ky", "uz", "en"];
+const seededAt = new Date("2026-08-11T00:00:00.000Z");
+
+const faqArticles = [
+  { slug: "price-inclusions", topic: "pricing", priority: 100, faqIndex: 0 },
+  { slug: "complete-quotation", topic: "platform_process", priority: 90, faqIndex: 1 },
+  { slug: "minimum-order-quantity", topic: "minimum_order", priority: 80, faqIndex: 2 },
+  { slug: "delivery-time", topic: "delivery", priority: 70, faqIndex: 3 },
+  { slug: "sourcing-delivery-services", topic: "sourcing", priority: 60, faqIndex: 4 },
+] as const;
 
 const categoryNames: Record<string, Record<Language, string>> = {
   kitchen: { zh: "厨房用品", ru: "Кухня", ky: "Ашкана", uz: "Oshxona", en: "Kitchen" },
@@ -96,6 +109,9 @@ async function seed() {
       imageStatus: product.imageStatus,
       displayOrder,
       featured: displayOrder < 5,
+      unitCode: "piece",
+      originCountry: "CN",
+      knowledgeUpdatedAt: seededAt,
     }).onConflictDoUpdate({
       target: products.legacyId,
       set: {
@@ -104,6 +120,9 @@ async function seed() {
         imageStatus: product.imageStatus,
         displayOrder,
         featured: displayOrder < 5,
+        unitCode: "piece",
+        originCountry: "CN",
+        knowledgeUpdatedAt: seededAt,
         status: "active",
         updatedAt: new Date(),
       },
@@ -116,11 +135,15 @@ async function seed() {
         locale,
         name: product.name[locale],
         specification: product.specification[locale],
+        shortDescription: product.specification[locale],
+        aliases: [product.name[locale]],
       }).onConflictDoUpdate({
         target: [productTranslations.productId, productTranslations.locale],
         set: {
           name: product.name[locale],
           specification: product.specification[locale],
+          shortDescription: product.specification[locale],
+          aliases: [product.name[locale]],
           status: "approved",
           updatedAt: new Date(),
         },
@@ -159,8 +182,17 @@ async function seed() {
           marketCode: price.country,
           localRetailPrice: String(price.localRetailPrice),
           chinaReferencePrice: String(price.chinaReferencePrice),
+          localPriceMin: String(price.localRetailPrice),
+          localPriceMax: String(price.localRetailPrice),
+          chinaPriceMin: String(price.chinaReferencePrice),
+          chinaPriceMax: String(price.chinaReferencePrice),
           currency: price.currency,
           referenceQuantity: price.referenceQuantity,
+          quantityMin: price.referenceQuantity,
+          priceUnit: "piece",
+          freightIncluded: false,
+          customsIncluded: false,
+          taxIncluded: false,
           confirmedAt: price.confirmedAt,
           status,
           sourceNote: "initial-static-seed",
@@ -168,11 +200,79 @@ async function seed() {
       }
     }
   }
+
+  const existingFaqSource = (await db.select({ id: knowledgeSources.id })
+    .from(knowledgeSources)
+    .where(eq(knowledgeSources.title, "Central Asia Opportunity Portal customer-service policy"))
+    .limit(1))[0];
+
+  const sourceId = existingFaqSource?.id ?? (await db.insert(knowledgeSources).values({
+    title: "Central Asia Opportunity Portal customer-service policy",
+    publisher: "Central Asia Opportunity Portal",
+    sourceType: "platform_policy",
+    sourceUrl: "https://central-asia-opportunity.vercel.app",
+    sourceNote: "Seeded from the reviewed multilingual FAQ in data/translations.ts",
+    accessLevel: "public",
+    confidenceLevel: 4,
+    capturedAt: seededAt,
+  }).returning({ id: knowledgeSources.id }))[0]?.id;
+
+  if (!sourceId) throw new Error("Unable to resolve the seeded FAQ knowledge source");
+
+  for (const item of faqArticles) {
+    const [article] = await db.insert(knowledgeArticles).values({
+      slug: item.slug,
+      topic: item.topic,
+      scope: "global",
+      priority: item.priority,
+      status: "approved",
+      validFrom: seededAt,
+      sourceId,
+      reviewedAt: seededAt,
+    }).onConflictDoUpdate({
+      target: knowledgeArticles.slug,
+      set: {
+        topic: item.topic,
+        scope: "global",
+        priority: item.priority,
+        status: "approved",
+        sourceId,
+        reviewedAt: seededAt,
+        updatedAt: new Date(),
+      },
+    }).returning({ id: knowledgeArticles.id });
+
+    for (const locale of languages) {
+      const faq = translations[locale].faqs[item.faqIndex];
+      await db.insert(knowledgeArticleTranslations).values({
+        articleId: article.id,
+        locale,
+        title: faq.question,
+        summary: faq.answer,
+        content: faq.answer,
+        sampleQuestions: [faq.question],
+        keywords: [],
+        status: "approved",
+        reviewedAt: seededAt,
+      }).onConflictDoUpdate({
+        target: [knowledgeArticleTranslations.articleId, knowledgeArticleTranslations.locale],
+        set: {
+          title: faq.question,
+          summary: faq.answer,
+          content: faq.answer,
+          sampleQuestions: [faq.question],
+          status: "approved",
+          reviewedAt: seededAt,
+          updatedAt: new Date(),
+        },
+      });
+    }
+  }
 }
 
 try {
   await seed();
-  console.info(`Seeded ${staticProducts.length} products and ${Object.values(staticPrices).flat().length} price snapshots.`);
+  console.info(`Seeded ${staticProducts.length} products, ${Object.values(staticPrices).flat().length} price snapshots, and ${faqArticles.length} knowledge articles.`);
 } finally {
   await sql.end();
 }
