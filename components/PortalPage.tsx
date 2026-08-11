@@ -18,6 +18,7 @@ import { AiChat } from "./AiChat";
 export function PortalPage({ countryCode, language, source, initialIntent, initialProductId }: { countryCode: CountryCode; language: Language; source?: string; initialIntent?: string; initialProductId?: string }) {
   const [contactOpen, setContactOpen] = useState(initialIntent === "purchase" || initialIntent === "callback");
   const [selectedProductId, setSelectedProductId] = useState<string | null>(initialProductId ?? null);
+  const [chatProductId, setChatProductId] = useState<string | null>(initialProductId ?? null);
   const country = countries[countryCode];
   const copy = translations[language];
   const openContact = (origin: string, productId: string | null = null) => {
@@ -25,7 +26,7 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
     trackEvent("consult_click", { country: countryCode, language, origin, productId });
     setContactOpen(true);
   };
-  const handleHeroProductChange = useCallback(() => {}, []);
+  const handleHeroProductChange = useCallback((productId: string) => setChatProductId(productId), []);
   useEffect(() => {
     trackEvent("page_loaded", { country: countryCode, language, src: source });
   }, [countryCode, language, source]);
@@ -42,7 +43,7 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
         <strong>{copy.floatingConsult}</strong>
       </button>
       <HeroCarousel country={countryCode} language={language} copy={copy} onActiveProductChange={handleHeroProductChange} />
-      <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => openContact("product_detail", productId)} />
+      <ProductGrid country={countryCode} language={language} copy={copy} onConsult={(productId) => openContact("product_detail", productId)} onProductView={setChatProductId} />
       <section className="consult-section shell"><button className="primary-button" onClick={() => openContact("primary")}>{copy.consultOpportunity}</button><p>{copy.consultHelp}</p></section>
       <ServiceFlow copy={copy} />
       <StoryShowcase language={language} />
@@ -50,7 +51,7 @@ export function PortalPage({ countryCode, language, source, initialIntent, initi
       <section className="final-cta"><div className="shell"><h2>{copy.finalTitle}</h2><button className="primary-button light" onClick={() => openContact("footer_cta")}>{copy.localAdvisor}</button></div></section>
       <Footer country={country} language={language} copy={copy} source={source} />
       <ContactSheet open={contactOpen} onClose={() => setContactOpen(false)} country={country} language={language} copy={copy} productId={selectedProductId} source={source} />
-      <AiChat country={countryCode} language={language} />
+      <AiChat key={`${countryCode}-${language}`} country={countryCode} language={language} viewedProductId={chatProductId} onOpenInquiry={() => openContact("ai_chat", chatProductId)} />
     </main>
   );
 }

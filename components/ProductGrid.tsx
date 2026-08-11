@@ -23,7 +23,7 @@ const belongsToFilter = (category: string, filter: ProductFilter) => (
   filter === "all" || categoryGroups[filter].includes(category)
 );
 
-export function ProductGrid({ country, language, copy, onConsult }: { country: CountryCode; language: Language; copy: Copy; onConsult: (productId: string) => void }) {
+export function ProductGrid({ country, language, copy, onConsult, onProductView }: { country: CountryCode; language: Language; copy: Copy; onConsult: (productId: string) => void; onProductView: (productId: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ProductFilter>("all");
   const [detailProductId, setDetailProductId] = useState<string | null>(null);
@@ -95,6 +95,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
               onClick={(event) => {
                 triggerRef.current = event.currentTarget;
                 setDetailProductId(product.id);
+                onProductView(product.id);
                 trackEvent("product_detail_open", { country, language, productId: product.id });
               }}
             >

@@ -335,3 +335,28 @@ test("hero keeps compact arrows while the story showcase uses dots only", async 
   assert.doesNotMatch(styles, /\.story-arrows/);
   assert.match(story, /className="story-dots"/);
 });
+
+test("AI purchasing assistant asks focused questions and supports human handoff", async () => {
+  const [chat, route, portal, grid, styles] = await Promise.all([
+    read("components/AiChat.tsx"), read("app/api/chat/route.ts"), read("components/PortalPage.tsx"),
+    read("components/ProductGrid.tsx"), read("app/globals.css"),
+  ]);
+  assert.match(route, /Never dump the full catalog, all prices, or unrelated information/);
+  assert.match(route, /ask which product they want to know about/);
+  assert.match(route, /give the China purchase reference price first/);
+  assert.match(route, /Ask only for the next missing item/);
+  assert.match(route, /responseMimeType:\s*"application\/json"/);
+  assert.match(route, /suggestedQuestions/);
+  assert.match(route, /handoffRecommended/);
+  assert.doesNotMatch(route, /temperature:/);
+  for (const language of ["zh", "ru", "ky", "uz", "en"]) assert.match(chat, new RegExp(`\\b${language}:\\s*\\{`));
+  assert.match(chat, /viewedProductId/);
+  assert.match(chat, /countryConfig\.contact\.whatsappUrl/);
+  assert.match(chat, /countryConfig\.contact\.telegramUrl/);
+  assert.match(chat, /onOpenInquiry/);
+  assert.match(portal, /chatProductId/);
+  assert.match(portal, /onProductView=\{setChatProductId\}/);
+  assert.match(grid, /onProductView\(product\.id\)/);
+  assert.match(styles, /\.ai-chat-suggestions/);
+  assert.match(styles, /\.ai-chat-handoff/);
+});
