@@ -4,12 +4,12 @@ import { useEffect, useRef } from "react";
 import type { CountryConfig } from "@/data/countries";
 import { products } from "@/data/products";
 import type { Copy } from "@/data/translations";
-import type { Language } from "@/data/types";
+import type { InquiryPrefill, Language } from "@/data/types";
 import { trackEvent } from "@/lib/analytics";
 import { intentTranslations } from "@/data/intent-translations";
 import { IntentActions } from "./IntentActions";
 
-export function ContactSheet({ open, onClose, country, language, copy, productId, source }: { open: boolean; onClose: () => void; country: CountryConfig; language: Language; copy: Copy; productId: string | null; source?: string }) {
+export function ContactSheet({ open, onClose, country, language, copy, productId, source, prefill }: { open: boolean; onClose: () => void; country: CountryConfig; language: Language; copy: Copy; productId: string | null; source?: string; prefill?: InquiryPrefill | null }) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
@@ -72,7 +72,7 @@ export function ContactSheet({ open, onClose, country, language, copy, productId
             </ol>
           </section>
           <div className="contact-action-panel">
-            <IntentActions country={country.code} language={language} productId={productId} source={source} />
+            <IntentActions country={country.code} language={language} productId={productId} source={source} prefill={prefill} />
             <h3 className="external-contact-title">{intentCopy.externalContact}</h3>
             <div className="contact-options">
               {channels.map((channel) => (

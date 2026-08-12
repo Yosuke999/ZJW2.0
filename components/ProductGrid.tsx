@@ -23,7 +23,7 @@ const belongsToFilter = (category: string, filter: ProductFilter) => (
   filter === "all" || categoryGroups[filter].includes(category)
 );
 
-export function ProductGrid({ country, language, copy, onConsult }: { country: CountryCode; language: Language; copy: Copy; onConsult: (productId: string) => void }) {
+export function ProductGrid({ country, language, copy, onConsult, onProductView }: { country: CountryCode; language: Language; copy: Copy; onConsult: (productId: string) => void; onProductView: (productId: string) => void }) {
   const [expanded, setExpanded] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ProductFilter>("all");
   const [detailProductId, setDetailProductId] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
   return (
     <section id="products" className="products-section shell" aria-labelledby="products-title">
       <div className="section-heading">
-        <div><span className="eyebrow">{copy.demoData}</span><h2 id="products-title">{copy.popularTitle}</h2></div>
+        <div><h2 id="products-title">{copy.popularTitle}</h2></div>
         <p>{confirmedDate}</p>
       </div>
       <div className="product-filter" aria-label={copy.popularTitle}>
@@ -95,16 +95,23 @@ export function ProductGrid({ country, language, copy, onConsult }: { country: C
               onClick={(event) => {
                 triggerRef.current = event.currentTarget;
                 setDetailProductId(product.id);
+                onProductView(product.id);
                 trackEvent("product_detail_open", { country, language, productId: product.id });
               }}
             >
               <span className="card-visual"><img src={product.image} alt={product.name[language]} width={480} height={480} loading="lazy" /></span>
-              <span className="tag">{copy.popularTag}</span>
-              <strong>{product.name[language]}</strong>
-              <small>{product.specification[language]}</small>
-              <span className="card-price local"><em>{copy.localPrice}</em>{formatPrice(price.localRetailPrice, price.currency, language)}</span>
-              <span className="card-price china"><em>{copy.chinaPrice}</em>{formatPrice(price.chinaReferencePrice, price.currency, language)}</span>
-              <span className="card-detail-hint">{copy.viewDetails}<b aria-hidden="true">→</b></span>
+              <span className="product-card-info">
+                <span className="product-card-content">
+                  <span className="tag">{copy.popularTag}</span>
+                  <strong>{product.name[language]}</strong>
+                  <small>{product.specification[language]}</small>
+                </span>
+                <span className="product-card-prices">
+                  <span className="card-price local"><em>{copy.localPrice}</em>{formatPrice(price.localRetailPrice, price.currency, language)}</span>
+                  <span className="card-price china"><em>{copy.chinaPrice}</em>{formatPrice(price.chinaReferencePrice, price.currency, language)}</span>
+                </span>
+                <span className="card-detail-hint"><span>{copy.viewDetails}</span><b aria-hidden="true">→</b></span>
+              </span>
             </button>
           );
         })}

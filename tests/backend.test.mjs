@@ -33,6 +33,112 @@ test("database schema covers catalog, accounts, inquiries, and applications", as
   }
 });
 
+test("first knowledge migration adds reviewed multilingual knowledge without replaying old migrations", async () => {
+  const [schema, migration, seed, verifier] = await Promise.all([
+    read("db/schema.ts"),
+    read("db/migrations/0008_mushy_rhodey.sql"),
+    read("scripts/seed-database.ts"),
+    read("scripts/verify-database.ts"),
+  ]);
+
+  for (const table of ["knowledge_sources", "knowledge_articles", "knowledge_article_translations"]) {
+    assert.match(schema, new RegExp(`pgTable\\(\\"${table}\\"`));
+    assert.match(migration, new RegExp(`ALTER TABLE \\"${table}\\" ENABLE ROW LEVEL SECURITY`));
+  }
+  for (const field of ["attributes", "packaging", "aliases", "selling_points", "china_price_min", "valid_until", "source_id"]) {
+    assert.match(migration, new RegExp(`\\"${field}\\"`));
+  }
+  assert.match(migration, /public reads approved knowledge articles/);
+  assert.match(migration, /staff manage knowledge articles/);
+  assert.match(migration, /UPDATE "price_snapshots"[\s\S]*"quantity_min" = "reference_quantity"/);
+  assert.doesNotMatch(migration, /CREATE TABLE "analytics_events"/);
+  assert.doesNotMatch(migration, /ALTER TABLE "inquiries" ADD COLUMN "email"/);
+  assert.match(seed, /faqArticles/);
+  assert.match(seed, /knowledgeArticleTranslations/);
+  assert.match(verifier, /knowledgeRlsTables/);
+});
+
+test("AI chat reads reviewed database knowledge with a safe static fallback", async () => {
+  const [loader, route] = await Promise.all([
+    read("lib/chat-knowledge.ts"),
+    read("app/api/chat/route.ts"),
+  ]);
+
+  assert.match(route, /await buildChatKnowledge/);
+  assert.match(route, /latestUserMessage/);
+  assert.match(loader, /getDatabase\(\)/);
+  assert.match(loader, /eq\(productTranslations\.locale, request\.language\)/);
+  assert.match(loader, /eq\(priceSnapshots\.marketCode, request\.countryCode\)/);
+  assert.match(loader, /eq\(knowledgeArticles\.status, "approved"\)/);
+  assert.match(loader, /eq\(knowledgeArticleTranslations\.status, "approved"\)/);
+  assert.match(loader, /isNull\(knowledgeArticles\.validUntil\)/);
+  assert.match(loader, /withTimeout\(loadDatabaseKnowledge\(request\), 3_000\)/);
+  assert.match(loader, /return buildStaticFallback\(request\)/);
+  assert.match(loader, /Catalog index \(names only; do not list it unless the user explicitly asks\)/);
+  assert.doesNotMatch(loader, /sourcingReferences|supplierName|sourceUrl/);
+});
+
+test("second knowledge batch keeps volatile market, route, and exchange data review-gated", async () => {
+  const [schema, migration, seed, loader, route] = await Promise.all([
+    read("db/schema.ts"),
+    read("db/migrations/0009_warm_flatman.sql"),
+    read("scripts/seed-second-knowledge.ts"),
+    read("lib/chat-knowledge.ts"),
+    read("app/api/chat/route.ts"),
+  ]);
+
+  for (const table of [
+    "product_market_facts",
+    "product_market_fact_translations",
+    "shipping_routes",
+    "shipping_route_translations",
+    "exchange_rate_snapshots",
+  ]) {
+    assert.match(schema, new RegExp(`pgTable\\(\\"${table}\\"`));
+    assert.match(migration, new RegExp(`ALTER TABLE \\"${table}\\" ENABLE ROW LEVEL SECURITY`));
+  }
+  assert.match(migration, /public reads approved product market facts/);
+  assert.match(migration, /public reads approved shipping routes/);
+  assert.match(migration, /public reads verified exchange rates/);
+  assert.doesNotMatch(migration, /DROP TABLE|DROP COLUMN|DROP INDEX/);
+  assert.match(seed, /status: "draft"/);
+  assert.match(seed, /costBasis: "quote_only"/);
+  assert.match(seed, /No exchange rates were invented/);
+  assert.doesNotMatch(seed, /status: "approved"|status: "verified"/);
+  assert.match(loader, /eq\(productMarketFacts\.status, "approved"\)/);
+  assert.match(loader, /eq\(shippingRoutes\.status, "approved"\)/);
+  assert.match(loader, /eq\(exchangeRateSnapshots\.status, "verified"\)/);
+  assert.match(route, /Never turn a historical transit example into a delivery promise/);
+});
+
+test("knowledge expansion imports sourced Chinese drafts without publishing them", async () => {
+  const [seed, packageJson, verifier] = await Promise.all([
+    read("scripts/seed-knowledge-articles.ts"),
+    read("package.json"),
+    read("scripts/verify-database.ts"),
+  ]);
+
+  assert.match(packageJson, /"db:seed:knowledge": "tsx scripts\/seed-knowledge-articles\.ts"/);
+  assert.match(seed, /railway-construction-status-2026-08/);
+  assert.match(seed, /current-kashgar-irkeshtam-osh-multimodal/);
+  assert.match(seed, /battery-product-transport-review/);
+  assert.match(seed, /mandatory-human-handoff-rules/);
+  assert.match(seed, /operational-delivery-cities-kyrgyzstan/);
+  assert.match(seed, /operational-delivery-cities-uzbekistan/);
+  assert.match(seed, /one-stop-customs-tax-delivery-service/);
+  assert.match(seed, /historical-orders-not-available/);
+  assert.match(seed, /customsIncluded: true/);
+  assert.match(seed, /costBasis: "quote_only"/);
+  assert.match(seed, /暂无可用于公开或训练的历史订单/);
+  assert.match(seed, /sourceId: sourceIds\[item\.source\]/);
+  assert.match(seed, /locale: "zh"/);
+  assert.match(seed, /status: "draft"/);
+  assert.doesNotMatch(seed, /status: "approved"|status: "verified"/);
+  assert.match(verifier, /sourcedDraftKnowledgeArticles/);
+  assert.match(verifier, /chineseDraftKnowledgeTranslations/);
+  assert.match(verifier, /customsIncludedCityServiceRoutes/);
+});
+
 test("initial migration protects user data and uploaded application files", async () => {
   const migration = await read("db/migrations/0000_silent_hex.sql");
 

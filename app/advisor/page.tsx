@@ -108,7 +108,8 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Advi
     products: Array.isArray(item.products) ? item.products[0] ?? null : item.products,
   }));
 
-  const analyticsSince = new Date();
+  const analyticsAnchorDate = new Date().toISOString();
+  const analyticsSince = new Date(analyticsAnchorDate);
   analyticsSince.setUTCDate(analyticsSince.getUTCDate() - 30);
   let analyticsQuery = supabase
     .from("analytics_events")
@@ -132,7 +133,7 @@ export default async function AdvisorPage({ searchParams }: { searchParams: Advi
         </div>
         <AdvisorLanguageSwitch language={language} ariaLabel={copy.language} />
       </div>
-      <AnalyticsDashboard events={(analyticsEvents ?? []) as AnalyticsEventRow[]} language={language} />
+      <AnalyticsDashboard events={(analyticsEvents ?? []) as AnalyticsEventRow[]} language={language} anchorDate={analyticsAnchorDate} />
       <AdvisorDashboard initialInquiries={normalizedInquiries as AdvisorInquiry[]} copy={copy} language={language} />
     </main>
   );

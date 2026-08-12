@@ -130,9 +130,8 @@ test("hero renders three real synchronized tracks without automatic rotation", a
   assert.match(hero, /className="current-product-info" data-product-id=\{product\.id\}/);
   assert.match(hero, /setResetting\(true\)/);
   assert.match(hero, /\{index \+ 1\} \/ \{heroProducts\.length\}/);
-  assert.equal((hero.match(/type="button" className="carousel-arrow"/g) ?? []).length, 2);
-  assert.match(hero, /onPointerDown=\{\(event\) => event\.stopPropagation\(\)\}/);
-  assert.match(hero, /onPointerUp=\{\(event\) => event\.stopPropagation\(\)\}/);
+  assert.equal((hero.match(/className="hero-carousel-arrow"/g) ?? []).length, 2);
+  assert.doesNotMatch(hero, /className="carousel-arrow"/);
   assert.match(hero, /onKeyDown/);
   assert.match(hero, /aria-live="polite"/);
 });
@@ -153,7 +152,8 @@ test("hero separates its fixed image frame from bounded product copy", async () 
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.track-strip \{[^}]*width:\s*166\.6667%;[^}]*margin-left:\s*-33\.3333%/s);
   assert.match(styles, /\.price-item\.side, \.price-item\.leaving \{[^}]*visibility:\s*hidden;[^}]*opacity:\s*0/s);
   assert.match(styles, /\.showcase-controls \{[^}]*z-index:\s*5/s);
-  assert.match(styles, /\.carousel-arrow \{[^}]*width:\s*48px;[^}]*height:\s*48px;[^}]*touch-action:\s*manipulation/s);
+  assert.match(styles, /\.hero-carousel-arrow \{[^}]*width:\s*24px;[^}]*height:\s*24px;[^}]*border:\s*0;[^}]*background:\s*transparent/s);
+  assert.doesNotMatch(styles, /\.carousel-arrow/);
   assert.doesNotMatch(styles, /\.product-strip\[data-shift=.*nth-child|\.price-strip\[data-shift=.*nth-child/);
   assert.match(styles, /-webkit-line-clamp:\s*2/);
 });
@@ -252,7 +252,7 @@ test("section headings stay centered across desktop and mobile", async () => {
   const styles = await read("app/globals.css");
   assert.match(styles, /\.section-heading \{[^}]*align-items:\s*center;[^}]*flex-direction:\s*column;[^}]*justify-content:\s*center;[^}]*text-align:\s*center/s);
   assert.match(styles, /\.section-heading > p \{[^}]*margin:\s*0/s);
-  assert.doesNotMatch(styles, /@media \(max-width:\s*759px\)[\s\S]*\.section-heading/);
+  assert.match(styles, /\.products-section \.section-heading,[\s\S]*?\.faq-section \.section-heading \{[^}]*align-items:\s*center;[^}]*flex-direction:\s*column;[^}]*justify-content:\s*center;[^}]*text-align:\s*center/s);
 });
 
 test("contact context follows the selected product and language links preserve src", async () => {
@@ -300,14 +300,109 @@ test("the fixed opportunity entry reserves its own right-side rail", async () =>
   assert.match(portal, /className="opportunity-dock"/);
   assert.match(portal, /openContact\("fixed_opportunity"\)/);
   assert.match(portal, /copy\.floatingConsult/);
-  assert.match(styles, /\.portal-page \{ --opportunity-rail:\s*46px; width:\s*calc\(100% - var\(--opportunity-rail\)\); \}/);
+  assert.match(styles, /\.portal-page \{ --opportunity-rail:\s*42px; width:\s*calc\(100% - var\(--opportunity-rail\)\); \}/);
   assert.match(styles, /\.opportunity-dock \{[^}]*position:\s*fixed;[^}]*top:\s*50%; right:\s*0;/s);
-  assert.match(styles, /@media \(max-width:\s*430px\)[\s\S]*?\.portal-page \{ --opportunity-rail:\s*38px; \}/);
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*?\.portal-page \{ --opportunity-rail:\s*40px; \}/);
 });
 
 test("the fixed opportunity entry is translated in every supported language", async () => {
   const translations = await read("data/translations.ts");
-  for (const label of ["Enquire", "咨询商机", "Консультация", "Кеңеш алуу", "Maslahat"]) {
+  for (const label of ["Contact", "联系我们", "Связь", "Байланыш", "Aloqa"]) {
     assert.match(translations, new RegExp(`floatingConsult:\\s*${JSON.stringify(label)}`));
   }
+});
+
+test("responsive copy and advisor dates remain deterministic", async () => {
+  const [styles, advisorDashboard, analyticsDashboard, advisorPage] = await Promise.all([
+    read("app/globals.css"), read("components/AdvisorDashboard.tsx"), read("components/AnalyticsDashboard.tsx"), read("app/advisor/page.tsx"),
+  ]);
+  assert.match(styles, /\.footer-grid \{ grid-template-columns:\s*minmax\(0, 1fr\); \}/);
+  assert.match(styles, /\.product-card-content > strong \{[^}]*-webkit-line-clamp:\s*2/s);
+  assert.match(styles, /\.card-price em \{[^}]*white-space:\s*normal/s);
+  assert.match(advisorDashboard, /timeZone:\s*"UTC"/);
+  assert.match(analyticsDashboard, /anchorDate:\s*string/);
+  assert.match(analyticsDashboard, /new Date\(anchorDate\)/);
+  assert.match(advisorPage, /anchorDate=\{analyticsAnchorDate\}/);
+});
+
+test("hero keeps compact arrows while the story showcase uses dots only", async () => {
+  const [hero, story, styles] = await Promise.all([
+    read("components/HeroCarousel.tsx"), read("components/StoryShowcase.tsx"), read("app/globals.css"),
+  ]);
+  assert.equal((hero.match(/className="hero-carousel-arrow"/g) ?? []).length, 2);
+  assert.match(styles, /\.hero-carousel-arrow \{[^}]*width:\s*24px;[^}]*height:\s*24px/s);
+  assert.doesNotMatch(story, /story-arrows|copy\.previous|copy\.next/);
+  assert.doesNotMatch(styles, /\.story-arrows/);
+  assert.match(story, /className="story-dots"/);
+});
+
+test("AI purchasing assistant asks focused questions and supports human handoff", async () => {
+  const [chat, route, portal, grid, styles] = await Promise.all([
+    read("components/AiChat.tsx"), read("app/api/chat/route.ts"), read("components/PortalPage.tsx"),
+    read("components/ProductGrid.tsx"), read("app/globals.css"),
+  ]);
+  assert.match(route, /Never dump the full catalog, all prices, or unrelated information/);
+  assert.match(route, /ask which product they want to know about/);
+  assert.match(route, /give the China purchase reference price first/);
+  assert.match(route, /Ask only for the next missing item/);
+  assert.match(route, /responseMimeType:\s*"application\/json"/);
+  assert.match(route, /suggestedQuestions/);
+  assert.match(route, /handoffRecommended/);
+  assert.doesNotMatch(route, /temperature:/);
+  for (const language of ["zh", "ru", "ky", "uz", "en"]) assert.match(chat, new RegExp(`\\b${language}:\\s*\\{`));
+  assert.match(chat, /viewedProductId/);
+  assert.match(chat, /countryConfig\.contact\.whatsappUrl/);
+  assert.match(chat, /countryConfig\.contact\.telegramUrl/);
+  assert.match(chat, /onOpenInquiry/);
+  assert.match(portal, /chatProductId/);
+  assert.match(portal, /onProductView=\{setChatProductId\}/);
+  assert.match(grid, /onProductView\(product\.id\)/);
+  assert.match(styles, /\.ai-chat-suggestions/);
+  assert.match(styles, /\.ai-chat-handoff/);
+});
+
+test("AI chat preserves purchase context and requires review before inquiry submission", async () => {
+  const [chat, route, portal, contact, intents, types, styles] = await Promise.all([
+    read("components/AiChat.tsx"), read("app/api/chat/route.ts"), read("components/PortalPage.tsx"),
+    read("components/ContactSheet.tsx"), read("components/IntentActions.tsx"), read("data/types.ts"), read("app/globals.css"),
+  ]);
+  assert.match(types, /export type InquiryPrefill/);
+  assert.match(route, /sanitizePurchaseContext/);
+  assert.match(route, /Current purchase context/);
+  assert.match(route, /Preserve already confirmed purchase details/);
+  assert.match(route, /purchaseContext:\s*updatedContext/);
+  assert.match(chat, /setPurchaseContext/);
+  assert.match(chat, /className="ai-chat-progress"/);
+  assert.match(chat, /className="ai-chat-product-card"/);
+  assert.match(chat, /className="ai-chat-summary"/);
+  assert.match(chat, /onOpenInquiry\(\{ productId:/);
+  assert.match(portal, /inquiryPrefill/);
+  assert.match(portal, /sessionStorage\.setItem\("ai-inquiry-prefill"/);
+  assert.match(contact, /prefill=\{prefill\}/);
+  assert.match(intents, /prefill \? "purchase" : "choices"/);
+  assert.match(intents, /value=\{quantity\}/);
+  assert.match(intents, /value=\{city\}/);
+  assert.match(intents, /name="reviewConfirmed" type="checkbox" required/);
+  assert.match(intents, /sessionStorage\.getItem\("ai-inquiry-prefill"\)/);
+  assert.match(intents, /sessionStorage\.removeItem\("ai-inquiry-prefill"\)/);
+  assert.match(styles, /\.intent-prefill-note/);
+  assert.match(styles, /\.intent-review-confirm/);
+});
+
+test("AI chat never exposes structured response JSON to customers", async () => {
+  const [chat, route, styles] = await Promise.all([
+    read("components/AiChat.tsx"), read("app/api/chat/route.ts"), read("app/globals.css"),
+  ]);
+  assert.match(route, /function parseModelAnswer/);
+  assert.match(route, /replace\(\/\^```\(\?:json\)\?/);
+  assert.match(route, /cleaned\.slice\(firstBrace, lastBrace \+ 1\)/);
+  assert.match(route, /typeof parsed\.answer !== "string"/);
+  assert.match(route, /errorCopy\[language\]\.malformed/);
+  assert.doesNotMatch(route, /parsed = \{ answer: raw \}/);
+  assert.match(route, /Do not repeat the summary in the answer/);
+  assert.match(chat, /leakedStructuredData/);
+  assert.match(chat, /copy\.readyMessage/);
+  assert.match(chat, /copy\.modify/);
+  assert.match(chat, /inputRef\.current\?\.focus\(\)/);
+  assert.match(styles, /\.ai-chat-summary-actions/);
 });

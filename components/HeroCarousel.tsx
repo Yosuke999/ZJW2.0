@@ -69,7 +69,6 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
   return (
     <section className="hero shell" aria-labelledby="hero-title">
       <div className="hero-copy">
-        <span className="eyebrow">{copy.demoData}</span>
         <h1 id="hero-title" tabIndex={-1}>{copy.heroTitle}</h1>
         <p>{copy.heroSubtitle}</p>
       </div>
@@ -111,9 +110,9 @@ export function HeroCarousel({ country, language, copy, onActiveProductChange }:
         <PriceTrack label={copy.localPrice} products={localPriceWindow} country={country} language={language} tone="local" direction={direction} />
         <PriceTrack label={copy.chinaPrice} products={productWindow} country={country} language={language} tone="china" direction={direction} />
         <div className="showcase-controls" onPointerDown={(event) => event.stopPropagation()} onPointerUp={(event) => event.stopPropagation()}>
-          <button type="button" className="carousel-arrow" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={copy.previous}><span aria-hidden="true">‹</span></button>
+          <button type="button" className="hero-carousel-arrow" onClick={() => move(-1)} disabled={Boolean(direction)} aria-label={copy.previous}><span aria-hidden="true">‹</span></button>
           <span className="carousel-progress" aria-hidden="true">{index + 1} / {heroProducts.length}</span>
-          <button type="button" className="carousel-arrow" onClick={() => move(1)} disabled={Boolean(direction)} aria-label={copy.next}><span aria-hidden="true">›</span></button>
+          <button type="button" className="hero-carousel-arrow" onClick={() => move(1)} disabled={Boolean(direction)} aria-label={copy.next}><span aria-hidden="true">›</span></button>
         </div>
         <p className="hero-price-disclaimer">{copy.priceDisclaimer}</p>
       </div>
