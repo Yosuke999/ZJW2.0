@@ -180,14 +180,15 @@ h1 { margin: 9px 0; color: var(--blue); font-size: clamp(32px, 5.4vw, 58px); lin
 .mobile-service-timeline::before { content: ""; position: absolute; left: 16px; top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--phase-color) 38%, white); }
 .mobile-service-timeline details { position: relative; overflow: hidden; border: 1px solid rgba(215,225,231,.92); border-radius: 17px; background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(249,252,252,.82)); box-shadow: 0 10px 24px rgba(23,74,126,.06), inset 0 1px 0 rgba(255,255,255,.9); }
 .mobile-service-timeline details::after { content: ""; position: absolute; inset: 0; border-left: 3px solid color-mix(in srgb, var(--phase-color) 45%, transparent); pointer-events: none; }
-.mobile-service-timeline summary { display: grid; grid-template-columns: minmax(0, 1fr) auto 18px; align-items: center; gap: 9px; min-height: 92px; padding: 14px 12px 14px 46px; list-style: none; cursor: pointer; }
+.mobile-service-timeline summary { display: grid; grid-template-columns: minmax(0, 1fr) 18px; grid-template-rows: auto auto; align-items: center; gap: 7px 9px; min-height: 92px; padding: 14px 12px 14px 46px; list-style: none; cursor: pointer; }
 .mobile-service-timeline summary::-webkit-details-marker { display: none; }
 .mobile-service-timeline .service-number { position: absolute; left: -34px; top: 20px; z-index: 1; display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid color-mix(in srgb, var(--phase-color) 42%, white); border-radius: 50%; background: var(--canvas); color: var(--phase-color); font-size: 15px; font-weight: 900; }
-.mobile-step-copy { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.mobile-step-copy { display: flex; grid-column: 1; grid-row: 1; min-width: 0; flex-direction: column; gap: 5px; }
 .mobile-step-copy strong { color: var(--ink); font-size: 16px; line-height: 1.28; overflow-wrap: anywhere; }
-.mobile-step-copy small { overflow: hidden; color: var(--muted); font-size: 12px; line-height: 1.4; text-overflow: ellipsis; white-space: nowrap; }
+.mobile-step-copy small { color: var(--muted); font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
 .service-duration { display: inline-flex; align-items: center; justify-content: center; width: max-content; max-width: 112px; padding: 5px 8px; border: 1px solid color-mix(in srgb, var(--phase-color) 18%, white); border-radius: 999px; background: color-mix(in srgb, var(--phase-color) 10%, white); color: var(--phase-color); font-size: 10px; font-weight: 800; white-space: nowrap; box-shadow: inset 0 1px 0 rgba(255,255,255,.9); }
-.mobile-chevron { color: var(--muted); font-size: 18px; line-height: 1; transition: transform 160ms ease; }
+.mobile-service-timeline summary .service-duration { grid-column: 1; grid-row: 2; justify-self: start; max-width: 100%; white-space: normal; }
+.mobile-chevron { grid-column: 2; grid-row: 1 / span 2; color: var(--muted); font-size: 18px; line-height: 1; transition: transform 160ms ease; }
 .mobile-service-timeline details[open] .mobile-chevron { transform: rotate(180deg); }
 .service-deliverable { display: flex; align-items: center; gap: 8px; color: var(--blue); font-size: 12px; font-weight: 750; }
 .mobile-service-timeline .service-deliverable { margin: 0 12px 14px 46px; padding: 12px; border: 1px solid rgba(34,166,154,.12); border-radius: 12px; background: linear-gradient(180deg, #f7fbfb, #eef7f7); }
@@ -773,9 +774,9 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
   .products-section { padding-inline: 16px; }
   .products-section .section-heading { align-items: flex-start; flex-direction: column; gap: 8px; }
   .products-section .section-heading > p { text-align: left; }
-  .products-section .product-filter { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .products-section .product-filter { flex-wrap: nowrap; overflow-x: auto; padding: 0 22px 6px 0; scroll-padding-right: 22px; scroll-snap-type: x proximity; scrollbar-width: none; box-shadow: inset -22px 0 18px -18px rgba(23,61,75,.72); }
   .products-section .product-filter::-webkit-scrollbar { display: none; }
-  .products-section .product-filter button { flex: 0 0 auto; }
+  .products-section .product-filter button { flex: 0 0 auto; scroll-snap-align: start; }
   .products-section .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
   .products-section .product-card { display: grid; grid-template-columns: none; grid-template-rows: auto 1fr auto auto; min-height: 0; padding: 12px; border-radius: 0; }
   .products-section .card-visual { aspect-ratio: 1 / 1; margin-bottom: 14px; border-radius: 16px; }
@@ -1272,10 +1273,12 @@ h1,
   .footer nav { min-width: 0; max-width: 100%; }
   .footer p,
   .footer a { overflow-wrap: anywhere; }
+  .footer .footer-brand { max-width: 100%; align-items: flex-start; }
+  .footer .footer-brand > span:last-child { overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: anywhere; }
   .opportunity-dock { min-height: 112px; padding: 10px 5px; border-radius: 13px 0 0 13px; }
   .opportunity-dock > span { font-size: 14px; }
   .opportunity-dock > strong { font-size: 11px; }
   .ai-chat-launcher { top: calc(50% + 68px); width: 46px; height: 46px; }
   .ai-chat-headset-icon { transform: scale(.9); }
-  .ai-chat-panel { top: auto; right: 12px; bottom: 72px; width: min(370px, calc(100vw - 24px)); height: min(560px, calc(100vh - 96px)); transform: none; }
+  .ai-chat-panel { top: auto; right: 12px; bottom: 72px; left: 12px; width: auto; max-width: 370px; height: min(560px, calc(100vh - 96px)); transform: none; }
 }

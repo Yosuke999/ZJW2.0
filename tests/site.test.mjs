@@ -231,6 +231,23 @@ test("service flow uses two desktop phases and a compact mobile accordion", asyn
   assert.match(styles, /@media \(min-width:\s*760px\)[\s\S]*\.service-card \{[^}]*overflow:\s*visible/s);
 });
 
+test("mobile localized copy keeps enough width in service cards and overlays", async () => {
+  const styles = await read("app/globals.css");
+  assert.match(styles, /\.mobile-service-timeline summary \{[^}]*grid-template-columns:\s*minmax\(0, 1fr\) 18px;[^}]*grid-template-rows:\s*auto auto/s);
+  assert.match(styles, /\.mobile-step-copy \{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1/s);
+  assert.match(styles, /\.mobile-step-copy small \{[^}]*overflow-wrap:\s*anywhere/s);
+  assert.match(styles, /\.mobile-service-timeline summary \.service-duration \{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;[^}]*white-space:\s*normal/s);
+  assert.match(styles, /\.mobile-chevron \{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1 \/ span 2/s);
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.footer \.footer-brand > span:last-child \{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere/s);
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.ai-chat-panel \{[^}]*right:\s*12px;[^}]*left:\s*12px;[^}]*width:\s*auto;[^}]*max-width:\s*370px/s);
+});
+
+test("mobile product filters advertise horizontal scrolling without widening the page", async () => {
+  const styles = await read("app/globals.css");
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.products-section \.product-filter \{[^}]*overflow-x:\s*auto;[^}]*scroll-snap-type:\s*x proximity;[^}]*box-shadow:\s*inset -22px/s);
+  assert.match(styles, /\.products-section \.product-filter button \{[^}]*scroll-snap-align:\s*start/s);
+});
+
 test("pricing guidance stays only at decision points", async () => {
   const [hero, portal, grid, styles] = await Promise.all([
     read("components/HeroCarousel.tsx"), read("components/PortalPage.tsx"), read("components/ProductGrid.tsx"), read("app/globals.css"),
