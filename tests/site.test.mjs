@@ -376,6 +376,9 @@ test("AI purchasing assistant asks focused questions and supports human handoff"
   assert.match(grid, /onProductView\(product\.id\)/);
   assert.match(styles, /\.ai-chat-suggestions/);
   assert.match(styles, /\.ai-chat-handoff/);
+  assert.match(chat, /className="ai-chat-close-icon" aria-hidden="true"/);
+  assert.match(styles, /\.ai-chat-head button \{[^}]*display:\s*grid;[^}]*place-items:\s*center;[^}]*padding:\s*0;/s);
+  assert.match(styles, /\.ai-chat-close-icon::before, \.ai-chat-close-icon::after \{[^}]*top:\s*50%;[^}]*left:\s*50%;[^}]*translate\(-50%, -50%\)/s);
 });
 
 test("AI chat preserves purchase context and requires review before inquiry submission", async () => {
@@ -404,6 +407,7 @@ test("AI chat preserves purchase context and requires review before inquiry subm
   assert.match(intents, /sessionStorage\.removeItem\("ai-inquiry-prefill"\)/);
   assert.match(styles, /\.intent-prefill-note/);
   assert.match(styles, /\.intent-review-confirm/);
+  assert.match(styles, /\.intent-form-actions \.secondary-button \{[^}]*display:\s*grid;[^}]*width:\s*48px;[^}]*padding:\s*0;[^}]*place-items:\s*center;[^}]*line-height:\s*1;/s);
 });
 
 test("AI chat never exposes structured response JSON to customers", async () => {
