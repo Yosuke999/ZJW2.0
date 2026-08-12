@@ -136,7 +136,7 @@ export function AiChat({ country, language, viewedProductId, onOpenInquiry }: {
       {open && <section className="ai-chat-panel" aria-label={copy.title}>
         <div className="ai-chat-head">
           <strong>{copy.title}</strong>
-          <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}>×</button>
+          <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}><span className="ai-chat-close-icon" aria-hidden="true" /></button>
         </div>
         {viewedProduct && <div className="ai-chat-context"><span>{copy.viewing}</span><strong>{viewedProduct.name[language]}</strong></div>}
         {hasPurchaseContext && <div className="ai-chat-progress" aria-label={copy.progress}>
