@@ -317,7 +317,7 @@ test("the fixed opportunity entry reserves its own right-side rail", async () =>
   assert.match(portal, /className="opportunity-dock"/);
   assert.match(portal, /openContact\("fixed_opportunity"\)/);
   assert.match(portal, /copy\.floatingConsult/);
-  assert.match(styles, /\.portal-page \{ --opportunity-rail:\s*42px; width:\s*calc\(100% - var\(--opportunity-rail\)\); \}/);
+  assert.match(styles, /\.portal-page \{ --opportunity-rail:\s*42px; width:\s*100%; \}/);
   assert.match(styles, /\.opportunity-dock \{[^}]*position:\s*fixed;[^}]*top:\s*50%; right:\s*0;/s);
   assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*?\.portal-page \{ --opportunity-rail:\s*40px; \}/);
 });
