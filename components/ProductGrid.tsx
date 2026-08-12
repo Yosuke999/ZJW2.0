@@ -12,6 +12,14 @@ type ProductFilter = "all" | "electronics" | "home" | "personal" | "daily";
 
 const productFilters: ProductFilter[] = ["all", "electronics", "home", "personal", "daily"];
 
+const filterScrollLabels: Record<Language, string> = {
+  zh: "向右查看更多分类",
+  en: "Show more categories",
+  ru: "Показать другие категории",
+  ky: "Дагы категорияларды көрсөтүү",
+  uz: "Boshqa toifalarni ko‘rsatish",
+};
+
 const categoryGroups: Record<Exclude<ProductFilter, "all">, string[]> = {
   electronics: ["electronics", "lighting", "auto"],
   home: ["kitchen", "home"],
@@ -27,6 +35,8 @@ export function ProductGrid({ country, language, copy, onConsult, onProductView 
   const [expanded, setExpanded] = useState(false);
   const [activeFilter, setActiveFilter] = useState<ProductFilter>("all");
   const [detailProductId, setDetailProductId] = useState<string | null>(null);
+  const [canScrollFilterRight, setCanScrollFilterRight] = useState(false);
+  const filterRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const catalogProducts = products.slice(5);
@@ -35,6 +45,27 @@ export function ProductGrid({ country, language, copy, onConsult, onProductView 
   const detailProduct = products.find((product) => product.id === detailProductId) ?? null;
   const filterCount = (filter: ProductFilter) => catalogProducts.filter((product) => belongsToFilter(product.category, filter)).length;
   const confirmedDate = formatConfirmedDate(copy.confirmedDate, language);
+
+  const updateFilterScrollState = useCallback(() => {
+    const filter = filterRef.current;
+    if (!filter) return;
+    setCanScrollFilterRight(filter.scrollLeft + filter.clientWidth < filter.scrollWidth - 2);
+  }, []);
+
+  useEffect(() => {
+    const filter = filterRef.current;
+    if (!filter) return;
+
+    updateFilterScrollState();
+    filter.addEventListener("scroll", updateFilterScrollState, { passive: true });
+    const resizeObserver = new ResizeObserver(updateFilterScrollState);
+    resizeObserver.observe(filter);
+
+    return () => {
+      filter.removeEventListener("scroll", updateFilterScrollState);
+      resizeObserver.disconnect();
+    };
+  }, [updateFilterScrollState]);
 
   const closeDetails = useCallback(() => {
     setDetailProductId(null);
@@ -62,26 +93,41 @@ export function ProductGrid({ country, language, copy, onConsult, onProductView 
         <div><h2 id="products-title">{copy.popularTitle}</h2></div>
         <p>{confirmedDate}</p>
       </div>
-      <div className="product-filter" aria-label={copy.popularTitle}>
-        {productFilters.map((filter) => {
-          const label = filter === "all" ? copy.productCategoryAll : copy.productCategoryLabels[filter];
-          return (
-            <button
-              type="button"
-              key={filter}
-              className={activeFilter === filter ? "is-active" : ""}
-              aria-pressed={activeFilter === filter}
-              onClick={() => {
-                setActiveFilter(filter);
-                setExpanded(false);
-                trackEvent("filter_products", { country, language, filter });
-              }}
-            >
-              <span>{label}</span>
-              <b>{filterCount(filter)}</b>
-            </button>
-          );
-        })}
+      <div className="product-filter-shell">
+        <div ref={filterRef} className="product-filter" aria-label={copy.popularTitle}>
+          {productFilters.map((filter) => {
+            const label = filter === "all" ? copy.productCategoryAll : copy.productCategoryLabels[filter];
+            return (
+              <button
+                type="button"
+                key={filter}
+                className={activeFilter === filter ? "is-active" : ""}
+                aria-pressed={activeFilter === filter}
+                onClick={() => {
+                  setActiveFilter(filter);
+                  setExpanded(false);
+                  trackEvent("filter_products", { country, language, filter });
+                }}
+              >
+                <span>{label}</span>
+                <b>{filterCount(filter)}</b>
+              </button>
+            );
+          })}
+        </div>
+        {canScrollFilterRight && (
+          <button
+            type="button"
+            className="product-filter-next"
+            aria-label={filterScrollLabels[language]}
+            onClick={() => {
+              const filter = filterRef.current;
+              filter?.scrollBy({ left: Math.max(180, filter.clientWidth * 0.55), behavior: "smooth" });
+            }}
+          >
+            <span aria-hidden="true">›</span>
+          </button>
+        )}
       </div>
       <div className="product-grid">
         {items.map((product) => {

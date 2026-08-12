@@ -243,9 +243,13 @@ test("mobile localized copy keeps enough width in service cards and overlays", a
 });
 
 test("mobile product filters advertise horizontal scrolling without widening the page", async () => {
-  const styles = await read("app/globals.css");
-  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.products-section \.product-filter \{[^}]*overflow-x:\s*auto;[^}]*scroll-snap-type:\s*x proximity;[^}]*box-shadow:\s*inset -22px/s);
+  const [grid, styles] = await Promise.all([read("components/ProductGrid.tsx"), read("app/globals.css")]);
+  assert.match(grid, /className="product-filter-next"/);
+  assert.match(grid, /filter\?\.scrollBy\(\{ left:/);
+  assert.match(grid, /setCanScrollFilterRight\(filter\.scrollLeft \+ filter\.clientWidth < filter\.scrollWidth - 2\)/);
+  assert.match(styles, /@media \(max-width:\s*759px\)[\s\S]*\.products-section \.product-filter \{[^}]*overflow-x:\s*auto;[^}]*scroll-snap-type:\s*x proximity;[^}]*box-shadow:\s*none/s);
   assert.match(styles, /\.products-section \.product-filter button \{[^}]*scroll-snap-align:\s*start/s);
+  assert.match(styles, /\.products-section \.product-filter-next::before \{[^}]*inset:\s*6px;[^}]*background:\s*rgba\(230,234,236,\.25\)/s);
 });
 
 test("pricing guidance stays only at decision points", async () => {
