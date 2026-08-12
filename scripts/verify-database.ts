@@ -19,10 +19,15 @@ try {
     knowledgeSources: number;
     knowledgeArticles: number;
     knowledgeArticleTranslations: number;
+    draftKnowledgeArticles: number;
+    sourcedDraftKnowledgeArticles: number;
+    chineseDraftKnowledgeTranslations: number;
     productMarketFacts: number;
     productMarketFactTranslations: number;
     shippingRoutes: number;
     shippingRouteTranslations: number;
+    draftCityServiceRoutes: number;
+    customsIncludedCityServiceRoutes: number;
     exchangeRateSnapshots: number;
     profiles: number;
     inquiries: number;
@@ -48,10 +53,15 @@ try {
       (select count(*)::int from knowledge_sources) as "knowledgeSources",
       (select count(*)::int from knowledge_articles) as "knowledgeArticles",
       (select count(*)::int from knowledge_article_translations) as "knowledgeArticleTranslations",
+      (select count(*)::int from knowledge_articles where status = 'draft') as "draftKnowledgeArticles",
+      (select count(*)::int from knowledge_articles where status = 'draft' and source_id is not null) as "sourcedDraftKnowledgeArticles",
+      (select count(*)::int from knowledge_article_translations where locale = 'zh' and status = 'draft') as "chineseDraftKnowledgeTranslations",
       (select count(*)::int from product_market_facts) as "productMarketFacts",
       (select count(*)::int from product_market_fact_translations) as "productMarketFactTranslations",
       (select count(*)::int from shipping_routes) as "shippingRoutes",
       (select count(*)::int from shipping_route_translations) as "shippingRouteTranslations",
+      (select count(*)::int from shipping_routes where status = 'draft' and slug like 'service-cn-%') as "draftCityServiceRoutes",
+      (select count(*)::int from shipping_routes where status = 'draft' and slug like 'service-cn-%' and customs_included is true) as "customsIncludedCityServiceRoutes",
       (select count(*)::int from exchange_rate_snapshots) as "exchangeRateSnapshots",
       (select count(*)::int from profiles) as profiles,
       (select count(*)::int from inquiries) as inquiries,

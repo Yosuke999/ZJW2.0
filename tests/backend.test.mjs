@@ -111,6 +111,34 @@ test("second knowledge batch keeps volatile market, route, and exchange data rev
   assert.match(route, /Never turn a historical transit example into a delivery promise/);
 });
 
+test("knowledge expansion imports sourced Chinese drafts without publishing them", async () => {
+  const [seed, packageJson, verifier] = await Promise.all([
+    read("scripts/seed-knowledge-articles.ts"),
+    read("package.json"),
+    read("scripts/verify-database.ts"),
+  ]);
+
+  assert.match(packageJson, /"db:seed:knowledge": "tsx scripts\/seed-knowledge-articles\.ts"/);
+  assert.match(seed, /railway-construction-status-2026-08/);
+  assert.match(seed, /current-kashgar-irkeshtam-osh-multimodal/);
+  assert.match(seed, /battery-product-transport-review/);
+  assert.match(seed, /mandatory-human-handoff-rules/);
+  assert.match(seed, /operational-delivery-cities-kyrgyzstan/);
+  assert.match(seed, /operational-delivery-cities-uzbekistan/);
+  assert.match(seed, /one-stop-customs-tax-delivery-service/);
+  assert.match(seed, /historical-orders-not-available/);
+  assert.match(seed, /customsIncluded: true/);
+  assert.match(seed, /costBasis: "quote_only"/);
+  assert.match(seed, /暂无可用于公开或训练的历史订单/);
+  assert.match(seed, /sourceId: sourceIds\[item\.source\]/);
+  assert.match(seed, /locale: "zh"/);
+  assert.match(seed, /status: "draft"/);
+  assert.doesNotMatch(seed, /status: "approved"|status: "verified"/);
+  assert.match(verifier, /sourcedDraftKnowledgeArticles/);
+  assert.match(verifier, /chineseDraftKnowledgeTranslations/);
+  assert.match(verifier, /customsIncludedCityServiceRoutes/);
+});
+
 test("initial migration protects user data and uploaded application files", async () => {
   const migration = await read("db/migrations/0000_silent_hex.sql");
 
